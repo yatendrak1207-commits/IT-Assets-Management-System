@@ -1,0 +1,21 @@
+.Card{
+    background-color: rgb(187, 236, 210);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 200px;
+    transition: 0.3s;
+    justify-content: center;
+    text-align: center;
+}   
+.Card :hover{
+    transform: translateY(-5px);
+}
+.Card h3{
+    font-size: 22px;
+    color: #64748b;
+}
+.Card h2{
+    font-size: 28px;
+    margin-top: 10px;
+}

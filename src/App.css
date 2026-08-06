@@ -1,0 +1,6 @@
+.app{
+    display: flex;
+}
+.main-Contaient {
+    flex: 1;
+}
