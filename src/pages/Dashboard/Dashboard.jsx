@@ -1,6 +1,7 @@
 import Card from "../../Components/Card/Card";
 import "./Dashboard.css";
-
+import RecentComplaints from "../../Components/RecentComplaints/RecentComplaints";
+import { complaints } from "../../data/data";
 function Dashboard() {
   return (
     <div className="dashboard">
@@ -11,6 +12,8 @@ function Dashboard() {
         <Card title="Complaints" value="15" />
         <Card title="Repair" value="5" />
       </div>
+      <RecentComplaints complaints={complaints.slice(0, 3)} />
+      <button>View All </button>
     </div>
   );
 }

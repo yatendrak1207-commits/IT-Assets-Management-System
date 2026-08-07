@@ -1,0 +1,40 @@
+.recent-complaint {
+    background-color: rgb(109, 252, 207);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    width: 100%;
+    overflow-x: auto;
+    
+}
+
+.complaint-tabel{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.complaint-tabel td{
+    border: 1px solid black;
+    padding: 10px;
+    text-align: left;
+    font-size: 20px;
+}
+.complaint-tabel th{
+    border: 1px solid black;
+    padding: 10x;
+    text-align: center;
+    font-size: 25px;
+    font-weight: 700;
+    background-color: yellow;
+
+}
+.Pending{
+    background-color:rgb(254, 91, 91);
+    color:black;
+    padding: 5px 10px;
+
+}
+.Resolved{
+    background-color: rgb(30, 239, 30);
+    padding: 5px 10px;
+}

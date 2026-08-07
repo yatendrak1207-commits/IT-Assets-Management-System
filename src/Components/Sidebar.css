@@ -1,10 +1,10 @@
 .sidebar{
     width: 200px;
-    height: 100vh;
     background-color: aquamarine;
     color:black;
     list-style: none;
     padding: 10px;
+    
     
 }
 .sidebar-menu{
@@ -13,13 +13,24 @@
     list-style: none;
     
 }
+.sidebar-menu li{
+    list-style: none;
+    margin: 20px;
+}
 .sidebar-item{
     padding: 10px;
     cursor: pointer;
     margin-bottom: 5px;
+    text-decoration: none;
+    color: black;
 }
 .sidebar-item:hover{
-    background-color: red;
+    background-color:rgb(21, 115, 223);
+}
+.sidebar-item.active{
+    background-color: rgb(21, 115, 223);
+    color: white;
+    border-radius: 8px;
 }
 .sidebar h2{
     text-align: center;
