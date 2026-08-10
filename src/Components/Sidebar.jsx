@@ -22,7 +22,7 @@ function Sidebar() {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/supplier" className="sidebar-item">
+          <NavLink to="/suppiler" className="sidebar-item">
             Suppiler
           </NavLink>
         </li>
@@ -32,7 +32,7 @@ function Sidebar() {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/reports" className="sidebar-item">
+          <NavLink to="/report" className="sidebar-item">
             Reports
           </NavLink>
         </li>

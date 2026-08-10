@@ -12,9 +12,24 @@ export const complaints = [
     phone: "+91 9876543210",
     complaint: "Laptop not starting",
     complaintDate: "2026-08-01",
+    repairDate: "2026-08-01",
     status: "Pending",
     action: "View",
+
+    supplierId: "SUP001",
+    supplierName: "Rajesh Kumar",
+    companyName: "Dell Technologies India",
+    companyEmail: "support.india@dell.com",
+    companyContactNumber: "+91 1800 425 2067",
+    companyAddress: "Bangalore, Karnataka, India",
+    assetsSupplied: "Laptops, Desktops, Monitors",
+
+    repairId: "REP001",
+    repairCenter: "ABC IT Repair Center",
+    estimatedCost: 2500,
+    description: "Laptop power issue needs inspection and repair.",
   },
+
   {
     id: 2,
     employeeId: "EMP002",
@@ -28,9 +43,24 @@ export const complaints = [
     phone: "+91 9876543211",
     complaint: "Keyboard keys not working",
     complaintDate: "2026-08-02",
+    repairDate: "2026-08-02",
     status: "Resolved",
     action: "View",
+
+    supplierId: "SUP002",
+    supplierName: "Amit Sharma",
+    companyName: "HP India",
+    companyEmail: "support@hp.com",
+    companyContactNumber: "+91 1800 258 7170",
+    companyAddress: "Gurugram, Haryana, India",
+    assetsSupplied: "Laptops, Desktops, Printers",
+
+    repairId: "REP002",
+    repairCenter: "TechCare Solutions",
+    estimatedCost: 1200,
+    description: "Faulty keyboard keys replaced and tested.",
   },
+
   {
     id: 3,
     employeeId: "EMP003",
@@ -44,9 +74,24 @@ export const complaints = [
     phone: "+91 9876543212",
     complaint: "Mobile screen flickering",
     complaintDate: "2026-08-02",
+    repairDate: "2026-08-02",
     status: "Pending",
     action: "View",
+
+    supplierId: "SUP003",
+    supplierName: "Suresh Patel",
+    companyName: "Apple India",
+    companyEmail: "support@apple.com",
+    companyContactNumber: "+91 1800 100 9009",
+    companyAddress: "Bengaluru, Karnataka, India",
+    assetsSupplied: "iPhones, MacBooks, iPads",
+
+    repairId: "REP003",
+    repairCenter: "MobileCare Service Center",
+    estimatedCost: 4500,
+    description: "Display panel requires inspection for flickering issue.",
   },
+
   {
     id: 4,
     employeeId: "EMP004",
@@ -60,9 +105,24 @@ export const complaints = [
     phone: "+91 9876543213",
     complaint: "Monitor display issue",
     complaintDate: "2026-08-03",
+    repairDate: "2026-08-03",
     status: "Resolved",
     action: "View",
+
+    supplierId: "SUP004",
+    supplierName: "Vivek Mehta",
+    companyName: "Samsung India",
+    companyEmail: "support@samsung.com",
+    companyContactNumber: "+91 1800 40 7267864",
+    companyAddress: "Noida, Uttar Pradesh, India",
+    assetsSupplied: "Mobile Phones, Monitors, TVs",
+
+    repairId: "REP004",
+    repairCenter: "Samsung Authorized Service Center",
+    estimatedCost: 1800,
+    description: "Display connection checked and issue resolved.",
   },
+
   {
     id: 5,
     employeeId: "EMP005",
@@ -76,9 +136,25 @@ export const complaints = [
     phone: "+91 9876543214",
     complaint: "Printer not printing",
     complaintDate: "2026-08-03",
+    repairDate: "2026-08-03",
     status: "Pending",
     action: "View",
+
+    supplierId: "SUP005",
+    supplierName: "Manoj Verma",
+    companyName: "LG Electronics India",
+    companyEmail: "support@lge.com",
+    companyContactNumber: "+91 1800 315 9999",
+    companyAddress: "Greater Noida, Uttar Pradesh, India",
+    assetsSupplied: "Monitors, Displays, Projectors",
+
+    repairId: "REP005",
+    repairCenter: "Digital Repair Hub",
+    estimatedCost: 2200,
+    description:
+      "Printer connectivity and printing mechanism require inspection.",
   },
+
   {
     id: 6,
     employeeId: "EMP006",
@@ -92,9 +168,24 @@ export const complaints = [
     phone: "+91 9876543215",
     complaint: "Mouse disconnecting frequently",
     complaintDate: "2026-08-04",
+    repairDate: "2026-08-04",
     status: "Resolved",
     action: "View",
+
+    supplierId: "SUP006",
+    supplierName: "Deepak Singh",
+    companyName: "Dell Technologies India",
+    companyEmail: "support.india@dell.com",
+    companyContactNumber: "+91 1800 425 2067",
+    companyAddress: "Bangalore, Karnataka, India",
+    assetsSupplied: "Monitors, Laptops, Desktops",
+
+    repairId: "REP006",
+    repairCenter: "Dell Authorized Service Center",
+    estimatedCost: 800,
+    description: "Mouse connection issue checked and resolved.",
   },
+
   {
     id: 7,
     employeeId: "EMP007",
@@ -108,9 +199,24 @@ export const complaints = [
     phone: "+91 9876543216",
     complaint: "System running slow",
     complaintDate: "2026-08-04",
+    repairDate: "2026-08-04",
     status: "Pending",
     action: "View",
+
+    supplierId: "SUP007",
+    supplierName: "Nitin Jain",
+    companyName: "Logitech India",
+    companyEmail: "support@logitech.com",
+    companyContactNumber: "+91 1800 103 5720",
+    companyAddress: "Mumbai, Maharashtra, India",
+    assetsSupplied: "Keyboards, Mouse, Webcams",
+
+    repairId: "REP007",
+    repairCenter: "QuickFix IT Services",
+    estimatedCost: 1500,
+    description: "System performance needs diagnosis and optimization.",
   },
+
   {
     id: 8,
     employeeId: "EMP008",
@@ -124,9 +230,24 @@ export const complaints = [
     phone: "+91 9876543217",
     complaint: "Wi-Fi not connecting",
     complaintDate: "2026-08-05",
+    repairDate: "2026-08-05",
     status: "Resolved",
     action: "View",
+
+    supplierId: "SUP008",
+    supplierName: "Nitin Jain",
+    companyName: "Logitech India",
+    companyEmail: "support@logitech.com",
+    companyContactNumber: "+91 1800 103 5720",
+    companyAddress: "Mumbai, Maharashtra, India",
+    assetsSupplied: "Keyboards, Mouse, Webcams",
+
+    repairId: "REP008",
+    repairCenter: "Network & IT Solutions",
+    estimatedCost: 1000,
+    description: "Network configuration checked and Wi-Fi connection restored.",
   },
+
   {
     id: 9,
     employeeId: "EMP009",
@@ -140,9 +261,24 @@ export const complaints = [
     phone: "+91 9876543218",
     complaint: "Software installation failed",
     complaintDate: "2026-08-05",
+    repairDate: "2026-08-05",
     status: "Pending",
     action: "View",
+
+    supplierId: "SUP009",
+    supplierName: "Rakesh Gupta",
+    companyName: "Lenovo India",
+    companyEmail: "support@lenovo.com",
+    companyContactNumber: "+91 1800 419 7555",
+    companyAddress: "Bangalore, Karnataka, India",
+    assetsSupplied: "Laptops, Desktops, Tablets",
+
+    repairId: "REP009",
+    repairCenter: "Lenovo Service Center",
+    estimatedCost: 1300,
+    description: "Software installation error needs troubleshooting.",
   },
+
   {
     id: 10,
     employeeId: "EMP010",
@@ -156,7 +292,21 @@ export const complaints = [
     phone: "+91 9876543219",
     complaint: "USB ports not working",
     complaintDate: "2026-08-06",
+    repairDate: "2026-08-06",
     status: "Resolved",
     action: "View",
+
+    supplierId: "SUP010",
+    supplierName: "Pankaj Agarwal",
+    companyName: "Canon India",
+    companyEmail: "support@canon.co.in",
+    companyContactNumber: "+91 1800 208 3366",
+    companyAddress: "Gurugram, Haryana, India",
+    assetsSupplied: "Printers, Scanners, Cameras",
+
+    repairId: "REP010",
+    repairCenter: "Canon Authorized Service Center",
+    estimatedCost: 900,
+    description: "USB connectivity issue diagnosed and resolved.",
   },
 ];

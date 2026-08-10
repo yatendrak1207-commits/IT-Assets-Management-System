@@ -1,0 +1,74 @@
+.suppiler{
+    padding: 20px;
+    flex: 1;
+    background-color: #358de4;
+}
+
+.suppiler-header {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 20px;
+
+}
+
+.suppiler-header h1 {
+    margin-bottom: 10px;
+}
+
+.suppiler-action {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+.suppiler-action input {
+    border-radius: 20px;
+    font-size: 20px;
+}
+
+.suppiler-tabel {
+    justify-content: center;
+    width: 100%;
+    margin-top: 0px;
+    padding: 5px;
+    border-collapse: collapse;
+
+}
+
+.suppiler-tabel th {
+    font-size: 20px;
+    border: 1px solid black;
+    text-align: center;
+    padding: 10px;
+    padding: 10px;
+    background-color: pink;
+}
+
+.suppiler-tabel td {
+    border: 1px solid black;
+    padding: 10px;
+    font-size: 15px;
+    background-color: white;
+}
+
+.table-container {
+    width: 100%;
+    margin-top: 20px;
+    overflow-x: auto;
+    max-height: 500px;
+    overflow-y: auto;
+
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.suppiler-tabel th {
+    position: sticky;
+    top: 0px;
+    z-index: 2;
+}
