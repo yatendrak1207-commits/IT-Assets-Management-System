@@ -9,6 +9,7 @@ import {
   LineChart,
   Pie,
   PieChart,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -54,7 +55,7 @@ export default function Report() {
   const totalemployees = employeeId.length;
 
   const assignedemployees = complaints.filter(function (item) {
-    return item.assigned;
+    return item.assigned && item.employeeStatus == "Active";
   }).length;
 
   const avaliableemployee = totalemployees - assignedemployees;
@@ -64,9 +65,9 @@ export default function Report() {
 
   const employeeReport = {
     title: "Employee",
-    totalLabel: "Total Employee",
-    assignedLabel: "Assigned Employees",
-    availableLabel: "Avaliabel Employees",
+    totalLabel: "Total Employee Seats",
+    assignedLabel: "Assigned Employees Seats",
+    availableLabel: "Avaliabel Employees Seats",
     ReapairLabel: "In-Active Employee",
 
     total: totalemployees,
@@ -78,7 +79,8 @@ export default function Report() {
   const supplierId = complaints.map(function (item) {
     return item.supplierId;
   });
-  const totalsupplier = supplierId.length;
+  const uniqueSuppilers = new Set(supplierId);
+  const totalsupplier = uniqueSuppilers.size;
 
   const activesupplier = complaints.filter(function (item) {
     return item.supplierStatus == "Active";
@@ -91,7 +93,8 @@ export default function Report() {
   const assetsSupplied = complaints.map(function (item) {
     return item.category;
   });
-  const totalAssetsupplier = assetsSupplied.length;
+  const Uniqueassetssupplie = new Set(assetsSupplied);
+  const totalAssetsupplier = Uniqueassetssupplie.size;
 
   const supplierReport = {
     title: "supplier",
@@ -234,38 +237,122 @@ export default function Report() {
       <div className="chart-section">
         <h2>{currentReport.title}Report chart</h2>
 
-        <ResponsiveContainer width="75%" height={300}>
-          <BarChart
-            data={[
-              {
-                name: "Report",
-                assigned: currentReport.assigned,
-                available: currentReport.available,
-                repair: currentReport.repair,
-              },
-            ]}
-            barCategoryGap={60}
-          >
-            <Bar
-              dataKey="assigned"
-              name={currentReport.assignedLabel}
-              fill="blue"
-            />
-            <Bar
-              dataKey="available"
-              name={currentReport.avaliableLabel}
-              fill="green"
-            />
-            <Bar
-              dataKey="repair"
-              name={currentReport.ReapairLabel}
-              fill="yellow"
-            />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <CartesianGrid strokeDasharray="1 1" />
-            <Tooltip />
-          </BarChart>
+        <ResponsiveContainer
+          width="95%"
+          height={300}
+          className={chartType === "pie" ? "pie-chart " : "bar-line-chart"}
+        >
+          {chartType == "bar" && (
+            <BarChart
+              data={[
+                {
+                  name: "Report",
+                  assigned: currentReport.assigned,
+                  available: currentReport.available,
+                  repair: currentReport.repair,
+                },
+              ]}
+              barCategoryGap={60}
+            >
+              <Bar
+                dataKey="assigned"
+                name={currentReport.assignedLabel}
+                fill="blue"
+              />
+              <Bar
+                dataKey="available"
+                name={currentReport.avaliableLabel}
+                fill="green"
+              />
+              <Bar
+                dataKey="repair"
+                name={currentReport.ReapairLabel}
+                fill="yellow"
+              />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <CartesianGrid strokeDasharray="1 1" />
+              <Tooltip />
+            </BarChart>
+          )}
+          {chartType == "line" && (
+            <LineChart
+              data={[
+                {
+                  name: currentReport.assignedLabel,
+                  value: currentReport.assigned,
+                },
+                {
+                  name: currentReport.availableLabel,
+                  value: currentReport.available,
+                },
+                {
+                  name: currentReport.ReapairLabel,
+                  value: currentReport.repair,
+                },
+              ]}
+            >
+              <Line
+                dataKey="value"
+                name={currentReport.assignedLabel}
+                type="monotone"
+                dot={{ r: 6, fill: "blue", stroke: "black", strokeWidth: 2 }}
+              />
+              <Line
+                dataKey="value"
+                name={currentReport.avaliableLabel}
+                type="monotone"
+              />
+              <Line
+                dataKey="value"
+                name={currentReport.ReapairLabel}
+                type="monotone"
+              />
+              <XAxis dataKey="name" />
+              <YAxis width={40} />
+              <CartesianGrid strokeDasharray="1 1" />
+              <Tooltip />
+            </LineChart>
+          )}
+          {chartType == "pie" && (
+            <PieChart>
+              <Pie
+                data={[
+                  {
+                    name: currentReport.assignedLabel,
+                    value: currentReport.assigned,
+                  },
+                  {
+                    name: currentReport.availableLabel,
+                    value: currentReport.available,
+                  },
+                  {
+                    name: currentReport.ReapairLabel,
+                    value: currentReport.repair,
+                  },
+                ]}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={135}
+              >
+                <Cell fill="blue" />
+                <Cell fill="green" />
+                <Cell fill="red" />
+              </Pie>
+
+              <Legend
+                layout="vertical"
+                align="right"
+                verticalAlign="middle"
+                iconType="circle"
+                iconSize={14}
+                wrapperStyle={{ lineHeight: "40px" }}
+              />
+              <Tooltip />
+            </PieChart>
+          )}
         </ResponsiveContainer>
       </div>
     </div>

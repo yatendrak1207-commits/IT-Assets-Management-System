@@ -312,7 +312,7 @@ export const complaints = [
     assetId: "AST010",
     assetName: "Canon Pixma G3010",
     category: "Printer",
-    assigned: "IT Department",
+    assigned: "Anjali Sharma",
     employeeName: "Anjali Sharma",
     employeeStatus: "Active",
     department: "IT",
