@@ -1,7 +1,9 @@
 import React from "react";
+import Card from "../../Components/Card/Card";
 import { useState } from "react";
 import "./Report.css";
 import { complaints } from "../../data/data";
+
 import {
   BarChart,
   Bar,
@@ -234,12 +236,13 @@ export default function Report() {
           <option value="pie">Pie Chart</option>
         </select>
       </div>
-      <div className="chart-section">
+      <div className="chart-heading">
         <h2>{currentReport.title}Report chart</h2>
-
+      </div>
+      <div className="chart-section">
         <ResponsiveContainer
-          width="95%"
-          height={300}
+          width="60%"
+          height={250}
           className={chartType === "pie" ? "pie-chart " : "bar-line-chart"}
         >
           {chartType == "bar" && (
@@ -335,7 +338,7 @@ export default function Report() {
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                outerRadius={135}
+                outerRadius={110}
               >
                 <Cell fill="blue" />
                 <Cell fill="green" />
@@ -344,11 +347,11 @@ export default function Report() {
 
               <Legend
                 layout="vertical"
-                align="right"
+                align="center"
                 verticalAlign="middle"
                 iconType="circle"
-                iconSize={14}
-                wrapperStyle={{ lineHeight: "40px" }}
+                iconSize={20}
+                wrapperStyle={{ lineHeight: "50px", marginLeft: "250px" }}
               />
               <Tooltip />
             </PieChart>

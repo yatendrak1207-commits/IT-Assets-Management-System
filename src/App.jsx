@@ -10,6 +10,7 @@ import Employees from "./pages/Employees/Employees";
 import Suppiler from "./pages/Suppiler/Suppiler";
 import Repair from "./pages/Repair/Repair";
 import Report from "./pages/Report/Report";
+import Settings from "./pages/Settings/settings";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/suppiler" element={<Suppiler />} />
             <Route path="/repair" element={<Repair />} />
             <Route path="/report" element={<Report />} />
+            <Route path="/settings" element={<Settings />} />
           </Route>
         </Routes>
       </div>

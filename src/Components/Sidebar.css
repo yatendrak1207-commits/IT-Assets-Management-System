@@ -1,28 +1,37 @@
 .sidebar{
     width: 200px;
+    
     background-color: aquamarine;
     color:black;
     list-style: none;
     padding: 10px;
-    
+    min-height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
     
 }
 .sidebar-menu{
     justify-content: center;
     padding: 0px;
     list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;  
     
 }
 .sidebar-menu li{
     list-style: none;
-    margin: 20px;
+    margin: 5px 20px;
+    display: flex;
 }
 .sidebar-item{
-    padding: 10px;
+    padding: 15px;
     cursor: pointer;
-    margin-bottom: 5px;
+    margin-bottom: 0px;
     text-decoration: none;
     color: black;
+    
+    
 }
 .sidebar-item:hover{
     background-color:rgb(21, 115, 223);
