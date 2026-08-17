@@ -1,0 +1,41 @@
+.profile-header{
+    background-color: pink;
+    display:flex;
+    gap: 50px;
+    justify-content: center;
+}
+.profile-photo img{
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+.profile-header-info{
+    font-size: 25px;
+    display: flex;
+    flex-direction: column;
+}
+.profile-detail{
+    display: flex;
+    gap: 60px;
+    padding: 30px;
+}
+.personal-info,
+.account-info{
+    flex: 1;
+    
+}
+.personal-info h1,
+.account-info h1{
+    text-align: center;
+}
+.profile-detail label{
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 30px;
+    margin: 15px 0;
+    font-size: 15px;
+}
+.profile-detail label strong{
+    text-align: left;
+}

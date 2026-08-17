@@ -11,6 +11,7 @@ import Suppiler from "./pages/Suppiler/Suppiler";
 import Repair from "./pages/Repair/Repair";
 import Report from "./pages/Report/Report";
 import Settings from "./pages/Settings/settings";
+import Profile from "./pages/Profile/Profile";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route path="/repair" element={<Repair />} />
             <Route path="/report" element={<Report />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
         </Routes>
       </div>
