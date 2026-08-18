@@ -18,3 +18,50 @@
     overflow-y:auto;
     
 }
+.logout-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+
+    z-index: 1000;
+}
+
+.logout-box {
+    width: 500px;
+    height: 300px;
+    padding: 30px;
+    background-color: rgb(115, 225, 255);
+    border-radius: 10px;
+    text-align: center;
+    border-radius: 10px;
+}
+.logout-text{
+    padding: 20px;
+}
+.logout-text h2{
+    padding: 20px;
+    text-decoration: underline;
+    color: orangered;
+    font-size: 30px;
+}
+.logout-text p{
+    font-size: 20px;
+}
+.cancel-btn{
+    background-color: white;
+    padding: 10px 20px;
+}
+.logout-btn{
+    background-color: rgb(255, 48, 48);
+    color: aliceblue;
+    padding: 10px 20px;
+}

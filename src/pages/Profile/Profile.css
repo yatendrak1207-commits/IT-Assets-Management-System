@@ -1,14 +1,54 @@
+.Profile{
+    display: flex;
+    flex-direction: column;
+   align-items: center;
+    height: 100vh;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.Profile h2{
+    font-size: 50px;
+    text-decoration: underline;
+    text-shadow:0svb;
+}
+.Profile button{
+    width: 170px;
+    height:70px;
+    background-color: rgb(55, 249, 55);
+    font-size: 20px;
+    margin-bottom: 20px;
+    padding: 20px;
+    align-items: center;
+    display: flex;
+    border-radius: 20px;
+}
+.Profile button.edit-mode{
+    background-color: aqua;
+}
+
 .profile-header{
-    background-color: pink;
+    background-color: oklch(89.507% 0.13647 158.803);
     display:flex;
-    gap: 50px;
+    gap: 60px;
     justify-content: center;
+    width: 1060px;
+    height: 150px;
+    margin-top: 15px;
+    margin-bottom: 30px;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid black;
+    padding: 10px;
+    
 }
 .profile-photo img{
     width: 120px;
     height: 120px;
     object-fit: cover;
     border-radius: 50%;
+   border: 2px solid black;
 }
 .profile-header-info{
     font-size: 25px;
@@ -23,18 +63,39 @@
 .personal-info,
 .account-info{
     flex: 1;
+    background-color:oklch(89.507% 0.13647 158.803);
+    width: 500px;
+    height:300px;
+    border: 2px solid black;
+    padding: 0 20px;
+    box-sizing: border-box;
     
 }
 .personal-info h1,
 .account-info h1{
     text-align: center;
+    text-decoration: underline;
 }
+
 .profile-detail label{
     display: grid;
-    grid-template-columns: 180px 1fr;
-    gap: 30px;
-    margin: 15px 0;
+    grid-template-columns: 250px 1fr;
+    gap: 20px 30px;
+    margin: 20px 0;
     font-size: 15px;
+    align-items: center;
+
+}
+.profile-detail input,
+.profile-detail label h2{
+    margin: 0;
+    font-size: 20px;
+
+
+}
+.profile-detail input{
+    width: 190px;
+    font-size: 18px;
 }
 .profile-detail label strong{
     text-align: left;

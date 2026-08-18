@@ -1,7 +1,7 @@
 import "./Sidebar.css";
 import { NavLink } from "react-router-dom";
-
-function Sidebar() {
+import { useState } from "react";
+function Sidebar({ setShowlogout }) {
   return (
     <div className="sidebar">
       <h2>IT Assets</h2>
@@ -47,9 +47,15 @@ function Sidebar() {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/logout" className="sidebar-item">
+          <button
+            className="sidebar-item"
+            onClick={function () {
+              console.log("logout   clickerd");
+              setShowlogout(true);
+            }}
+          >
             Log-Out
-          </NavLink>
+          </button>
         </li>
       </ul>
     </div>

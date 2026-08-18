@@ -1,7 +1,7 @@
 .assets{
     padding: 20px;
     flex: 1;
-    background-color: #358de4;
+    background-color: white;
 }
 .assets-header{
     justify-content: center;
@@ -21,6 +21,8 @@
 .assets-action input{
     border-radius: 20px;
     font-size: 20px;
+    width: 500px;
+    height: 50px;
 }
 .assets-tabel{
     justify-content: center;
@@ -36,7 +38,7 @@
     text-align: center;
     padding: 10px;
     padding: 10px;
-    background-color: pink;
+    background-color: oklch(89.507% 0.13647 158.803);
 }
 .assets-tabel td{
     border: 1px solid black;

@@ -1,13 +1,44 @@
 import { complaints } from "../../data/data";
 import "./Assets.css";
+import { useState } from "react";
 
 function Assets() {
+  const [search, setSearch] = useState("");
+  const filtereddAssets = complaints.filter(function (item) {
+    return (
+      item.assetId.toLowerCase().includes(search.toLowerCase()) ||
+      item.assetName.toLowerCase().includes(search.toLowerCase()) ||
+      item.category.toLowerCase().includes(search.toLowerCase())
+    );
+  });
+  function highlightText(text) {
+    if (!search) {
+      return text;
+    }
+
+    const parts = text.split(new RegExp("(" + search + ")", "gi"));
+
+    return parts.map(function (part, index) {
+      if (part.toLowerCase() === search.toLowerCase()) {
+        return <mark key={index}>{part}</mark>;
+      }
+
+      return part;
+    });
+  }
   return (
     <div className="assets">
       <div className="assets-header">
         <h1>Assets</h1>
         <div className="assets-action">
-          <input type="text" placeholder="Search Assets" />
+          <input
+            type="text"
+            placeholder="Search by Asset Name/ID/Category"
+            value={search}
+            onChange={function (x) {
+              setSearch(x.target.value);
+            }}
+          />
           <button>Add Asset</button>
         </div>
       </div>
@@ -24,12 +55,12 @@ function Assets() {
             </tr>
           </thead>
           <tbody>
-            {complaints.map(function (item) {
+            {filtereddAssets.map(function (item) {
               return (
                 <tr key={item.id}>
-                  <td>{item.assetId}</td>
-                  <td>{item.assetName}</td>
-                  <td>{item.category}</td>
+                  <td>{highlightText(item.assetId)}</td>
+                  <td>{highlightText(item.assetName)}</td>
+                  <td>{highlightText(item.category)}</td>
                   <td>{item.assigned}</td>
                   <td>{item.status}</td>
                   <td>

@@ -1,11 +1,14 @@
 .recent-complaint {
-    background-color: rgb(109, 252, 207);
-    padding: 20px;
+    
     border-radius: 10px;
     margin-top: 20px;
     width: 100%;
     overflow-x: auto;
     
+}
+.recent-complaint h2{
+    font-size: 30px;
+    text-decoration: underline;
 }
 
 .complaint-tabel{
@@ -25,7 +28,7 @@
     text-align: center;
     font-size: 25px;
     font-weight: 700;
-    background-color: yellow;
+    background-color:oklch(89.507% 0.13647 158.803);
 
 }
 .Pending{

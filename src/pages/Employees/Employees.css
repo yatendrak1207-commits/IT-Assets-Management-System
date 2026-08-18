@@ -1,7 +1,7 @@
 .employees{
     padding: 20px;
     flex: 1;
-    background-color: #358de4;
+    background-color: white;
 }
 
 .employees-header {
@@ -25,6 +25,8 @@
 .employees-action input {
     border-radius: 20px;
     font-size: 20px;
+    width: 500px;
+    height: 50px;
 }
 
 .employees-tabel {
@@ -42,7 +44,7 @@
     text-align: center;
     padding: 10px;
     padding: 10px;
-    background-color: pink;
+    background-color: oklch(89.507% 0.13647 158.803);
 }
 
 .employees-tabel td {
@@ -71,4 +73,85 @@
     position: sticky;
     top: 0px;
     z-index: 2;
+}
+.employee-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.employee-form {
+    width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+
+    padding: 30px;
+    background-color: white;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.employee-form h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 25px;
+    text-decoration: underline;
+}
+
+.employee-form input,
+.employee-form select {
+    display: block;
+    width: 100%;
+    height: 45px;
+    margin-bottom: 15px;
+    padding: 10px 12px;
+
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 15px;
+}
+
+.employee-form input:focus,
+.employee-form select:focus {
+    outline: none;
+    border: 2px solid rgb(21, 115, 223);
+}
+
+.employee-form-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 25px;
+}
+
+.employee-form-buttons button {
+    width: 130px;
+    height: 45px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.employee-form-buttons button:hover {
+    opacity: 0.85;
+}
+.save-btn{
+    background-color: rgb(17, 246, 10);
+}
+.cancel-btn{
+    background-color: bisque;
 }
