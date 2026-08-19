@@ -5,6 +5,8 @@ import { useState } from "react";
 import { FunnelChart } from "recharts";
 function Employees() {
   const [search, setSeacrh] = useState("");
+  const [editingItem, setEditingItem] = useState(null);
+  const [selecteditem, setSelectedItem] = useState(null);
   const [employee, setEmployee] = useState(complaints);
   const [showform, setShowform] = useState(false);
   const [empid, setEmpid] = useState("");
@@ -33,6 +35,47 @@ function Employees() {
 
       return part;
     });
+  }
+  function handleSaveEmployee() {
+    if (editingItem) {
+      const updatedemployee = employee.map(function (employeeItem) {
+        if (employeeItem.id === editingItem.id) {
+          return {
+            ...employeeItem,
+            employeeId: empid,
+            employeeName: empname,
+            department: department,
+            email: email,
+            phone: phoneno,
+          };
+        }
+
+        return employeeItem;
+      });
+
+      setEmployee(updatedemployee);
+    } else {
+      const newemployee = {
+        id: Date.now(),
+        employeeId: empid,
+        employeeName: empname,
+        department: department,
+        email: email,
+        phone: phoneno,
+      };
+
+      setEmployee([...employee, newemployee]);
+    }
+
+    setShowform(false);
+
+    setEditingItem(null);
+
+    setEmpid("");
+    setempName("");
+    setDepartment("");
+    setEmail("");
+    setPhoneno("");
   }
   return (
     <div className="employees">
@@ -79,9 +122,42 @@ function Employees() {
                   <td>{item.phone}</td>
                   <td>
                     <div className="action-buttons">
-                      <button className="view-btn">View</button>
-                      <button className="delete-btn">Delete</button>
-                      <button className="update-btn">Update</button>
+                      <button
+                        className="view-btn"
+                        onClick={function () {
+                          setSelectedItem(item);
+                        }}
+                      >
+                        View
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={function () {
+                          setEmployee(
+                            employee.filter(function (x) {
+                              return x.id !== item.id;
+                            }),
+                          );
+                        }}
+                      >
+                        Delete
+                      </button>
+                      <button
+                        className="update-btn"
+                        onClick={function () {
+                          setEditingItem(item);
+
+                          setEmpid(item.employeeId);
+                          setempName(item.employeeName);
+                          setDepartment(item.department);
+                          setEmail(item.email);
+                          setPhoneno(item.phone);
+
+                          setShowform(true);
+                        }}
+                      >
+                        Update
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -89,78 +165,119 @@ function Employees() {
             })}
           </tbody>
         </table>
+        {selecteditem && (
+          <div className="view-overlay">
+            <div className="view-form">
+              <h2>Assets Details</h2>
+
+              <p>
+                <strong>Employee ID:</strong> {selecteditem.employeeId}
+              </p>
+              <p>
+                <strong>Employee Name:</strong> {selecteditem.employeeName}
+              </p>
+              <p>
+                <strong>Department:</strong> {selecteditem.department}
+              </p>
+              <p>
+                <strong>Email:</strong> {selecteditem.email}
+              </p>
+              <p>
+                <strong>Phone No. :</strong> {selecteditem.phone}
+              </p>
+              <p>
+                <strong>Employee Status :</strong> {selecteditem.employeeStatus}
+              </p>
+              <button
+                onClick={function () {
+                  setSelectedItem(null);
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       {showform && (
         <div className="employee-overlay">
           <div className="employee-form">
-            <h2>Add Employee</h2>
-
-            <input
-              type="text"
-              placeholder="Employee ID"
-              value={empid}
-              onChange={function (x) {
-                setEmpid(x.target.value);
-              }}
-            />
-
-            <input
-              type="text"
-              placeholder="Employee Name"
-              value={empname}
-              onChange={function (x) {
-                setempName(x.target.value);
-              }}
-            />
-            <input
-              type="text"
-              placeholder="Department"
-              value={department}
-              onChange={function (x) {
-                setDepartment(x.target.value);
-              }}
-            />
-            <input
-              type="text"
-              placeholder="Email"
-              value={email}
-              onChange={function (x) {
-                setEmail(x.target.value);
-              }}
-            />
-            <input
-              type="number"
-              placeholder="Employee phone No."
-              value={phoneno}
-              onChange={function (x) {
-                setPhoneno(x.target.value);
-              }}
-            />
+            <h2>{editingItem ? "Update details" : "Add Employee"}</h2>
+            <div className="form-field">
+              <label>Employee ID</label>
+              <input
+                type="text"
+                placeholder="Employee ID"
+                value={empid}
+                onChange={function (x) {
+                  setEmpid(x.target.value);
+                }}
+              />
+            </div>
+            <div className="form-field">
+              <label>Employee Name</label>
+              <input
+                type="text"
+                placeholder="Employee Name"
+                value={empname}
+                onChange={function (x) {
+                  setempName(x.target.value);
+                }}
+              />
+            </div>
+            <div className="form-field">
+              <label>Department</label>
+              <select
+                value={department}
+                onChange={function (x) {
+                  setDepartment(x.target.value);
+                }}
+              >
+                <option value="" disabled>
+                  {" "}
+                  Department
+                </option>
+                <option value="it">IT</option>
+                <option value="hr">HR</option>
+                <option value="finance">Finance</option>
+                <option value="sales">Sales</option>
+                <option value="marketing">Marketing</option>
+                <option value="operation">Opertions</option>
+                <option value="administration">Administration</option>
+                <option value="customer-support">Customer Support</option>
+                <option value="procurement">Procurement</option>
+                <option value="management">Management</option>
+              </select>
+            </div>
+            <div className="form-field">
+              <label>E-mail ID</label>
+              <input
+                type="text"
+                placeholder="Email"
+                value={email}
+                onChange={function (x) {
+                  setEmail(x.target.value);
+                }}
+              />
+            </div>
+            <div className="form-field">
+              <label>Phone No.</label>
+              <input
+                type="text"
+                placeholder="Employee phone No."
+                value={phoneno}
+                onChange={function (x) {
+                  setPhoneno(x.target.value);
+                }}
+              />
+            </div>
 
             <div className="employee-form-buttons">
               <button
                 className="cancel-btn"
                 onClick={function () {
                   setShowform(false);
-                }}
-              >
-                Cancel
-              </button>
-
-              <button
-                className="save-btn"
-                onClick={function () {
-                  const newemployee = {
-                    id: Date.now(),
-                    employeeId: empid,
-                    employeeName: empname,
-                    department: department,
-                    email: email,
-                    phone: phoneno,
-                  };
-
-                  setEmployee([...employee, newemployee]);
-                  setShowform(false);
+                  setEditingItem(null);
 
                   setEmpid("");
                   setempName("");
@@ -169,7 +286,11 @@ function Employees() {
                   setPhoneno("");
                 }}
               >
-                Save Employee
+                Cancel
+              </button>
+
+              <button className="save-btn" onClick={handleSaveEmployee}>
+                {editingItem ? "Update Employee" : "Save Employee"}
               </button>
             </div>
           </div>
