@@ -1,14 +1,19 @@
 .navbar {
     height: 100px;
-    background-color: #02ad8e;
+    background-color: #123b36;
     color: white;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0px 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    border: 3px solid black;
+    border: 2px solid white;
     
+}
+.navbar-center svg {
+    font-size: 35px;
+    flex-shrink: 0;
+    margin-right: 10px;
 }
 .navbar-left h2 {
     font-size: 25px;
@@ -18,13 +23,14 @@
 .navbar-center{ 
     width: 40%;
 }
-.navbar-center input{
+.navbar-center h1{
     width: 100%;
     padding:  10px 15px;
     border-radius: 20px;
     border: none;
     outline: none;
     transition: 0.3s;
+    font-size: 35px;
     
     
 }
@@ -52,4 +58,10 @@
 }
 .nav-icon :hover{
     color: rgb(253, 216, 4);
+}
+.divider {
+    width: 1px;
+    height: 30px;
+    background-color: white;
+    margin: 0 15px;
 }

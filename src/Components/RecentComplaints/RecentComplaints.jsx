@@ -22,7 +22,13 @@ function RecentComplaints({ complaints }) {
                 <td>{item.complaint}</td>
                 <td>{item.complaintDate}</td>
                 <td
-                  className={item.status == "Pending" ? "Pending" : "Resolved"}
+                  className={
+                    item.status === "Open"
+                      ? "Open"
+                      : item.status === "In Progress"
+                        ? "Progress"
+                        : "Resolved"
+                  }
                 >
                   {item.status}
                 </td>

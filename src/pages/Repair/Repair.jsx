@@ -3,6 +3,8 @@ import { complaints } from "../../data/data";
 import "./Repair.css";
 import { useState } from "react";
 import { data } from "react-router-dom";
+import { FaPlus } from "react-icons/fa";
+import { GiAutoRepair } from "react-icons/gi";
 export default function Repair() {
   const [search, setsearch] = useState("");
   const [editingItem, setEditingItem] = useState(null);
@@ -84,23 +86,29 @@ export default function Repair() {
   return (
     <div className="repair">
       <div className="repair-header">
-        <h1>Repair</h1>
         <div className="repair-action">
-          <input
-            type="text"
-            placeholder="Search by Asset Name/Assigned/status "
-            value={search}
-            onChange={function (x) {
-              setsearch(x.target.value);
-            }}
-          />
-          <button
-            onClick={function () {
-              setShowform(true);
-            }}
-          >
-            Add Repair
-          </button>
+          <h1>
+            <GiAutoRepair />
+            Repair
+          </h1>
+          <div className="repair-action-btn">
+            <input
+              type="text"
+              placeholder="Search by Asset Name/Assigned/status "
+              value={search}
+              onChange={function (x) {
+                setsearch(x.target.value);
+              }}
+            />
+            <button
+              onClick={function () {
+                setShowform(true);
+              }}
+            >
+              <FaPlus />
+              Add Repair
+            </button>
+          </div>
         </div>
       </div>
       <div className="table-container">
@@ -125,7 +133,17 @@ export default function Repair() {
                   <td>{highlightText(item.assigned)}</td>
                   <td>{item.complaint}</td>
                   <td>{item.complaintDate}</td>
-                  <td>{highlightText(item.status)}</td>
+                  <td
+                    className={
+                      item.status === "Open"
+                        ? "Open"
+                        : item.status === "In Progress"
+                          ? "Progress"
+                          : "Resolved"
+                    }
+                  >
+                    {highlightText(item.status)}
+                  </td>
                   <td>
                     <div className="action-buttons">
                       <button

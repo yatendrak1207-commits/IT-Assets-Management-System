@@ -1,6 +1,7 @@
 import React from "react";
 import "./Profile.css";
 import { useState } from "react";
+import { FaUser } from "react-icons/fa";
 
 function Profile() {
   const [editmode, setEditmode] = useState(false);
@@ -11,10 +12,13 @@ function Profile() {
   const [designation, setDesignation] = useState("Administrator");
   return (
     <div className="Profile">
-      <h2>PROFILE</h2>
+      <h2>
+        <FaUser />
+        PROFILE
+      </h2>
       <div className="profile-header">
         <div className="profile-photo">
-          <img src="./banner-right-image.png" alt="Banner" />
+          <img src="./slk.jpg" alt="owner" />
         </div>
         <div className="profile-header-info">
           <label>Yatendra Kumar</label>

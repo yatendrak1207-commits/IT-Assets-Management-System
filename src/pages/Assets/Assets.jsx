@@ -1,7 +1,8 @@
 import { complaints } from "../../data/data";
 import "./Assets.css";
 import { useState } from "react";
-
+import { FaPlus } from "react-icons/fa";
+import { LuMonitorSpeaker } from "react-icons/lu";
 function Assets() {
   const [search, setSearch] = useState("");
   const [editingItem, setEditingItem] = useState(null);
@@ -79,23 +80,29 @@ function Assets() {
   return (
     <div className="assets">
       <div className="assets-header">
-        <h1>Assets</h1>
         <div className="assets-action">
-          <input
-            type="text"
-            placeholder="Search by Asset Name/ID/Category"
-            value={search}
-            onChange={function (x) {
-              setSearch(x.target.value);
-            }}
-          />
-          <button
-            onClick={function () {
-              setShowform(true);
-            }}
-          >
-            Add Asset
-          </button>
+          <h1>
+            <LuMonitorSpeaker />
+            Assets
+          </h1>
+          <div className="assets-action-btn">
+            <input
+              type="text"
+              placeholder="Search________"
+              value={search}
+              onChange={function (x) {
+                setSearch(x.target.value);
+              }}
+            />
+            <button
+              onClick={function () {
+                setShowform(true);
+              }}
+            >
+              <FaPlus />
+              Add Asset
+            </button>
+          </div>
         </div>
       </div>
       <div className="table-container">

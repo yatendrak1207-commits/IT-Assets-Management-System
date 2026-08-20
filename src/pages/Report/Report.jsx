@@ -3,7 +3,7 @@ import Card from "../../Components/Card/Card";
 import { useState } from "react";
 import "./Report.css";
 import { complaints } from "../../data/data";
-
+import { IoBarChart } from "react-icons/io5";
 import {
   BarChart,
   Bar,
@@ -188,7 +188,10 @@ export default function Report() {
   return (
     <div className="report">
       <div className="report-header">
-        <h1>Report</h1>
+        <h1>
+          <IoBarChart />
+          Report
+        </h1>
         <div className="report-filter">
           <label>Report for</label>
           <select

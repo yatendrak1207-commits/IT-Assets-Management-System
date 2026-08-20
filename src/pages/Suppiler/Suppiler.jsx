@@ -2,6 +2,8 @@ import React from "react";
 import "./Suppiler.css";
 import { complaints } from "../../data/data";
 import { useState } from "react";
+import { FaPlus } from "react-icons/fa";
+import { FaTruck } from "react-icons/fa6";
 function Suppiler() {
   const [search, setSeacrh] = useState("");
   const [editingItem, setEditingItem] = useState(null);
@@ -75,23 +77,29 @@ function Suppiler() {
   return (
     <div className="suppiler">
       <div className="suppiler-header">
-        <h1>Supplier</h1>
         <div className="suppiler-action">
-          <input
-            type="text"
-            placeholder="Search by Supplier Name & Company"
-            value={search}
-            onChange={function (x) {
-              setSeacrh(x.target.value);
-            }}
-          />
-          <button
-            onClick={function () {
-              setShowform(true);
-            }}
-          >
-            Add supplier
-          </button>
+          <h1>
+            <FaTruck />
+            Supplier
+          </h1>
+          <div className="supplier-action-btn">
+            <input
+              type="text"
+              placeholder="Search by Supplier Name & Company"
+              value={search}
+              onChange={function (x) {
+                setSeacrh(x.target.value);
+              }}
+            />
+            <button
+              onClick={function () {
+                setShowform(true);
+              }}
+            >
+              <FaPlus />
+              Add supplier
+            </button>
+          </div>
         </div>
       </div>
       <div className="table-container">

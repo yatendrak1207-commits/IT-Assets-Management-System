@@ -2,10 +2,14 @@ import Card from "../../Components/Card/Card";
 import "./Dashboard.css";
 import RecentComplaints from "../../Components/RecentComplaints/RecentComplaints";
 import { complaints } from "../../data/data";
+import { MdOutlineDashboard } from "react-icons/md";
 function Dashboard() {
   return (
     <div className="dashboard">
-      <h1>DashBoard</h1>
+      <h1>
+        <MdOutlineDashboard />
+        DashBoard
+      </h1>
       <div className="card-container">
         <Card title="Total Assets" value="250" />
         <Card title="Employees" value="80" />

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./settings.css";
 import { use } from "react";
+import { IoSettings } from "react-icons/io5";
 
 function Settings() {
   /*------------------useStates----------------*/
@@ -46,7 +47,10 @@ function Settings() {
   return (
     /*----------setting--------------- */
     <div className="settings">
-      <h1>Settings</h1>
+      <h1>
+        <IoSettings />
+        Settings
+      </h1>
       {/*--------------Gernal setting------------*/}
       <div
         className="settings-section-header"

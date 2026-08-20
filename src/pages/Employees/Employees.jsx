@@ -3,6 +3,8 @@ import { complaints } from "../../data/data";
 import "./Employees.css";
 import { useState } from "react";
 import { FunnelChart } from "recharts";
+import { FaPlus } from "react-icons/fa";
+import { BsFillPeopleFill } from "react-icons/bs";
 function Employees() {
   const [search, setSeacrh] = useState("");
   const [editingItem, setEditingItem] = useState(null);
@@ -80,23 +82,29 @@ function Employees() {
   return (
     <div className="employees">
       <div className="employees-header">
-        <h1>Employees</h1>
         <div className="employees-action">
-          <input
-            type="text"
-            placeholder="Search by employee Name/ID/Department"
-            value={search}
-            onChange={function (x) {
-              setSeacrh(x.target.value);
-            }}
-          />
-          <button
-            onClick={function () {
-              setShowform(true);
-            }}
-          >
-            Add Employee
-          </button>
+          <h1>
+            <BsFillPeopleFill />
+            Employees
+          </h1>
+          <div className="employees-action-btn">
+            <input
+              type="text"
+              placeholder="Search--------"
+              value={search}
+              onChange={function (x) {
+                setSeacrh(x.target.value);
+              }}
+            />
+            <button
+              onClick={function () {
+                setShowform(true);
+              }}
+            >
+              <FaPlus />
+              Add Employee
+            </button>
+          </div>
         </div>
       </div>
       <div className="table-container">
@@ -228,12 +236,13 @@ function Employees() {
             <div className="form-field">
               <label>Department</label>
               <select
+                className={department === "" ? "placeholder" : ""}
                 value={department}
                 onChange={function (x) {
                   setDepartment(x.target.value);
                 }}
               >
-                <option value="" disabled>
+                <option value="" disabled hidden>
                   {" "}
                   Department
                 </option>
