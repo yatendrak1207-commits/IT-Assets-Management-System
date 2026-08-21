@@ -5,6 +5,7 @@ import { useState } from "react";
 import { data } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
 import { GiAutoRepair } from "react-icons/gi";
+import { MdManageSearch } from "react-icons/md";
 export default function Repair() {
   const [search, setsearch] = useState("");
   const [editingItem, setEditingItem] = useState(null);
@@ -92,14 +93,17 @@ export default function Repair() {
             Repair
           </h1>
           <div className="repair-action-btn">
-            <input
-              type="text"
-              placeholder="Search by Asset Name/Assigned/status "
-              value={search}
-              onChange={function (x) {
-                setsearch(x.target.value);
-              }}
-            />
+            <div className="search-box">
+              <MdManageSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search__________ "
+                value={search}
+                onChange={function (x) {
+                  setsearch(x.target.value);
+                }}
+              />
+            </div>
             <button
               onClick={function () {
                 setShowform(true);
@@ -312,6 +316,7 @@ export default function Repair() {
 
             <div className="repair-form-buttons">
               <button
+                className="cancel"
                 onClick={function () {
                   setShowform(false);
                   setEditingItem(null);
@@ -327,7 +332,7 @@ export default function Repair() {
                 Cancel
               </button>
 
-              <button onClick={handleSaveRepair}>
+              <button className="update-add" onClick={handleSaveRepair}>
                 {editingItem ? "Update details" : "Add Repair"}
               </button>
             </div>

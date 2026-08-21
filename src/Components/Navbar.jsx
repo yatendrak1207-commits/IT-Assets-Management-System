@@ -7,7 +7,7 @@ function Navbar() {
   return (
     <div className="navbar">
       <div className="navbar-left">
-        <h2>Dashboard</h2>
+        <h2>👤 Hello, Admin</h2>
       </div>
       <div className="navbar-center">
         <h1>

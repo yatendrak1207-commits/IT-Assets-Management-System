@@ -4,6 +4,8 @@ import { complaints } from "../../data/data";
 import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { FaTruck } from "react-icons/fa6";
+import { MdManageSearch } from "react-icons/md";
+
 function Suppiler() {
   const [search, setSeacrh] = useState("");
   const [editingItem, setEditingItem] = useState(null);
@@ -83,14 +85,17 @@ function Suppiler() {
             Supplier
           </h1>
           <div className="supplier-action-btn">
-            <input
-              type="text"
-              placeholder="Search by Supplier Name & Company"
-              value={search}
-              onChange={function (x) {
-                setSeacrh(x.target.value);
-              }}
-            />
+            <div className="search-box">
+              <MdManageSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search_________"
+                value={search}
+                onChange={function (x) {
+                  setSeacrh(x.target.value);
+                }}
+              />
+            </div>
             <button
               onClick={function () {
                 setShowform(true);
@@ -258,7 +263,7 @@ function Suppiler() {
             </div>
             <div className="supplier-form-buttons">
               <button
-                className="cancel-btn"
+                className="cancel"
                 onClick={function () {
                   setShowform(false);
                   setEditingItem(null);
@@ -272,7 +277,7 @@ function Suppiler() {
                 Cancel
               </button>
 
-              <button className="save-btn" onClick={handleSaveSupplier}>
+              <button className="update-add" onClick={handleSaveSupplier}>
                 {editingItem ? "Update Supplier" : "Save Supplier"}
               </button>
             </div>

@@ -32,7 +32,6 @@
     margin: 0;
     font-size: 35px;
     color: #09325a;
-    text-decoration: underline;
 }
 
 .Profile h2 svg {
@@ -49,7 +48,8 @@
     height: 50px;
 
     margin-bottom: 25px;
-    padding: 0;
+    margin-top: 15px;
+    padding: 10px;
 
     display: flex;
     justify-content: center;
@@ -180,7 +180,7 @@
 
     border: 1px solid #dce9e5;
     border-radius: 10px;
-
+    
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
@@ -197,7 +197,7 @@
 
     text-align: center;
 
-    font-size: 20px;
+    font-size: 25px;
     font-weight: 600;
 
     text-decoration: none;
@@ -209,6 +209,10 @@
     border-bottom: 1px solid #d5e6e1;
 }
 
+.personal-info h2,
+.account-info h2{
+    font-size: 30px;
+}
 
 /* =========================================================
    PROFILE LABELS
@@ -255,7 +259,7 @@
 .profile-detail label h2 {
     margin: 0;
 
-    font-size: 15px;
+    font-size: 20px;
     font-weight: 400;
 
     color: #222;

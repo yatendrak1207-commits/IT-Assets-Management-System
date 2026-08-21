@@ -3,6 +3,7 @@ import "./Assets.css";
 import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { LuMonitorSpeaker } from "react-icons/lu";
+import { MdManageSearch } from "react-icons/md";
 function Assets() {
   const [search, setSearch] = useState("");
   const [editingItem, setEditingItem] = useState(null);
@@ -86,14 +87,17 @@ function Assets() {
             Assets
           </h1>
           <div className="assets-action-btn">
-            <input
-              type="text"
-              placeholder="Search________"
-              value={search}
-              onChange={function (x) {
-                setSearch(x.target.value);
-              }}
-            />
+            <div className="search-box">
+              <MdManageSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search________"
+                value={search}
+                onChange={function (x) {
+                  setSearch(x.target.value);
+                }}
+              />
+            </div>
             <button
               onClick={function () {
                 setShowform(true);
@@ -289,7 +293,7 @@ function Assets() {
 
             <div className="asset-form-buttons">
               <button
-                className="cancel-btn"
+                className="cancel"
                 onClick={function () {
                   setShowform(false);
                   setEditingItem(null);
@@ -304,8 +308,8 @@ function Assets() {
                 Cancel
               </button>
 
-              <button className="save-btn" onClick={handleSaveAsset}>
-                Save Assets
+              <button className="update-add" click={handleSaveAsset}>
+                {editingItem ? "Update Details" : "Assets Details"}
               </button>
             </div>
           </div>

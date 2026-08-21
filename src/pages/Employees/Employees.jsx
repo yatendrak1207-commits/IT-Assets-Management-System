@@ -5,11 +5,14 @@ import { useState } from "react";
 import { FunnelChart } from "recharts";
 import { FaPlus } from "react-icons/fa";
 import { BsFillPeopleFill } from "react-icons/bs";
+import { MdManageSearch } from "react-icons/md";
 function Employees() {
   const [search, setSeacrh] = useState("");
   const [editingItem, setEditingItem] = useState(null);
   const [selecteditem, setSelectedItem] = useState(null);
-  const [employee, setEmployee] = useState(complaints);
+  const [employee, setEmployee] = useState(
+    JSON.parse(localStorage.getItem("employee")) || complaints,
+  );
   const [showform, setShowform] = useState(false);
   const [empid, setEmpid] = useState("");
   const [empname, setempName] = useState("");
@@ -39,8 +42,9 @@ function Employees() {
     });
   }
   function handleSaveEmployee() {
+    let updatedemployee;
     if (editingItem) {
-      const updatedemployee = employee.map(function (employeeItem) {
+      updatedemployee = employee.map(function (employeeItem) {
         if (employeeItem.id === editingItem.id) {
           return {
             ...employeeItem,
@@ -54,8 +58,6 @@ function Employees() {
 
         return employeeItem;
       });
-
-      setEmployee(updatedemployee);
     } else {
       const newemployee = {
         id: Date.now(),
@@ -66,9 +68,11 @@ function Employees() {
         phone: phoneno,
       };
 
-      setEmployee([...employee, newemployee]);
+      updatedemployee = [...employee, newemployee];
     }
+    setEmployee(updatedemployee);
 
+    localStorage.setItem("employee", JSON.stringify(updatedemployee));
     setShowform(false);
 
     setEditingItem(null);
@@ -88,14 +92,17 @@ function Employees() {
             Employees
           </h1>
           <div className="employees-action-btn">
-            <input
-              type="text"
-              placeholder="Search--------"
-              value={search}
-              onChange={function (x) {
-                setSeacrh(x.target.value);
-              }}
-            />
+            <div className="search-box">
+              <MdManageSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search_________"
+                value={search}
+                onChange={function (x) {
+                  setSeacrh(x.target.value);
+                }}
+              />
+            </div>
             <button
               onClick={function () {
                 setShowform(true);
@@ -141,10 +148,15 @@ function Employees() {
                       <button
                         className="delete-btn"
                         onClick={function () {
-                          setEmployee(
-                            employee.filter(function (x) {
-                              return x.id !== item.id;
-                            }),
+                          const updatedemployee = employee.filter(function (x) {
+                            return x.id !== item.id;
+                          });
+
+                          setEmployee(updatedemployee);
+
+                          localStorage.setItem(
+                            "employee",
+                            JSON.stringify(updatedemployee),
                           );
                         }}
                       >
@@ -283,7 +295,7 @@ function Employees() {
 
             <div className="employee-form-buttons">
               <button
-                className="cancel-btn"
+                className="cancel"
                 onClick={function () {
                   setShowform(false);
                   setEditingItem(null);
@@ -298,7 +310,7 @@ function Employees() {
                 Cancel
               </button>
 
-              <button className="save-btn" onClick={handleSaveEmployee}>
+              <button className="update-add" onClick={handleSaveEmployee}>
                 {editingItem ? "Update Employee" : "Save Employee"}
               </button>
             </div>

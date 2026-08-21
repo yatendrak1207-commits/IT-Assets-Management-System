@@ -55,7 +55,21 @@
     font-size: 32px;
     flex-shrink: 0;
 }
+.search-box {
+    position: relative;
+}
 
+.search-box input {
+    padding-left: 35px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+}
 
 /* =========================================================
    SEARCH + ADD BUTTON GROUP
@@ -399,6 +413,33 @@
     border: 2px solid rgb(21, 115, 223);
 }
 
+/* =========================================================
+   update & add & cancel button(form)
+=========================================================*/
+.update-add {
+    color: #159f6f;
+
+    border: 1px solid #62c99c;
+}
+
+
+.update-add:hover {
+    background-color: #159f6f;
+    color: white;
+}
+
+
+.cancel {
+    color: #ef4444;
+
+    border: 1px solid #f27676;
+}
+
+
+.cancel:hover {
+    background-color: #ef4444;
+    color: white;
+}
 
 /* =========================================================
    FORM BUTTONS
@@ -419,7 +460,6 @@
     width: 130px;
     height: 45px;
 
-    border: none;
 
     border-radius: 6px;
 

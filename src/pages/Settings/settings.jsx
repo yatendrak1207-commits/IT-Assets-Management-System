@@ -6,18 +6,53 @@ import { IoSettings } from "react-icons/io5";
 function Settings() {
   /*------------------useStates----------------*/
   const [openSection, setOpensection] = useState(null);
-  const [theme, setTheme] = useState("");
 
-  const [items, setItems] = useState("");
-  const [Date, setDate] = useState("");
+  const [editmode, seteditmode] = useState(false);
+  const [company, setCompany] = useState(
+    localStorage.getItem("company") || "IT Assets World",
+  );
+  const [companyEmail, setCompanyEmail] = useState(
+    localStorage.getItem("companyEmail") || "info@itassetsworld.com",
+  );
+  const [companyno, setCompanynNo] = useState(
+    localStorage.getItem("companyno") || "+91 9310483219",
+  );
+  const [companyAddress, setCompanyAddress] = useState(
+    localStorage.getItem("comapnyaddress") ||
+      "A-19, Ground Floor, FIEE Complex, Suite No-1041, Okhla Industrial Area Phase-2, New Delhi – 110020",
+  );
+  const [emailNotification, setEmailNotification] = useState(
+    localStorage.getItem("emailNotification") === "true",
+  );
+  const [complaintNotification, setComplaintNotification] = useState(
+    localStorage.getItem("complaintNotification") === "true",
+  );
+  const [repairNotification, setRepairNotification] = useState(
+    localStorage.getItem("repairNotification") === "true",
+  );
+  const [assetNotification, setAssetNotification] = useState(
+    localStorage.getItem("assetNotification") === "true",
+  );
+  const [lowStockAlert, setLowStockAlert] = useState(
+    localStorage.getItem("lowStockAlert") === "true",
+  );
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "day");
+  const [items, setItems] = useState(localStorage.getItem("items") || "one");
+  const [Date, setDate] = useState(localStorage.getItem("Date") || "days");
   const [currentpassword, setCurrentpassword] = useState("");
   const [newpassword, setNewpassword] = useState("");
   const [conformpassword, setConformpassword] = useState("");
   const [showpassword, setShowpassword] = useState(false);
-  const [logout, setLogout] = useState(null);
+  const [twofactor, setTwofactor] = useState(
+    localStorage.getItem("twofactor") === "true",
+  );
+  const [logout, setLogout] = useState(
+    localStorage.getItem("logout") || "Never",
+  );
   const [changepassword, setChangepassword] = useState(false);
 
   function Changepassword() {
+    const savedPassword = localStorage.getItem("currentpassword");
     if (currentpassword == "") {
       alert("Please Enter your Currrent Password");
       return;
@@ -38,11 +73,44 @@ function Settings() {
       alert("Password must be at least 6 character");
       return;
     }
-    alert("Password changed successfully");
+    localStorage.setItem("currentpassword", currentpassword);
+    localStorage.setItem("newpassword", newpassword);
+    localStorage.setItem("conformpassword", conformpassword);
 
     setCurrentpassword("");
     setNewpassword("");
     setConformpassword("");
+    alert("Password changed successfully");
+  }
+  function saveNotificationSettings() {
+    localStorage.setItem("emailNotification", emailNotification);
+    localStorage.setItem("complaintNotification", complaintNotification);
+    localStorage.setItem("repairNotification", repairNotification);
+    localStorage.setItem("assetNotification", assetNotification);
+    localStorage.setItem("lowStockAlert", lowStockAlert);
+
+    alert("Notification settings saved successfully");
+  }
+  function saveDisplaySettings() {
+    localStorage.setItem("theme", theme);
+    localStorage.setItem("items", items);
+    localStorage.setItem("Date", Date);
+
+    alert("Display settings saved successfully");
+  }
+  function saveGenralSettings() {
+    localStorage.setItem("company", company);
+    localStorage.setItem("companyEmail", companyEmail);
+    localStorage.setItem("companyno", companyno);
+    localStorage.setItem("companyAddress", companyAddress);
+
+    alert("General settings saved successfully");
+  }
+  function saveSecuritySettings() {
+    localStorage.setItem("twofactor", twofactor);
+    localStorage.setItem("logout", logout);
+
+    alert("security settings saved successfully");
   }
   return (
     /*----------setting--------------- */
@@ -66,22 +134,75 @@ function Settings() {
         <div className="settings-content">
           <div className="settings-item">
             <label>Company Name</label>
-            <input type="text" placeholder="Enter your Compan Name" />
+            {editmode ? (
+              <input
+                type="text"
+                placeholder="company"
+                value={company}
+                onChange={function (x) {
+                  setCompany(x.target.value);
+                }}
+              />
+            ) : (
+              <h4>{company}</h4>
+            )}
           </div>
           <div className="settings-item">
             <label>Company Email</label>
-            <input type="text" placeholder="Enter your Compan Email" />
+            {editmode ? (
+              <input
+                type="text"
+                placeholder="Company Email"
+                value={companyEmail}
+                onChange={function (x) {
+                  setCompanyEmail(x.target.value);
+                }}
+              />
+            ) : (
+              <h4>{companyEmail}</h4>
+            )}
           </div>
           <div className="settings-item">
             <label>Company phone No.</label>
-            <input type="text" placeholder="Enter your Company Phone No." />
+            {editmode ? (
+              <input
+                type="text"
+                placeholder="Company contact no."
+                value={companyno}
+                onChange={function (x) {
+                  setCompanynNo(x.target.value);
+                }}
+              />
+            ) : (
+              <h4>{companyno}</h4>
+            )}
           </div>
           <div className="settings-item">
             <label>Company Address</label>
-            <input type="text" placeholder="Enter your Compan Address" />
+            {editmode ? (
+              <input
+                type="text"
+                placeholder="Company Address"
+                value={companyAddress}
+                onChange={function (x) {
+                  setCompanyAddress(x.target.value);
+                }}
+              />
+            ) : (
+              <h4>{companyAddress}</h4>
+            )}
           </div>
           <div className="save-button">
-            <button>Save Changes</button>
+            <button
+              onClick={function () {
+                if (editmode) {
+                  saveGenralSettings();
+                }
+                seteditmode(!editmode);
+              }}
+            >
+              {editmode ? "Save Changes" : "update detail"}
+            </button>
           </div>
         </div>
       )}
@@ -101,40 +222,70 @@ function Settings() {
           <div className="settings-item">
             <label>Email Notification</label>
             <label className="switch">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={emailNotification}
+                onChange={function () {
+                  setEmailNotification(!emailNotification);
+                }}
+              />
               <span className="slider"></span>
             </label>
           </div>
           <div className="settings-item">
             <label>Complaint Notification</label>
             <label className="switch">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={complaintNotification}
+                onChange={function () {
+                  setComplaintNotification(!complaintNotification);
+                }}
+              />
               <span className="slider"></span>
             </label>
           </div>
           <div className="settings-item">
             <label>Repair Notification</label>
             <label className="switch">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={repairNotification}
+                onChange={function () {
+                  setRepairNotification(!repairNotification);
+                }}
+              />
               <span className="slider"></span>
             </label>
           </div>
           <div className="settings-item">
             <label>Asset Assignment Notification</label>
             <label className="switch">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={assetNotification}
+                onChange={function () {
+                  setAssetNotification(!assetNotification);
+                }}
+              />
               <span className="slider"></span>
             </label>
           </div>
           <div className="settings-item">
             <label>Low Stock Alert</label>
             <label className="switch">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={lowStockAlert}
+                onChange={function () {
+                  setLowStockAlert(!lowStockAlert);
+                }}
+              />
               <span className="slider"></span>
             </label>
           </div>
           <div className="save-button">
-            <button>Save Changes</button>
+            <button onClick={saveDisplaySettings}>Save Changes</button>
           </div>
         </div>
       )}
@@ -194,7 +345,7 @@ function Settings() {
             </select>
           </div>
           <div className="save-button">
-            <button>Save Changes</button>
+            <button onClick={saveDisplaySettings}>Save Changes</button>
           </div>
         </div>
       )}
@@ -267,7 +418,13 @@ function Settings() {
           <div className="settings-item">
             <label>Two-Factor Authentication</label>
             <label className="switch">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={twofactor}
+                onChange={function () {
+                  setTwofactor(!twofactor);
+                }}
+              />
               <span className="slider"></span>
             </label>
           </div>
@@ -286,7 +443,7 @@ function Settings() {
             </select>
           </div>
           <div className="save-button">
-            <button>save Changes</button>
+            <button onClick={saveSecuritySettings}>save Changes</button>
           </div>
         </div>
       )}

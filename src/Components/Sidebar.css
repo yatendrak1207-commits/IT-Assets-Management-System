@@ -59,12 +59,12 @@
     flex-shrink: 0;
 }
 .sidebar-item:hover{
-    background-color:rgb(21, 115, 223);
+    background-color:#10865e;
     color: white;
     border-radius: 8px;
 }
 .sidebar-item.active{
-    background-color: rgb(21, 115, 223);
+    background-color: #10865e;
     color: white;
     border-radius: 8px;
 }

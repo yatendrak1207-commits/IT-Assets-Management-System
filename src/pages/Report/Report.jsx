@@ -263,17 +263,17 @@ export default function Report() {
               <Bar
                 dataKey="assigned"
                 name={currentReport.assignedLabel}
-                fill="blue"
+                fill="#09325a"
               />
               <Bar
                 dataKey="available"
                 name={currentReport.avaliableLabel}
-                fill="green"
+                fill="#10865e"
               />
               <Bar
                 dataKey="repair"
                 name={currentReport.ReapairLabel}
-                fill="yellow"
+                fill="#710202"
               />
               <XAxis dataKey="name" />
               <YAxis />
@@ -302,7 +302,12 @@ export default function Report() {
                 dataKey="value"
                 name={currentReport.assignedLabel}
                 type="monotone"
-                dot={{ r: 6, fill: "blue", stroke: "black", strokeWidth: 2 }}
+                dot={{
+                  r: 4,
+                  fill: "#09325a",
+                  stroke: "#043927",
+                  strokeWidth: 3,
+                }}
               />
               <Line
                 dataKey="value"
@@ -343,9 +348,9 @@ export default function Report() {
                 cy="50%"
                 outerRadius={110}
               >
-                <Cell fill="blue" />
-                <Cell fill="green" />
-                <Cell fill="red" />
+                <Cell fill="#09325a" />
+                <Cell fill="#10865e" />
+                <Cell fill="#710202" />
               </Pie>
 
               <Legend
