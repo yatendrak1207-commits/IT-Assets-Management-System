@@ -2,6 +2,7 @@ export const complaints = [
   {
     id: 1,
     employeeId: "EMP001",
+    password: "123456",
     assetId: "AST001",
     assetName: "Dell Latitude 5420",
     category: "Laptop",
@@ -36,6 +37,7 @@ export const complaints = [
   {
     id: 2,
     employeeId: "EMP002",
+    password: "123456",
     assetId: "AST002",
     assetName: "HP EliteBook 840",
     category: "Laptop",
@@ -70,6 +72,7 @@ export const complaints = [
   {
     id: 3,
     employeeId: "EMP003",
+    password: "123456",
     assetId: "AST003",
     assetName: "iPhone 14",
     category: "Mobile",
@@ -104,6 +107,7 @@ export const complaints = [
   {
     id: 4,
     employeeId: "EMP004",
+    password: "123456",
     assetId: "AST004",
     assetName: "Samsung Galaxy S23",
     category: "Mobile",
@@ -138,6 +142,7 @@ export const complaints = [
   {
     id: 5,
     employeeId: "EMP005",
+    password: "123456",
     assetId: "AST005",
     assetName: "LG UltraFine 27",
     category: "Monitor",
@@ -173,6 +178,7 @@ export const complaints = [
   {
     id: 6,
     employeeId: "EMP006",
+    password: "123456",
     assetId: "AST006",
     assetName: "Dell 24 Monitor",
     category: "Monitor",
@@ -207,6 +213,7 @@ export const complaints = [
   {
     id: 7,
     employeeId: "EMP007",
+    password: "123456",
     assetId: "AST007",
     assetName: "Logitech MX Keys",
     category: "Keyboard",
@@ -241,6 +248,7 @@ export const complaints = [
   {
     id: 8,
     employeeId: "EMP008",
+    password: "123456",
     assetId: "AST008",
     assetName: "Logitech MX Master 3",
     category: "Mouse",
@@ -275,6 +283,7 @@ export const complaints = [
   {
     id: 9,
     employeeId: "EMP009",
+    password: "123456",
     assetId: "AST009",
     assetName: "Lenovo ThinkCentre",
     category: "Desktop",
@@ -309,6 +318,7 @@ export const complaints = [
   {
     id: 10,
     employeeId: "EMP010",
+    password: "123456",
     assetId: "AST010",
     assetName: "Canon Pixma G3010",
     category: "Printer",

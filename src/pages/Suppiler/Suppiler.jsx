@@ -10,7 +10,9 @@ function Suppiler() {
   const [search, setSeacrh] = useState("");
   const [editingItem, setEditingItem] = useState(null);
   const [selecteditem, setSelectedItem] = useState(null);
-  const [supplier, setsupplier] = useState(complaints);
+  const [supplier, setsupplier] = useState(
+    JSON.parse(localStorage.getItem("supplier")) || complaints,
+  );
   const [showform, setShowform] = useState(false);
   const [supplierid, setSupplierid] = useState("");
   const [suppliername, setSuppliername] = useState("");
@@ -55,6 +57,7 @@ function Suppiler() {
       });
 
       setsupplier(updatedSupplier);
+      localStorage.setItem("supplier", JSON.stringify(updatedSupplier));
     } else {
       const newSupplier = {
         id: Date.now(),
@@ -154,10 +157,15 @@ function Suppiler() {
                       <button
                         className="delete-btn"
                         onClick={function () {
-                          setsupplier(
-                            supplier.filter(function (x) {
-                              return x.id !== item.id;
-                            }),
+                          const updatedSupplier = supplier.filter(function (x) {
+                            return x.id !== item.id;
+                          });
+
+                          setsupplier(updatedSupplier);
+
+                          localStorage.setItem(
+                            "supplier",
+                            JSON.stringify(updatedSupplier),
                           );
                         }}
                       >

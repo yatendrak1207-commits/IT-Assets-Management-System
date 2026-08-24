@@ -10,7 +10,9 @@ export default function Repair() {
   const [search, setsearch] = useState("");
   const [editingItem, setEditingItem] = useState(null);
   const [selecteditem, setSelectedItem] = useState(null);
-  const [repair, setRepairs] = useState(complaints);
+  const [repair, setRepairs] = useState(
+    JSON.parse(localStorage.getItem("repair")) || complaints,
+  );
   const [showform, setShowform] = useState(false);
   const [repairId, setRepairId] = useState("");
   const [assetname, setAssetname] = useState("");
@@ -59,6 +61,7 @@ export default function Repair() {
       });
 
       setRepairs(updatedRepair);
+      localStorage.setItem("repair", JSON.stringify(updatedRepair));
     } else {
       const newRepair = {
         id: Date.now(),
@@ -161,10 +164,15 @@ export default function Repair() {
                       <button
                         className="delete-btn"
                         onClick={function () {
-                          setRepairs(
-                            repair.filter(function (x) {
-                              return x.id !== item.id;
-                            }),
+                          const updatedRepair = repair.filter(function (x) {
+                            return x.id !== item.id;
+                          });
+
+                          setRepairs(updatedRepair);
+
+                          localStorage.setItem(
+                            "repair",
+                            JSON.stringify(updatedRepair),
                           );
                         }}
                       >

@@ -1,0 +1,257 @@
+/* =========================================================
+   MY COMPLAINTS MAIN SECTION
+========================================================= */
+
+.user-complaints {
+    padding: 25px;
+    flex: 1;
+    min-width: 0;
+    min-height: 100%;
+    background-color: #f7faf9;
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.complaints-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    min-height: 90px;
+
+    margin-bottom: 25px;
+    padding: 15px 25px;
+
+    box-sizing: border-box;
+
+    background-color: #f1faf7;
+
+    border: 1px solid #d7e8e3;
+    border-radius: 12px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+
+/* =========================================================
+   HEADING
+========================================================= */
+
+.complaints-header h1 {
+    margin: 0;
+
+    color: #09325a;
+
+    font-size: 35px;
+    font-weight: 600;
+
+    text-align: center;
+
+    text-decoration: underline;
+    text-underline-offset: 5px;
+}
+
+
+/* =========================================================
+   TABLE CONTAINER
+========================================================= */
+
+.complaints-table-container {
+    width: 100%;
+
+    max-height: 500px;
+
+    overflow-x: auto;
+    overflow-y: auto;
+
+    background-color: white;
+
+    border: 1px solid #dce9e5;
+    border-radius: 10px;
+
+    box-sizing: border-box;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.complaints-table {
+    width: 100%;
+    min-width: 700px;
+
+    margin: 0;
+    padding: 0;
+
+    border-collapse: collapse;
+
+    background-color: white;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.complaints-table th {
+    position: sticky;
+    top: 0;
+
+    z-index: 2;
+
+    padding: 15px 12px;
+
+    font-size: 17px;
+    font-weight: 600;
+
+    text-align: center;
+
+    color: #155e52;
+
+    background-color: #e3f5ef;
+
+    border: 1px solid #d5e6e1;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   TABLE DATA
+========================================================= */
+
+.complaints-table td {
+    padding: 14px 12px;
+
+    font-size: 15px;
+
+    text-align: center;
+    vertical-align: middle;
+
+    color: #222;
+
+    background-color: white;
+
+    border: 1px solid #e5eeeb;
+}
+
+
+/* =========================================================
+   COMPLAINT TEXT
+========================================================= */
+
+.complaints-table td:nth-child(2) {
+    text-align: left;
+
+    min-width: 220px;
+}
+
+
+/* =========================================================
+   ALTERNATE ROWS
+========================================================= */
+
+.complaints-table tbody tr:nth-child(even) td {
+    background-color: #f6faf9;
+}
+
+
+/* =========================================================
+   ROW HOVER
+========================================================= */
+
+.complaints-table tbody tr:hover td {
+    background-color: #eef8f5;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.complaints-table td:nth-child(4) {
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   NO COMPLAINTS
+========================================================= */
+
+.no-complaints {
+    margin: 0;
+
+    padding: 35px;
+
+    text-align: center;
+
+    color: #777;
+
+    background-color: white;
+
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .user-complaints {
+        padding: 15px;
+    }
+
+    .complaints-header {
+        min-height: 80px;
+    }
+
+    .complaints-header h1 {
+        font-size: 32px;
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .user-complaints {
+        padding: 10px;
+    }
+
+    .complaints-header {
+        min-height: 70px;
+
+        padding: 10px;
+
+        margin-bottom: 15px;
+    }
+
+    .complaints-header h1 {
+        font-size: 27px;
+    }
+
+    .complaints-table th {
+        padding: 12px 10px;
+
+        font-size: 15px;
+    }
+
+    .complaints-table td {
+        padding: 11px 10px;
+
+        font-size: 14px;
+    }
+}

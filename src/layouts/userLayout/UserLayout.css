@@ -1,0 +1,118 @@
+.layout {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+   min-height: 0;
+    flex: 1;
+    
+}
+
+.content {
+    flex: 1;
+    padding: 20px;
+}
+.main-content {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y:auto;
+    
+}
+.logout-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(5px);
+
+    z-index: 1000;
+}
+
+.logout-box {
+    width: 420px;
+    padding: 35px 40px;
+
+    background-color: white;
+    border-radius: 12px;
+
+    text-align: center;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+
+    box-sizing: border-box;
+}
+
+.logout-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.logout-text h2 {
+    margin: 5px 0 15px;
+
+    color: #123b36;
+    font-size: 28px;
+
+    text-decoration: underline;
+    text-underline-offset: 5px;
+}
+
+.logout-text p {
+    margin: 0 0 30px;
+
+    color: #123b36;
+    font-size: 17px;
+}
+
+.logout-button {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.cancel-btn,
+.logout-btn {
+    width: 120px;
+    padding: 11px 20px;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.cancel-btn {
+    background-color: white;
+    color: #123b36;
+    border: 2px solid #123b36;
+}
+
+.cancel-btn:hover {
+    background-color: #123b36;
+    color: white;
+}
+
+.logout-btn {
+    background-color: #10865e;
+    color: white;
+}
+
+.logout-btn:hover {
+    background-color: #123b36;
+    color: white;
+}

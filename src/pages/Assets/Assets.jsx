@@ -8,7 +8,9 @@ function Assets() {
   const [search, setSearch] = useState("");
   const [editingItem, setEditingItem] = useState(null);
   const [selecteditem, setSelectedItem] = useState(null);
-  const [asset, setAsset] = useState(complaints);
+  const [asset, setAsset] = useState(
+    JSON.parse(localStorage.getItem("asset")) || complaints,
+  );
   const [showform, setShowform] = useState(false);
   const [assetid, setAssetid] = useState("");
   const [assetname, setAssetname] = useState("");
@@ -55,6 +57,7 @@ function Assets() {
       });
 
       setAsset(updatedAsset);
+      localStorage.setItem("asset", JSON.stringify(updatedAsset));
     } else {
       const newAsset = {
         id: Date.now(),
@@ -143,10 +146,15 @@ function Assets() {
                       <button
                         className="delete-btn"
                         onClick={function () {
-                          setAsset(
-                            asset.filter(function (x) {
-                              return x.id !== item.id;
-                            }),
+                          const updatedAsset = asset.filter(function (x) {
+                            return x.id !== item.id;
+                          });
+
+                          setAsset(updatedAsset);
+
+                          localStorage.setItem(
+                            "asset",
+                            JSON.stringify(updatedAsset),
                           );
                         }}
                       >

@@ -57,6 +57,7 @@ function Employees() {
         }
 
         return employeeItem;
+        localStorage.setItem("employee", JSON.stringify(updatedemployee));
       });
     } else {
       const newemployee = {

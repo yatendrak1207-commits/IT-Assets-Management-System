@@ -1,4 +1,4 @@
-import "./Sidebar.css";
+import "./UserSidebar.css";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { MdOutlineDashboard } from "react-icons/md";
@@ -10,62 +10,56 @@ import { IoBarChart } from "react-icons/io5";
 import { IoSettings } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { RiLogoutBoxRFill } from "react-icons/ri";
-function Sidebar({ setShowlogout }) {
+function UserSidebar({ setShowlogout }) {
   return (
     <div className="sidebar">
       <h2>IT Assets</h2>
       <ul className="sidebar-menu">
         <li>
-          <NavLink to="/" end className="sidebar-item">
+          <NavLink to="/User" end className="sidebar-item">
             <MdOutlineDashboard />
             Dashboard
           </NavLink>
         </li>
         <hr />
         <li>
-          <NavLink to="/assets" className="sidebar-item">
+          <NavLink to="/user/assets" className="sidebar-item">
             <LuMonitorSpeaker />
-            Assets
+            MY Assets
           </NavLink>
         </li>
         <hr />
         <li>
-          <NavLink to="/employees" className="sidebar-item">
+          <NavLink to="/user/complaints" className="sidebar-item">
             <BsFillPeopleFill />
-            Employees
+            Complaints
           </NavLink>
         </li>
         <hr />
+
         <li>
-          <NavLink to="/suppiler" className="sidebar-item">
-            <FaTruck />
-            Suppiler
-          </NavLink>
-        </li>
-        <hr />
-        <li>
-          <NavLink to="/repair" className="sidebar-item">
+          <NavLink to="/user/repairs" className="sidebar-item">
             <GiAutoRepair />
             Repair
           </NavLink>
         </li>
         <hr />
         <li>
-          <NavLink to="/report" className="sidebar-item">
+          <NavLink to="/user/notifications" className="sidebar-item">
             <IoBarChart />
-            Reports
+            Notification
           </NavLink>
         </li>
         <hr />
         <li>
-          <NavLink to="/settings" className="sidebar-item">
+          <NavLink to="/user/settings" className="sidebar-item">
             <IoSettings />
             Settings
           </NavLink>
         </li>
         <hr />
         <li>
-          <NavLink to="/profile" className="sidebar-item">
+          <NavLink to="/user/profile" className="sidebar-item">
             <FaUser />
             Profile
           </NavLink>
@@ -88,4 +82,4 @@ function Sidebar({ setShowlogout }) {
   );
 }
 
-export default Sidebar;
+export default UserSidebar;

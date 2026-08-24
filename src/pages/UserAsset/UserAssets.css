@@ -1,0 +1,460 @@
+/* =========================================================
+   MY ASSETS MAIN SECTION
+========================================================= */
+
+.my-assets {
+    padding: 25px;
+    flex: 1;
+    min-height: 100%;
+    background-color: #f7faf9;
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   MY ASSETS HEADER
+========================================================= */
+
+.my-assets h1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    min-height: 90px;
+
+    margin: 0 0 25px 0;
+    padding: 15px 25px;
+
+    box-sizing: border-box;
+
+    background-color: #f1faf7;
+
+    border: 1px solid #d7e8e3;
+    border-radius: 12px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    color: #09325a;
+
+    font-size: 35px;
+    font-weight: 600;
+
+    text-decoration: underline;
+    text-underline-offset: 5px;
+}
+
+
+/* =========================================================
+   ASSETS CONTAINER
+========================================================= */
+
+.my-assets {
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* =========================================================
+   ASSET CARD CONTAINER
+========================================================= */
+
+.my-assets::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+
+/* =========================================================
+   ASSET CARD
+========================================================= */
+
+.asset-card {
+    width: 100%;
+
+    padding: 22px 25px;
+    margin-bottom: 18px;
+
+    box-sizing: border-box;
+
+    background-color: white;
+
+    border: 1px solid #dce9e5;
+    border-radius: 10px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+    transition: 0.2s;
+}
+
+
+/* =========================================================
+   CARD HOVER
+========================================================= */
+
+.asset-card:hover {
+    transform: translateY(-2px);
+
+    border-color: #b9ddd3;
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   ASSET NAME
+========================================================= */
+
+.asset-card h3 {
+    margin: 0 0 18px 0;
+
+    padding-bottom: 12px;
+
+    color: #155e52;
+
+    font-size: 23px;
+    font-weight: 600;
+
+    border-bottom: 1px solid #dce9e5;
+}
+
+
+/* =========================================================
+   ASSET DETAILS
+========================================================= */
+
+.asset-card p {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin: 0;
+
+    padding: 12px 5px;
+
+    color: #333;
+
+    font-size: 16px;
+
+    border-bottom: 1px solid #edf2f0;
+}
+
+
+/* Last paragraph border remove */
+
+.asset-card p:last-child {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.asset-card p:last-child {
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.my-assets>p {
+    width: 100%;
+
+    margin: 0;
+
+    padding: 30px;
+
+    box-sizing: border-box;
+
+    text-align: center;
+
+    background-color: white;
+
+    border: 1px solid #dce9e5;
+    border-radius: 10px;
+
+    color: #777;
+
+    font-size: 17px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .my-assets {
+        padding: 15px;
+    }
+
+    .my-assets h1 {
+        min-height: 80px;
+
+        font-size: 32px;
+    }
+
+    .asset-card {
+        padding: 20px;
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .my-assets {
+        padding: 10px;
+    }
+
+    .my-assets h1 {
+        min-height: 70px;
+
+        padding: 10px;
+
+        font-size: 27px;
+    }
+
+    .asset-card {
+        padding: 17px;
+    }
+
+    .asset-card h3 {
+        font-size: 20px;
+    }
+
+    .asset-card p {
+        flex-direction: column;
+        align-items: flex-start;
+
+        gap: 5px;
+
+        font-size: 14px;
+    }
+}/* =========================================================
+   MY ASSETS MAIN SECTION
+========================================================= */
+
+.my-assets {
+    padding: 25px;
+    flex: 1;
+    background-color: #f7faf9;
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.my-assets-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    min-height: 90px;
+
+    padding: 15px 25px;
+    margin-bottom: 25px;
+
+    box-sizing: border-box;
+
+    background-color: #f1faf7;
+
+    border: 1px solid #d7e8e3;
+    border-radius: 12px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+
+/* =========================================================
+   HEADING
+========================================================= */
+
+.my-assets-header h1 {
+    margin: 0;
+
+    color: #09325a;
+
+    font-size: 35px;
+    font-weight: 600;
+
+    text-decoration: underline;
+    text-underline-offset: 5px;
+}
+
+
+/* =========================================================
+   TABLE CONTAINER
+========================================================= */
+
+.my-assets-table-container {
+    width: 100%;
+
+    max-height: 500px;
+
+    overflow-x: auto;
+    overflow-y: auto;
+
+    background-color: white;
+
+    border: 1px solid #dce9e5;
+    border-radius: 10px;
+
+    box-sizing: border-box;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.my-assets-table {
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    border-collapse: collapse;
+
+    background-color: white;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.my-assets-table th {
+    position: sticky;
+    top: 0;
+
+    z-index: 2;
+
+    padding: 14px 12px;
+
+    font-size: 17px;
+    font-weight: 600;
+
+    text-align: center;
+
+    color: #155e52;
+
+    background-color: #e3f5ef;
+
+    border: 1px solid #d5e6e1;
+}
+
+
+/* =========================================================
+   TABLE DATA
+========================================================= */
+
+.my-assets-table td {
+    padding: 13px 12px;
+
+    font-size: 15px;
+
+    text-align: center;
+
+    color: #222;
+
+    background-color: white;
+
+    border: 1px solid #e5eeeb;
+}
+
+
+/* =========================================================
+   ALTERNATE ROWS
+========================================================= */
+
+.my-assets-table tbody tr:nth-child(even) td {
+    background-color: #f6faf9;
+}
+
+
+/* =========================================================
+   ROW HOVER
+========================================================= */
+
+.my-assets-table tbody tr:hover td {
+    background-color: #eef8f5;
+}
+
+
+/* =========================================================
+   NO ASSETS
+========================================================= */
+
+.no-assets {
+    margin: 0;
+
+    padding: 30px;
+
+    text-align: center;
+
+    color: #777;
+
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .my-assets {
+        padding: 15px;
+    }
+
+    .my-assets-header {
+        min-height: 80px;
+    }
+
+    .my-assets-header h1 {
+        font-size: 32px;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .my-assets {
+        padding: 10px;
+    }
+
+    .my-assets-header {
+        min-height: 70px;
+
+        padding: 10px;
+    }
+
+    .my-assets-header h1 {
+        font-size: 27px;
+    }
+
+    .my-assets-table th {
+        font-size: 15px;
+    }
+
+    .my-assets-table td {
+        font-size: 14px;
+    }
+}

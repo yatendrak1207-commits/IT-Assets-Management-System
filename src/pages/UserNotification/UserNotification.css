@@ -1,0 +1,163 @@
+/* =========================================================
+   USER NOTIFICATIONS MAIN SECTION
+========================================================= */
+
+.user-notifications {
+    padding: 25px;
+    flex: 1;
+    min-width: 0;
+    min-height: 100%;
+    background-color: #f7faf9;
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   HEADING
+========================================================= */
+
+.user-notifications h1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    min-height: 90px;
+
+    margin: 0 0 25px 0;
+    padding: 15px 25px;
+
+    box-sizing: border-box;
+
+    background-color: #f1faf7;
+
+    border: 1px solid #d7e8e3;
+    border-radius: 12px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    color: #09325a;
+
+    font-size: 35px;
+    font-weight: 600;
+
+    text-decoration: underline;
+    text-underline-offset: 5px;
+}
+
+
+/* =========================================================
+   NOTIFICATION CARD
+========================================================= */
+
+.notification-card {
+    width: 100%;
+
+    margin-bottom: 18px;
+    padding: 20px 25px;
+
+    box-sizing: border-box;
+
+    background-color: white;
+
+    border: 1px solid #dce9e5;
+    border-radius: 10px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+    transition: 0.2s;
+}
+
+
+/* =========================================================
+   CARD HEADING
+========================================================= */
+
+.notification-card h3 {
+    margin: 0 0 10px 0;
+
+    color: #155e52;
+
+    font-size: 20px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   CARD MESSAGE
+========================================================= */
+
+.notification-card p {
+    margin: 0;
+
+    color: #444;
+
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+.notification-card:hover {
+    background-color: #f6faf9;
+
+    border-color: #b9dcd2;
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .user-notifications {
+        padding: 15px;
+    }
+
+    .user-notifications h1 {
+        min-height: 80px;
+        font-size: 32px;
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .user-notifications {
+        padding: 10px;
+    }
+
+    .user-notifications h1 {
+        min-height: 70px;
+
+        padding: 10px;
+
+        margin-bottom: 15px;
+
+        font-size: 27px;
+    }
+
+    .notification-card {
+        padding: 17px;
+    }
+
+    .notification-card h3 {
+        font-size: 18px;
+    }
+
+    .notification-card p {
+        font-size: 14px;
+    }
+}

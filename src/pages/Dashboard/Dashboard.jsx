@@ -3,7 +3,9 @@ import "./Dashboard.css";
 import RecentComplaints from "../../Components/RecentComplaints/RecentComplaints";
 import { complaints } from "../../data/data";
 import { MdOutlineDashboard } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 function Dashboard() {
+  const navigate = useNavigate();
   return (
     <div className="dashboard">
       <h1>
@@ -17,7 +19,13 @@ function Dashboard() {
         <Card title="Repair" value="5" />
       </div>
       <RecentComplaints complaints={complaints.slice(0, 3)} />
-      <button>View All </button>
+      <button
+        onClick={function () {
+          navigate("/assets");
+        }}
+      >
+        View All{" "}
+      </button>
     </div>
   );
 }

@@ -1,27 +1,30 @@
-import Sidebar from "../Components/Sidebar";
-import "./layout.css";
+import UserSidebar from "../../Components/User/UserSidebar";
+import UserNavbar from "../../Components/User/UserNavbar";
+import "./UserLayout.css";
 import { Outlet } from "react-router-dom";
 import { useState } from "react";
-import Navbar from "../Components/Navbar";
 import { useNavigate } from "react-router-dom";
-
-function Layout() {
+function UserLayout() {
   const [showlogout, setShowlogout] = useState(false);
   const navigate = useNavigate();
+
   return (
-    <div className="admin-shell">
-      <Navbar />
+    <div>
+      <UserNavbar />
       <div className="layout">
-        <Sidebar setShowlogout={setShowlogout} />
+        <UserSidebar setShowlogout={setShowlogout} />
+
         <div className="main-content">
           <Outlet />
+
           {showlogout && (
             <div className="logout-overlay">
               <div className="logout-box">
-                <div className="logout-text ">
-                  <h2>Conform Log-Out</h2>
-                  <p>Are you sure you want Log-Out</p>
+                <div className="logout-text">
+                  <h2>Confirm Log-Out</h2>
+                  <p>Are you sure you want to Log-Out?</p>
                 </div>
+
                 <div className="logout-button">
                   <button
                     className="cancel-btn"
@@ -31,6 +34,7 @@ function Layout() {
                   >
                     Cancel
                   </button>
+
                   <button
                     className="logout-btn"
                     onClick={function () {
@@ -51,4 +55,4 @@ function Layout() {
   );
 }
 
-export default Layout;
+export default UserLayout;

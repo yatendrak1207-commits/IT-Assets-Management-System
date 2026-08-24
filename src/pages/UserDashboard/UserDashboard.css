@@ -1,0 +1,51 @@
+.user-dashboard {
+    padding: 20px;
+}
+
+.user-dashboard h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.user-card-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.user-card {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.user-card h3 {
+    margin-bottom: 10px;
+}
+
+.user-card p {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.recent-complaints {
+    margin-top: 30px;
+}
+
+.recent-complaints h2 {
+    margin-bottom: 15px;
+}
+
+.recent-complaints table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.recent-complaints th,
+.recent-complaints td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
