@@ -35,7 +35,9 @@
     outline: none;
     transition: 0.3s;
     font-size: 35px;
-
+    display: flex;
+    align-items: center;
+    gap: 10px;
 
 }
 
@@ -75,4 +77,8 @@
     height: 30px;
     background-color: white;
     margin: 0 15px;
+}
+.navbar-center .users-icon {
+    font-size: 50px;
+    color: aquamarine;
 }

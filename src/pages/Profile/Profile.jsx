@@ -40,7 +40,7 @@ function Profile() {
                 }}
               />
             ) : (
-              <h2>{name}</h2>
+              <span>{name}</span>
             )}
           </label>
           <label>
@@ -54,7 +54,7 @@ function Profile() {
                 }}
               />
             ) : (
-              <h2>{email}</h2>
+              <span>{email}</span>
             )}
           </label>
           <label>
@@ -68,7 +68,7 @@ function Profile() {
                 }}
               />
             ) : (
-              <h2>{phone}</h2>
+              <span>{phone}</span>
             )}
           </label>
           <label>
@@ -82,7 +82,7 @@ function Profile() {
                 }}
               />
             ) : (
-              <h2>{department}</h2>
+              <span>{department}</span>
             )}
           </label>
           <label>
@@ -96,7 +96,7 @@ function Profile() {
                 }}
               />
             ) : (
-              <h2>{designation}</h2>
+              <span>{designation}</span>
             )}
           </label>
         </div>
@@ -104,23 +104,23 @@ function Profile() {
           <h1>Account Information</h1>
           <label>
             <h2> Username :</h2>
-            <h2>admin </h2>
+            <span>admin </span>
           </label>
           <label>
             <h2> Role :</h2>
-            <h2>Admin </h2>
+            <span>Admin </span>
           </label>
           <label>
             <h2> Account created :</h2>
-            <h2>17 Aug 2026 </h2>
+            <span>17 Aug 2026 </span>
           </label>
           <label>
             <h2> Last login :</h2>
-            <h2>Today </h2>
+            <span>Today </span>
           </label>
           <label>
             <h2> Status :</h2>
-            <h2>Active </h2>
+            <span>Active </span>
           </label>
         </div>
       </div>

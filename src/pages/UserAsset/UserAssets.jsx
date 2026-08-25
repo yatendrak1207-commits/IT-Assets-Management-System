@@ -1,7 +1,7 @@
 import React from "react";
 import { complaints } from "../../data/data";
 import "./UserAssets.css";
-
+import { LuMonitorSpeaker } from "react-icons/lu";
 function MyAssets() {
   const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
 
@@ -14,7 +14,10 @@ function MyAssets() {
   return (
     <div className="my-assets">
       <div className="my-assets-header">
-        <h1>My Assets</h1>
+        <h1>
+          <LuMonitorSpeaker />
+          My Assets
+        </h1>
       </div>
 
       <div className="my-assets-table-container">

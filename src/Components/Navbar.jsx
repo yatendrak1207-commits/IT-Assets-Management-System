@@ -11,7 +11,7 @@ function Navbar() {
       </div>
       <div className="navbar-center">
         <h1>
-          <FaUsers />
+          <FaUsers className=" users-icon" />
           IT Assets Management System
         </h1>
       </div>

@@ -231,8 +231,8 @@
 
     margin: 0;
 
-    font-size: 17px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight:900;
 
     color: #333;
 }
@@ -245,7 +245,7 @@
 .profile-field span {
     flex: 1;
 
-    font-size: 16px;
+    font-size: 18px;
 
     color: #555;
 
@@ -464,7 +464,7 @@
 
         flex-shrink: 0;
 
-        font-size: 15px;
+        font-size: 20px;
     }
 
 

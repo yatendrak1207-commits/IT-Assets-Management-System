@@ -11,7 +11,7 @@
     
 }
 .navbar-center svg {
-    font-size: 35px;
+    font-size: 55px;
     flex-shrink: 0;
     margin-right: 10px;
 }
@@ -19,9 +19,12 @@
     font-size: 25px;
     font-weight: 600;
     margin: 0;
+   
+
 }
 .navbar-center{ 
     width: 40%;
+
 }
 .navbar-center h1{
     width: 100%;
@@ -31,6 +34,9 @@
     outline: none;
     transition: 0.3s;
     font-size: 35px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     
     
 }
@@ -64,4 +70,8 @@
     height: 30px;
     background-color: white;
     margin: 0 15px;
+}
+.navbar-center .users-icon{
+    font-size: 50px;
+    color: aquamarine;
 }

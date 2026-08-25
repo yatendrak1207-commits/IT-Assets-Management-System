@@ -1,30 +1,61 @@
 import React from "react";
 import "./UserDashboard.css";
-
+import { complaints } from "../../data/data";
+import { MdOutlineDashboard } from "react-icons/md";
 function UserDashboard() {
+  const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+
+  const userData = complaints.filter(
+    (item) => item.employeeId === loggedInUser?.employeeId,
+  );
+  const recentComplaints = userData.filter(function (item) {
+    return item.complaint;
+  });
+
   return (
     <div className="user-dashboard">
-      <h1>User Dashboard</h1>
+      <h1>
+        <MdOutlineDashboard />
+        User Dashboard
+      </h1>
 
       <div className="user-card-container">
         <div className="user-card">
           <h3>My Assets</h3>
-          <p>3</p>
+          <p>
+            {
+              userData.filter(function (item) {
+                return item.assetId;
+              }).length
+            }
+          </p>
         </div>
 
         <div className="user-card">
           <h3>Complaints</h3>
-          <p>2</p>
+          <p>{recentComplaints.length}</p>
         </div>
 
         <div className="user-card">
           <h3>Open Complaints</h3>
-          <p>1</p>
+          <p>
+            {
+              recentComplaints.filter(function (item) {
+                return item.status === "Pending";
+              }).length
+            }
+          </p>
         </div>
 
         <div className="user-card">
           <h3>Repair Requests</h3>
-          <p>1</p>
+          <p>
+            {
+              userData.filter(function (item) {
+                return item.repairId;
+              }).length
+            }
+          </p>
         </div>
       </div>
 
@@ -42,19 +73,16 @@ function UserDashboard() {
           </thead>
 
           <tbody>
-            <tr>
-              <td>C001</td>
-              <td>Laptop</td>
-              <td>Keyboard not working</td>
-              <td>Pending</td>
-            </tr>
-
-            <tr>
-              <td>C002</td>
-              <td>Monitor</td>
-              <td>Display issue</td>
-              <td>Resolved</td>
-            </tr>
+            {recentComplaints.slice(0, 5).map(function (item, index) {
+              return (
+                <tr key={index}>
+                  <td>{item.complaintId || "C00" + (index + 1)}</td>
+                  <td>{item.assetName}</td>
+                  <td>{item.complaint}</td>
+                  <td>{item.status}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

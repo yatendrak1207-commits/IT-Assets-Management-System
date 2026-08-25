@@ -1,10 +1,13 @@
 import React from "react";
 import "./UserNotification.css";
-
+import { MdNotificationsActive } from "react-icons/md";
 function UserNotifications() {
   return (
     <div className="user-notifications">
-      <h1>Notifications</h1>
+      <h1>
+        <MdNotificationsActive />
+        Notifications
+      </h1>
 
       <div className="notification-card">
         <h3>Asset Assigned</h3>

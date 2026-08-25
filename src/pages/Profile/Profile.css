@@ -23,43 +23,63 @@
    PROFILE HEADING
 ========================================================= */
 
-.Profile h2 {
+/* =========================================================
+   PROFILE HEADING
+========================================================= */
+
+.Profile>h2 {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 10px;
 
-    margin: 0;
-    font-size: 35px;
+    width: 100%;
+    min-height: 80px;
+
+    margin: 0 0 25px 0;
+    padding: 15px;
+
+    box-sizing: border-box;
+
+    background-color: #f1faf7;
+
+    border: 1px solid #d7e8e3;
+    border-radius: 12px;
+
     color: #09325a;
+
+    font-size: 35px;
+    font-weight: 600;
+
+    text-decoration: underline;
+    text-underline-offset: 5px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.Profile h2 svg {
+.Profile>h2 svg {
     font-size: 32px;
     flex-shrink: 0;
-}
-
-/* =========================================================
+}/* =========================================================
    EDIT BUTTON
 ========================================================= */
 
 .Profile button {
-    width: 150px;
+    width: 160px;
     height: 50px;
 
-    margin-bottom: 25px;
-    margin-top: 15px;
+    margin: 30px auto 0;
     padding: 10px;
 
     display: flex;
     justify-content: center;
     align-items: center;
 
-    background-color: #159f6f;
-    color: white;
+    background-color: white;
+    color: #159f6f;
 
     border: none;
-    border-radius: 10px;
+    border-radius: 7px;
 
     font-size: 16px;
     font-weight: 600;
@@ -67,6 +87,7 @@
     cursor: pointer;
 
     transition: 0.2s;
+    border: 1px solid #159f6f;
 }
 
 
@@ -77,11 +98,14 @@
 
 
 .Profile button.edit-mode {
-    background-color: #2677e8;
+    color: #2677e8;
+    border: 1px solid #2677e8;
+    background-color: white;
 }
 
 .Profile button.edit-mode:hover {
     background-color: #1d5fbd;
+    color: white;
 }
 
 
@@ -183,7 +207,16 @@
     
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
-
+.personal-info span,
+.account-info span{
+    flex: 1;
+    
+        font-size: 18px;
+    
+        color: #555;
+    
+        word-break: break-word;
+}
 
 /* =========================================================
    SECTION HEADINGS
@@ -197,12 +230,12 @@
 
     text-align: center;
 
-    font-size: 25px;
+    font-size: 28px;
     font-weight: 600;
 
     text-decoration: none;
 
-    color: #155e52;
+    color: #ac3210;
 
     background-color: #e3f5ef;
 
@@ -211,8 +244,9 @@
 
 .personal-info h2,
 .account-info h2{
-    font-size: 30px;
+    font-size: 35px;
 }
+
 
 /* =========================================================
    PROFILE LABELS
@@ -231,7 +265,7 @@
 
     align-items: center;
 
-    font-size: 15px;
+    font-size: 25px;
 
     border-bottom: 1px solid #e5eeeb;
 }
@@ -244,7 +278,7 @@
 .profile-detail label strong {
     text-align: left;
 
-    font-size: 15px;
+    font-size: 25px;
     font-weight: 600;
 
     color: #155e52;
@@ -260,7 +294,7 @@
     margin: 0;
 
     font-size: 20px;
-    font-weight: 400;
+    font-weight: 600;
 
     color: #222;
 }

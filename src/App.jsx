@@ -23,16 +23,7 @@ import UserNotifications from "./pages/UserNotification/UserNotification";
 import UserProfile from "./pages/UserProfile/UserProfile";
 import Login from "./pages/LOGIN/Login";
 import UserSettings from "./pages/UserSetting/UserSetting";
-
-function ProtectedRoute({ children }) {
-  const loggedInUser = localStorage.getItem("loggedInUser");
-
-  if (!loggedInUser) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
-}
+import ProtectedRoute from "./pages/LOGIN/ProtectedRoutes";
 
 function App() {
   return (
@@ -44,7 +35,7 @@ function App() {
 
         <Route
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRole="admin">
               <Layout />
             </ProtectedRoute>
           }
@@ -63,7 +54,7 @@ function App() {
 
         <Route
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRole="user">
               <UserLayout />
             </ProtectedRoute>
           }

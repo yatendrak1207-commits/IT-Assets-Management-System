@@ -10,6 +10,7 @@ import { IoBarChart } from "react-icons/io5";
 import { IoSettings } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { RiLogoutBoxRFill } from "react-icons/ri";
+import { MdNotificationsActive } from "react-icons/md";
 function UserSidebar({ setShowlogout }) {
   return (
     <div className="sidebar">
@@ -46,7 +47,7 @@ function UserSidebar({ setShowlogout }) {
         <hr />
         <li>
           <NavLink to="/user/notifications" className="sidebar-item">
-            <IoBarChart />
+            <MdNotificationsActive />
             Notification
           </NavLink>
         </li>

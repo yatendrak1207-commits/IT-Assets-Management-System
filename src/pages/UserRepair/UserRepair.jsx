@@ -1,6 +1,7 @@
 import React from "react";
 import { complaints } from "../../data/data";
 import "./UserRepair.css";
+import { GiAutoRepair } from "react-icons/gi";
 
 function UserRepair() {
   const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
@@ -14,7 +15,10 @@ function UserRepair() {
   return (
     <div className="user-repair">
       <div className="repair-header">
-        <h1>My Repair Requests</h1>
+        <h1>
+          <GiAutoRepair />
+          My Repair Requests
+        </h1>
       </div>
 
       <div className="repair-table-container">
