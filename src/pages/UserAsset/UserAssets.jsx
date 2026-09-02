@@ -3,12 +3,12 @@ import { complaints } from "../../data/data";
 import "./UserAssets.css";
 import { LuMonitorSpeaker } from "react-icons/lu";
 function MyAssets() {
-  const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
 
-  const userId = loggedInUser.employeeId;
+  const userId = loggedInUser?.employeeId;
 
   const myAssets = complaints.filter(function (item) {
-    return item.employeeId === userId;
+    return item?.employeeId === userId;
   });
 
   return (

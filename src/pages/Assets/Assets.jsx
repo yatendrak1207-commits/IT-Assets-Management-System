@@ -94,7 +94,7 @@ function Assets() {
               <MdManageSearch className="search-icon" />
               <input
                 type="text"
-                placeholder="Search________"
+                placeholder="Search by ID/Name/Category______"
                 value={search}
                 onChange={function (x) {
                   setSearch(x.target.value);
@@ -186,6 +186,14 @@ function Assets() {
         {selecteditem && (
           <div className="view-overlay">
             <div className="view-form">
+              <button
+                className="close-btn"
+                onClick={function () {
+                  setSelectedItem(null);
+                }}
+              >
+                ×
+              </button>
               <h2>Assets Details</h2>
 
               <p>
@@ -219,6 +227,21 @@ function Assets() {
       {showform && (
         <div className="asset-overlay">
           <div className="asset-form">
+            <button
+              className="close-btn"
+              onClick={function () {
+                setShowform(false);
+                setEditingItem(null);
+
+                setAssetid("");
+                setAssetname("");
+                setCategory("");
+                setAssigned("");
+                setStatus("");
+              }}
+            >
+              ×
+            </button>
             <h2>{editingItem ? "Update Details" : "Assets Details"}</h2>
             <div className="form-field">
               <label>Assets ID</label>
@@ -316,7 +339,7 @@ function Assets() {
                 Cancel
               </button>
 
-              <button className="update-add" click={handleSaveAsset}>
+              <button className="update-add" onClick={handleSaveAsset}>
                 {editingItem ? "Update Details" : "Assets Details"}
               </button>
             </div>

@@ -92,7 +92,7 @@ function Suppiler() {
               <MdManageSearch className="search-icon" />
               <input
                 type="text"
-                placeholder="Search_________"
+                placeholder="Search by Company/Supplier_____"
                 value={search}
                 onChange={function (x) {
                   setSeacrh(x.target.value);
@@ -181,6 +181,14 @@ function Suppiler() {
         {selecteditem && (
           <div className="view-overlay">
             <div className="view-form">
+              <button
+                className="close-btn"
+                onClick={function () {
+                  setSelectedItem(null);
+                }}
+              >
+                ×
+              </button>
               <h2>Assets Details</h2>
 
               <p>
@@ -222,6 +230,20 @@ function Suppiler() {
       {showform && (
         <div className="supplier-overlay">
           <div className="supplier-form">
+            <button
+              className="close-btn"
+              onClick={function () {
+                setShowform(false);
+                setEditingItem(null);
+
+                setSupplierid("");
+                setSuppliername("");
+                setcompany("");
+                setContactno("");
+              }}
+            >
+              ×
+            </button>
             <h2>{editingItem ? "Update Supplier" : "Add supplier"}</h2>
 
             <div className="form-field">

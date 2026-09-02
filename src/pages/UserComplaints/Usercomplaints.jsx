@@ -4,12 +4,12 @@ import "./UserComplaints.css";
 import { BsFillPeopleFill } from "react-icons/bs";
 
 function UserComplaints() {
-  const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
 
-  const userId = loggedInUser.employeeId;
+  const userId = loggedInUser?.employeeId;
 
   const myComplaints = complaints.filter(function (item) {
-    return item.employeeId === userId;
+    return item?.employeeId === userId;
   });
 
   return (

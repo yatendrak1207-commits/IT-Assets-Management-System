@@ -4,7 +4,7 @@ import "./UserRepair.css";
 import { GiAutoRepair } from "react-icons/gi";
 
 function UserRepair() {
-  const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
 
   const userId = loggedInUser.employeeId;
 

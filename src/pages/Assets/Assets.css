@@ -521,6 +521,51 @@
 
     color: #333;
 }
+/* =========================================================
+   assets-form close btn
+======================================================== */
+ .asset-form {
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #cccfd5;
+    border-radius: 5px;
+    background-color: #ffffff;
+
+    color: #6b7280;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    background-color: #fee2e2;
+    border-color: #fecaca;
+    color: #dc2626;
+
+   transform:scale(1.2) ;
+}
+
+.close-btn:active {
+    transform: rotate(90deg) scale(0.92);
+}
+
 
 
 /* =========================================================
@@ -574,9 +619,46 @@
     box-sizing: border-box;
 
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    position: relative;
 }
 
+.close-btn {
+    position: absolute;
+    top: 14px;
+    right: 16px;
 
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #cccfd5;
+    border-radius: 5px;
+    background-color: #ffffff;
+
+    color: #6b7280;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    background-color: #fee2e2;
+    border-color: #fecaca;
+    color: #dc2626;
+
+    transform: scale(1.2);
+}
+
+.close-btn:active {
+    transform: rotate(90deg) scale(0.92);
+}
 /* View Heading */
 
 .view-form h2 {
@@ -635,8 +717,65 @@
 /* =========================================================
    VIEW CLOSE BUTTON
 ========================================================= */
+.view-form {
+    width: 550px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
 
-.view-form button {
+    padding: 30px 35px;
+
+    background-color: white;
+    border-radius: 12px;
+    box-sizing: border-box;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+
+    position: relative;
+}
+
+.view-form .close-btn {
+    position: absolute;
+
+    top:14px;
+    right: 16px;
+
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0;
+
+    border: 1px solid #cccfd5;
+    border-radius: 5px;
+
+    background-color: #ffffff;
+    color: #6b7280;
+
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.view-form .close-btn:hover {
+    background-color: #fee2e2;
+    border-color: #fecaca;
+    color: #dc2626;
+
+    transform: scale(1.1);
+}
+
+.view-form .close-btn:active {
+    transform: scale(0.92);
+}
+.view-form > button:not(.close-btn) {
     display: block;
 
     width: 120px;
@@ -661,13 +800,15 @@
 }
 
 
-.view-form button:hover {
+.view-form >button:not(.close-btn):hover {
     background-color: #710202 ;
 
     color: white;
 }
 
-
+.view-form>button:not(.close-btn):active {
+    transform: translateY(0);
+}
 /* =========================================================
    PLACEHOLDER
 ========================================================= */

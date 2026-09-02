@@ -75,8 +75,9 @@ function Sidebar({ setShowlogout }) {
           <button
             className="sidebar-item"
             onClick={function () {
-              console.log("logout   clickerd");
+              sessionStorage.removeItem("loggedInUser");
               setShowlogout(true);
+              Navigate("/login");
             }}
           >
             <RiLogoutBoxRFill />

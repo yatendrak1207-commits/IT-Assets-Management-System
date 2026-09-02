@@ -3,7 +3,7 @@ import "./UserProfile.css";
 import { FaUser } from "react-icons/fa";
 import { complaints } from "../../data/data";
 function UserProfile() {
-  const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
   const userData = complaints.find(function (item) {
     return item.employeeId === loggedInUser.employeeId;
   });

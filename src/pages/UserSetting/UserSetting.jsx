@@ -5,7 +5,7 @@ import { IoSettings } from "react-icons/io5";
 function UserSettings() {
   const [openSection, setOpenSection] = useState(null);
 
-  const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
 
   const [emailNotification, setEmailNotification] = useState(
     localStorage.getItem("userEmailNotification") === "true",
@@ -128,7 +128,10 @@ function UserSettings() {
         }}
       >
         <h2>Account Settings</h2>
-        <span>▼</span>
+
+        <span className={openSection == "account" ? "arrow rotate" : "arrow"}>
+          ▲
+        </span>
       </div>
 
       {openSection === "account" && (
@@ -173,7 +176,11 @@ function UserSettings() {
         }}
       >
         <h2>Notification Settings</h2>
-        <span>▼</span>
+        <span
+          className={openSection == "notification" ? "arrow rotate" : "arrow"}
+        >
+          ▲
+        </span>
       </div>
 
       {openSection === "notification" && (
@@ -259,7 +266,9 @@ function UserSettings() {
         }}
       >
         <h2>Display Settings</h2>
-        <span>▼</span>
+        <span className={openSection == "display" ? "arrow rotate" : "arrow"}>
+          ▲
+        </span>
       </div>
 
       {openSection === "display" && (
@@ -328,7 +337,9 @@ function UserSettings() {
         }}
       >
         <h2>Security Settings</h2>
-        <span>▼</span>
+        <span className={openSection == "security" ? "arrow rotate" : "arrow"}>
+          ▲
+        </span>
       </div>
 
       {openSection === "security" && (
@@ -433,7 +444,9 @@ function UserSettings() {
         }}
       >
         <h2>System Information</h2>
-        <span>▼</span>
+        <span className={openSection == "system" ? "arrow rotate" : "arrow"}>
+          ▲
+        </span>
       </div>
 
       {openSection === "system" && (

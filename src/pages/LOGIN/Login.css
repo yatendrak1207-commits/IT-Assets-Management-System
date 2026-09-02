@@ -4,8 +4,15 @@
     justify-content: center;
     align-items: center;
     background-color: #f4f6f8;
+    border-radius: 5px;
+    box-shadow: 0 1px 1px 1px rgb(193, 236, 237);
+    cursor: pointer;
 }
+.login-page :hover{
+    transform: translateY(-1px);
+    
 
+}
 .login-box {
     width: 350px;
     padding: 30px;
@@ -13,10 +20,24 @@
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
-
+.login-box button{
+    font-size: 15px;
+    transition: transform 0.3s ease;
+}
+.login-box button:hover{
+    background-color: rgb(38, 245, 38);
+    border: 1px solid rgba(65, 64, 64, 0.313);
+    transform: scale(1.02);
+    
+    
+}
 .login-box h1 {
+    font-size: 35px;
+    text-decoration: underline;
     text-align: center;
     margin-bottom: 25px;
+    font-weight: bolder;
+    
 }
 
 .login-field {
@@ -24,10 +45,13 @@
     flex-direction: column;
     margin-bottom: 18px;
 }
+lo
 
 .login-field label {
     margin-bottom: 7px;
     font-weight: bold;
+    font-size: 20px;
+
 }
 
 .login-field input {

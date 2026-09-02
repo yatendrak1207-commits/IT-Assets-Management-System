@@ -97,7 +97,7 @@ function Employees() {
               <MdManageSearch className="search-icon" />
               <input
                 type="text"
-                placeholder="Search_________"
+                placeholder="Search by ID/Name/Department_____"
                 value={search}
                 onChange={function (x) {
                   setSeacrh(x.target.value);
@@ -189,6 +189,14 @@ function Employees() {
         {selecteditem && (
           <div className="view-overlay">
             <div className="view-form">
+              <button
+                className="close-btn"
+                onClick={function () {
+                  setSelectedItem(null);
+                }}
+              >
+                ×
+              </button>
               <h2>Assets Details</h2>
 
               <p>
@@ -223,6 +231,21 @@ function Employees() {
       {showform && (
         <div className="employee-overlay">
           <div className="employee-form">
+            <button
+              className="close-btn"
+              onClick={function () {
+                setShowform(false);
+                setEditingItem(null);
+
+                setEmpid("");
+                setempName("");
+                setDepartment("");
+                setEmail("");
+                setPhoneno("");
+              }}
+            >
+              ×
+            </button>
             <h2>{editingItem ? "Update details" : "Add Employee"}</h2>
             <div className="form-field">
               <label>Employee ID</label>

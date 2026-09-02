@@ -173,6 +173,7 @@
     border: 1px solid #e2e8f0;
 
     background-color: #ffffff;
+    border-radius: 10px;
 }
 
 
@@ -193,12 +194,23 @@
 /* Table Header */
 
 .recent-complaints th {
-    background-color: #f1f5f9;
+    
+            padding: 14px 12px;
+    
+            font-size: 20px;
+            font-weight: 600;
+    
+            text-align: center;
+    
+            color: #155e52;
+    
+            background: #e3f5ef;
+    
+            border: 1px solid #d5e6e1;
+    
+            white-space: nowrap;
+        }
 
-    color: #334155;
-
-    font-weight: 600;
-}
 
 
 /* Table Data */

@@ -17,7 +17,7 @@ import Profile from "./pages/Profile/Profile";
 
 import UserDashboard from "./pages/UserDashboard/Userdashboard";
 import MyAssets from "./pages/UserAsset/UserAssets";
-import UserComplaints from "./pages/UserComplaints/UserComplaints";
+import UserComplaints from "./pages/UserComplaints/Usercomplaints";
 import UserRepairs from "./pages/UserRepair/UserRepair";
 import UserNotifications from "./pages/UserNotification/UserNotification";
 import UserProfile from "./pages/UserProfile/UserProfile";
@@ -29,10 +29,10 @@ function App() {
   return (
     <div className="app-shell">
       <Routes>
+        {/* Login */}
         <Route path="/login" element={<Login />} />
 
         {/* Admin */}
-
         <Route
           element={
             <ProtectedRoute allowedRole="admin">
@@ -51,7 +51,6 @@ function App() {
         </Route>
 
         {/* User */}
-
         <Route
           element={
             <ProtectedRoute allowedRole="user">
@@ -67,6 +66,9 @@ function App() {
           <Route path="/user/profile" element={<UserProfile />} />
           <Route path="/user/settings" element={<UserSettings />} />
         </Route>
+
+        {/* Unknown URL */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </div>
   );

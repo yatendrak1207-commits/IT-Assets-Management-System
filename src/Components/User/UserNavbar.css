@@ -54,6 +54,7 @@
 }
 
 .navbar-right span {
+    margin-left: 0px;
     font-size: 20px;
     font-weight: 600;
 }
@@ -62,6 +63,7 @@
     font-size: 20px;
     cursor: pointer;
     transition: 0.3s;
+    margin-right: 2px;
 }
 
 .nav-icon:hover {

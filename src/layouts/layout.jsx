@@ -34,7 +34,7 @@ function Layout() {
                   <button
                     className="logout-btn"
                     onClick={function () {
-                      localStorage.removeItem("loggedInUser");
+                      sessionStorage.removeItem("loggedInUser");
                       setShowlogout(false);
                       navigate("/login");
                     }}

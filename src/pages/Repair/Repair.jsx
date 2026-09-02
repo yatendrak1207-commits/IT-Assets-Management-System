@@ -89,7 +89,7 @@ export default function Repair() {
   }
   return (
     <div className="repair">
-      <div className="repair-header">
+      <div className="repair-Header">
         <div className="repair-action">
           <h1>
             <GiAutoRepair />
@@ -100,7 +100,7 @@ export default function Repair() {
               <MdManageSearch className="search-icon" />
               <input
                 type="text"
-                placeholder="Search__________ "
+                placeholder="Search by Asset/Assigned/Status____ "
                 value={search}
                 onChange={function (x) {
                   setsearch(x.target.value);
@@ -205,6 +205,14 @@ export default function Repair() {
         {selecteditem && (
           <div className="view-overlay">
             <div className="view-form">
+              <button
+                className="close-btn"
+                onClick={function () {
+                  setSelectedItem(null);
+                }}
+              >
+                ×
+              </button>
               <h2>Repair Details</h2>
 
               <p>
@@ -248,6 +256,22 @@ export default function Repair() {
       {showform && (
         <div className="repair-overlay">
           <div className="repair-form">
+            <button
+              className="close-btn"
+              onClick={function () {
+                setShowform(false);
+                setEditingItem(null);
+
+                setRepairId("");
+                setAssetname("");
+                setAssigned("");
+                setIssue("");
+                setRepairdate("");
+                setStatus("");
+              }}
+            >
+              ×
+            </button>
             <h2>{editingItem ? "Update details" : "Add Repair"}</h2>
 
             <div className="form-field">

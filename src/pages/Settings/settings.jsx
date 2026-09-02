@@ -127,7 +127,9 @@ function Settings() {
         }}
       >
         <h2>Gernal Settings</h2>
-        <span>▼</span>
+        <span className={openSection == "general" ? "arrow rotate" : "arrow"}>
+          ▲
+        </span>
       </div>
       {/*-------General setting options--------------*/}
       {openSection == "general" && (
@@ -201,7 +203,7 @@ function Settings() {
                 seteditmode(!editmode);
               }}
             >
-              {editmode ? "Save Changes" : "update detail"}
+              {editmode ? "Save Changes" : "Update detail"}
             </button>
           </div>
         </div>
@@ -214,7 +216,11 @@ function Settings() {
         }}
       >
         <h2>Notification Settings</h2>
-        <span>▼</span>
+        <span
+          className={openSection == "notification" ? "arrow rotate" : "arrow"}
+        >
+          ▲
+        </span>
       </div>
       {/*--------------Notification setting options------------*/}
       {openSection == "notification" && (
@@ -297,7 +303,9 @@ function Settings() {
         }}
       >
         <h2>Display Settings</h2>
-        <span>▼</span>
+        <span className={openSection == "display" ? "arrow rotate" : "arrow"}>
+          ▲
+        </span>
       </div>
       {/*--------------Display setting option------------*/}
       {openSection == "display" && (
@@ -357,7 +365,9 @@ function Settings() {
         }}
       >
         <h2>Security Settings</h2>
-        <span>▼</span>
+        <span className={openSection == "security" ? "arrow rotate" : "arrow"}>
+          ▲
+        </span>
       </div>
       {/*--------------Security setting option------------*/}
       {openSection == "security" && (
@@ -411,7 +421,7 @@ function Settings() {
                 />
               </div>
               <div className="save-button">
-                <button onClick={Changepassword}>save Changes</button>
+                <button onClick={Changepassword}>Save Changes</button>
               </div>
             </div>
           )}
@@ -443,7 +453,7 @@ function Settings() {
             </select>
           </div>
           <div className="save-button">
-            <button onClick={saveSecuritySettings}>save Changes</button>
+            <button onClick={saveSecuritySettings}>Save Changes</button>
           </div>
         </div>
       )}
@@ -454,7 +464,9 @@ function Settings() {
         }}
       >
         <h2>System Information</h2>
-        <span>▼</span>
+        <span className={openSection == "system" ? "arrow rotate" : "arrow"}>
+          ▲
+        </span>
       </div>
       {openSection == "system" && (
         <div className="settings-content">

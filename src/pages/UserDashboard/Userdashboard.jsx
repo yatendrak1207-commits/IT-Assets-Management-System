@@ -3,7 +3,7 @@ import "./UserDashboard.css";
 import { complaints } from "../../data/data";
 import { MdOutlineDashboard } from "react-icons/md";
 function UserDashboard() {
-  const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
 
   const userData = complaints.filter(
     (item) => item.employeeId === loggedInUser?.employeeId,
@@ -62,7 +62,7 @@ function UserDashboard() {
       <div className="recent-complaints">
         <h2>Recent Complaints</h2>
 
-        <table>
+        <table className="complaint-tabel">
           <thead>
             <tr>
               <th>Complaint ID</th>

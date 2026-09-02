@@ -464,7 +464,17 @@
 .password-fields input {
     width: 300px;
 }
+/* =========================================================
+   Box Arrow(span)
+========================================================= */
+.arrow {
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
 
+.arrow.rotate {
+    transform: rotate(180deg);
+}
 
 /* =========================================================
    ANIMATION
