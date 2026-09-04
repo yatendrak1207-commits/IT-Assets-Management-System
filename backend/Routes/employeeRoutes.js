@@ -18,10 +18,74 @@ router.get("/", function (req, res) {
 
 });
 // POST - Create new asset
-router.post("/", function (req, res) {
+router.post("/",async function (req, res) {
 
-  const newEmployee = new Employee(req.body);
+  const {
+    id,
+    employeeId,
+    name,
+    department,
+    phoneno,
+    email
+  } = req.body;
 
+  // Required fields check
+  if (
+    id === undefined ||
+    employeeId === undefined ||
+    !name ||
+    !department ||
+    !phoneno ||
+    !email
+  ) {
+    return res.status(400).json({
+      message: "All employee fields are required"
+    });
+  }
+  // Email validation
+const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+if (!emailPattern.test(email)) {
+  return res.status(400).json({
+    message: "Invalid email format"
+  });
+}
+// Phone validation
+const phonePattern = /^[0-9]{10}$/;
+
+if (!phonePattern.test(phoneno)) {
+  return res.status(400).json({
+    message: "Phone number must be exactly 10 digits"
+  });
+}
+
+   // Number validation
+  if (typeof id !== "number" || typeof employeeId !== "number") {
+  return res.status(400).json({
+    message: "id and employeeId must be numbers"
+  });
+}
+// Duplicate validation
+const existingemployee = await Employee.findOne({
+  $or: [
+    { id: id },
+    { employeeId: employeeId }
+  ]
+});
+
+if (existingemployee) {
+  return res.status(409).json({
+    message: "id or employeeId already exists"
+  });
+}
+
+ const newEmployee = new Employee({
+  id,
+  employeeId,
+  name,
+  department,
+  phoneno,
+  email
+});
   newEmployee.save()
     .then(function (employee) {
       res.status(201).json(employee);

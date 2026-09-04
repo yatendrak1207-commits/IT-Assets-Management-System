@@ -19,10 +19,65 @@ router.get("/", function (req, res) {
 
 });
 // POST - Create new asset
-router.post("/", function (req, res) {
+router.post("/",  async function (req, res) {
 
-  const newAsset = new Asset(req.body);
+  const {
+    id,
+    assetId,
+    assetName,
+    category,
+    status
 
+  } = req.body;
+
+  // Required fields check
+  if (
+    id === undefined ||
+    assetId === undefined ||
+    !assetName||
+    !category ||
+    !status
+  ) {
+    return res.status(400).json({
+      message: "All assets fields are required"
+    });
+  }
+   // Number validation
+  if (typeof id !== "number" || typeof assetId !== "number") {
+  return res.status(400).json({
+    message: "id and assetId must be numbers"
+  });
+}
+
+// Status validation
+const allowedStatus = ["Available", "Assigned", "Repair"];
+
+if (!allowedStatus.includes(status)) {
+  return res.status(400).json({
+    message: "Invalid status"
+  });
+}
+// Duplicate validation
+const existingAsset = await Asset.findOne({
+  $or: [
+    { id: id },
+    { assetId: assetId }
+  ]
+});
+
+if (existingAsset) {
+  return res.status(409).json({
+    message: "id or assetId already exists"
+  });
+}
+
+ const newAsset = new Asset({
+  id,
+  assetId,
+  assetName,
+  category,
+  status
+});
   newAsset.save()
     .then(function (asset) {
       res.status(201).json(asset);
@@ -48,9 +103,11 @@ router.put("/:id", function (req, res) {
           message: "Asset not found"
         });
       }
+      
 
-      if (req.body.name !== undefined) {
-         asset.name = req.body.name;
+      
+      if (req.body.assetName !== undefined) {
+         asset.assetName = req.body.name;
         }
 
     if (req.body.category !== undefined) {

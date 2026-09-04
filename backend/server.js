@@ -4,6 +4,8 @@ const dns = require("dns");
 
 const assetRoutes = require("./Routes/assetRoutes");
 const employeeRoutes = require("./Routes/employeeRoutes");
+const repairRoutes=require("./Routes/repairRoutes");
+const supplierRoutes=require("./Routes/supplierRoutes");
 
 dns.setServers(["8.8.8.8"]);
 
@@ -26,6 +28,8 @@ const PORT = 5000;
 app.use(express.json());
 app.use("/api/assets", assetRoutes);
 app.use("/api/employees", employeeRoutes);
+app.use("/api/repairs", repairRoutes);
+app.use("/api/suppliers", supplierRoutes);
 
 
 // Test route

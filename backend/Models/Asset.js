@@ -3,7 +3,8 @@ const { BiCategory } = require("react-icons/bi");
 
 const assetSchema=new mongoose.Schema({
     id : Number,
-    name:String,
+    assetId:Number,
+    assetName:String,
     category: String,
     status:String,
 });
