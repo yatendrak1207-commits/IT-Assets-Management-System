@@ -98,6 +98,14 @@ router.put("/:id", function (req, res) {
 
   const id = Number(req.params.id);
 
+  
+// ID validation
+  if (isNaN(id)) {
+    return res.status(400).json({
+      message: "id must be a number"
+    });
+  }
+
   Supplier.findOne({ id: id })
     .then(function (supplier) {
 
@@ -120,6 +128,15 @@ router.put("/:id", function (req, res) {
       }
 
       if (req.body.companyContactNumber !== undefined) {
+
+        const phonePattern = /^[0-9]{10}$/;
+
+      if (!phonePattern.test(req.body.companyContactNumber)) {
+        return res.status(400).json({
+          message: "Phone number must be exactly 10 digits"
+        });
+      }
+
         supplier.companyContactNumber = req.body.companyContactNumber;
       }
 

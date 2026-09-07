@@ -20,7 +20,12 @@ function RecentComplaints({ complaints }) {
                 <td>{item.employeeName}</td>
                 <td>{item.assetName}</td>
                 <td>{item.complaint}</td>
-                <td>{item.complaintDate}</td>
+                <td>
+                  {" "}
+                  {item.complaintDate
+                    ? new Date(item.complaintDate).toLocaleDateString("en-GB")
+                    : ""}
+                </td>
                 <td
                   className={
                     item.status === "Open"

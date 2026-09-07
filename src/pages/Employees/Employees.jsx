@@ -1,7 +1,7 @@
 import React from "react";
-import { complaints } from "../../data/data";
+
 import "./Employees.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FunnelChart } from "recharts";
 import { FaPlus } from "react-icons/fa";
 import { BsFillPeopleFill } from "react-icons/bs";
@@ -10,9 +10,23 @@ function Employees() {
   const [search, setSeacrh] = useState("");
   const [editingItem, setEditingItem] = useState(null);
   const [selecteditem, setSelectedItem] = useState(null);
-  const [employee, setEmployee] = useState(
-    JSON.parse(localStorage.getItem("employee")) || complaints,
-  );
+  const [employee, setEmployee] = useState([]);
+  useEffect(function () {
+    fetch("http://localhost:5000/api/employees")
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("Failed to fetch employees");
+        }
+
+        return response.json();
+      })
+      .then(function (data) {
+        setEmployee(data);
+      })
+      .catch(function (error) {
+        console.log("Error fetching employees:", error);
+      });
+  }, []);
   const [showform, setShowform] = useState(false);
   const [empid, setEmpid] = useState("");
   const [empname, setempName] = useState("");
@@ -21,9 +35,9 @@ function Employees() {
   const [phoneno, setPhoneno] = useState("");
   const filteredEmployee = employee.filter(function (item) {
     return (
-      item.employeeId.toLowerCase().includes(search.toLowerCase()) ||
-      item.employeeName.toLowerCase().includes(search.toLowerCase()) ||
-      item.department.toLowerCase().includes(search.toLowerCase())
+      String(item.employeeId).toLowerCase().includes(search.toLowerCase()) ||
+      String(item.employeeName).toLowerCase().includes(search.toLowerCase()) ||
+      String(item.department).toLowerCase().includes(search.toLowerCase())
     );
   });
   function highlightText(text) {
@@ -42,47 +56,94 @@ function Employees() {
     });
   }
   function handleSaveEmployee() {
-    let updatedemployee;
     if (editingItem) {
-      updatedemployee = employee.map(function (employeeItem) {
-        if (employeeItem.id === editingItem.id) {
-          return {
-            ...employeeItem,
-            employeeId: empid,
-            employeeName: empname,
-            department: department,
-            email: email,
-            phone: phoneno,
-          };
-        }
+      fetch("http://localhost:5000/api/employees/" + editingItem.id, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          employeeId: Number(empid),
+          employeeName: empname,
+          department: department,
+          email: email,
+          phone: phoneno,
+        }),
+      })
+        .then(function (response) {
+          if (!response.ok) {
+            return response.json().then(function (errorData) {
+              throw new Error(errorData.message);
+            });
+          }
 
-        return employeeItem;
-        localStorage.setItem("employee", JSON.stringify(updatedemployee));
-      });
+          return response.json();
+        })
+        .then(function (updatedEmployee) {
+          setEmployee(function (currentEmployees) {
+            return currentEmployees.map(function (employeeItem) {
+              if (employeeItem.id === updatedEmployee.id) {
+                return updatedEmployee;
+              }
+
+              return employeeItem;
+            });
+          });
+
+          setShowform(false);
+          setEditingItem(null);
+          setEmpid("");
+          setempName("");
+          setDepartment("");
+          setEmail("");
+          setPhoneno("");
+        })
+        .catch(function (error) {
+          console.log("Error updating employee:", error);
+        });
     } else {
-      const newemployee = {
+      const newEmployee = {
         id: Date.now(),
-        employeeId: empid,
+        employeeId: Number(empid),
         employeeName: empname,
         department: department,
         email: email,
         phone: phoneno,
       };
 
-      updatedemployee = [...employee, newemployee];
+      fetch("http://localhost:5000/api/employees", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newEmployee),
+      })
+        .then(function (response) {
+          if (!response.ok) {
+            return response.json().then(function (errorData) {
+              throw new Error(errorData.message);
+            });
+          }
+
+          return response.json();
+        })
+        .then(function (createdEmployee) {
+          setEmployee(function (currentEmployees) {
+            return [...currentEmployees, createdEmployee];
+          });
+
+          setShowform(false);
+          setEditingItem(null);
+          setEmpid("");
+          setempName("");
+          setDepartment("");
+          setEmail("");
+          setPhoneno("");
+        })
+        .catch(function (error) {
+          console.log("Error creating employee:", error);
+        });
     }
-    setEmployee(updatedemployee);
-
-    localStorage.setItem("employee", JSON.stringify(updatedemployee));
-    setShowform(false);
-
-    setEditingItem(null);
-
-    setEmpid("");
-    setempName("");
-    setDepartment("");
-    setEmail("");
-    setPhoneno("");
   }
   return (
     <div className="employees">
@@ -149,16 +210,35 @@ function Employees() {
                       <button
                         className="delete-btn"
                         onClick={function () {
-                          const updatedemployee = employee.filter(function (x) {
-                            return x.id !== item.id;
-                          });
+                          fetch(
+                            "http://localhost:5000/api/employees/" + item.id,
+                            {
+                              method: "DELETE",
+                            },
+                          )
+                            .then(function (response) {
+                              if (!response.ok) {
+                                return response
+                                  .json()
+                                  .then(function (errorData) {
+                                    throw new Error(errorData.message);
+                                  });
+                              }
 
-                          setEmployee(updatedemployee);
-
-                          localStorage.setItem(
-                            "employee",
-                            JSON.stringify(updatedemployee),
-                          );
+                              return response.json();
+                            })
+                            .then(function () {
+                              setEmployee(function (currentEmployees) {
+                                return currentEmployees.filter(
+                                  function (employeeItem) {
+                                    return employeeItem.id !== item.id;
+                                  },
+                                );
+                              });
+                            })
+                            .catch(function (error) {
+                              console.log("Error deleting employee:", error);
+                            });
                         }}
                       >
                         Delete

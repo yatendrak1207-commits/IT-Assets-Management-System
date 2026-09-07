@@ -6,6 +6,7 @@ const assetSchema=new mongoose.Schema({
     assetId:Number,
     assetName:String,
     category: String,
+    assigned:String,
     status:String,
 });
 

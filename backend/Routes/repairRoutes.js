@@ -134,6 +134,13 @@ router.put("/:id", function (req, res) {
 
   const id = Number(req.params.id);
 
+   // ID validation
+  if (isNaN(id)) {
+    return res.status(400).json({
+      message: "id must be a number"
+    });
+  }
+
   Repair.findOne({ id: id })
     .then(function (repair) {
 
@@ -160,10 +167,49 @@ router.put("/:id", function (req, res) {
       }
 
       if (req.body.complaintDate !== undefined) {
+        const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+        if (!datePattern.test(req.body.complaintDate)) {
+          return res.status(400).json({
+            message: "Complaint date must be in YYYY-MM-DD format"
+          });
+        }
+
+        // Actual date validation
+        const dateParts = req.body.complaintDate.split("-");
+
+        const year = Number(dateParts[0]);
+        const month = Number(dateParts[1]);
+        const day = Number(dateParts[2]);
+
+        const date = new Date(year, month - 1, day);
+
+        if (
+          date.getFullYear() !== year ||
+          date.getMonth() !== month - 1 ||
+          date.getDate() !== day
+        ) {
+          return res.status(400).json({
+            message: "Invalid complaint date"
+          });
+        }
         repair.complaintDate = req.body.complaintDate;
       }
 
       if (req.body.status !== undefined) {
+        // Status Validation
+      const allowedStatus = [
+        "Pending",
+        "In Progress",
+        "Completed",
+        "Cancelled"
+      ];
+
+      if (!allowedStatus.includes(req.body.status)) {
+        return res.status(400).json({
+          message: "Invalid repair status"
+        });
+      }
         repair.status = req.body.status;
       }
 

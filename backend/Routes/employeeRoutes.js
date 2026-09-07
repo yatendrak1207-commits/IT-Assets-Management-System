@@ -23,9 +23,9 @@ router.post("/",async function (req, res) {
   const {
     id,
     employeeId,
-    name,
+    employeeName,
     department,
-    phoneno,
+    phone,
     email
   } = req.body;
 
@@ -33,9 +33,9 @@ router.post("/",async function (req, res) {
   if (
     id === undefined ||
     employeeId === undefined ||
-    !name ||
+    !employeeName ||
     !department ||
-    !phoneno ||
+    !phone ||
     !email
   ) {
     return res.status(400).json({
@@ -52,7 +52,7 @@ if (!emailPattern.test(email)) {
 // Phone validation
 const phonePattern = /^[0-9]{10}$/;
 
-if (!phonePattern.test(phoneno)) {
+if (!phonePattern.test(phone)) {
   return res.status(400).json({
     message: "Phone number must be exactly 10 digits"
   });
@@ -81,9 +81,9 @@ if (existingemployee) {
  const newEmployee = new Employee({
   id,
   employeeId,
-  name,
+  employeeName,
   department,
-  phoneno,
+  phone,
   email
 });
   newEmployee.save()
@@ -103,6 +103,13 @@ if (existingemployee) {
 router.put("/:id", function (req, res) {
   const id = Number(req.params.id);
 
+   // ID validation
+  if (isNaN(id)) {
+    return res.status(400).json({
+      message: "id must be a number"
+    });
+  }
+
   Employee.findOne({ id: id })
     .then(function (employee) {
 
@@ -112,21 +119,36 @@ router.put("/:id", function (req, res) {
         });
       }
 
-      if (req.body.name !== undefined) {
-    employee.name = req.body.name;
-}
+      if (req.body.employeeName !== undefined) {
+    employee.employeeName = req.body.employeeName;
+      }
 
-if (req.body.department !== undefined) {
+      if (req.body.department !== undefined) {
     employee.department = req.body.department;
-}
+      }
 
-if (req.body.phoneno !== undefined) {
-    employee.phoneno = req.body.phoneno;
-}
+      if (req.body.phone !== undefined) {
+        // Phone validation
+      const phonePattern = /^[0-9]{10}$/;
 
-if (req.body.email !== undefined) {
+      if (!phonePattern.test(req.body.phone)) {
+        return res.status(400).json({
+          message: "Phone number must be exactly 10 digits"
+        });
+      }
+    employee.phone = req.body.phone;
+      }
+
+      if (req.body.email !== undefined) {
+         // Email validation
+        const emailPattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+        if (!emailPattern.test(req.body.email)) {
+          return res.status(400).json({
+            message: "Invalid email format"
+          });
+        }
     employee.email = req.body.email;
-}
+      }
 
       employee.save()
         .then(function (updatedEmployee) {

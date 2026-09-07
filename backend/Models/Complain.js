@@ -1,12 +1,14 @@
 const mongoose = require("mongoose");
 
-const supplierSchema= new mongoose.Schema({
-    id : Number,
-    supplierId: Number,
-    supplierName: String,
-    companyName: String,
-    companyContactNumber: String,
+const complaintSchema = new mongoose.Schema({
+  id: Number,
+  employeeName: String,
+  assetName: String,
+  complaint: String,
+  complaintDate: Date,
+  status: String
 });
 
-const Supplier=mongoose.model("Supplier",supplierSchema);
-module.exports=Supplier;
+const Complaint = mongoose.model("Complaint", complaintSchema);
+
+module.exports = Complaint;

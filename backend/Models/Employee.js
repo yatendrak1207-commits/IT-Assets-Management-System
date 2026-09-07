@@ -3,9 +3,9 @@ const mongoose = require("mongoose");
 const employeeSchema= new mongoose.Schema({
     id : Number,
     employeeId:Number,
-    name:String,
+    employeeName:String,
     department:String,
-    phoneno:String,
+    phone:String,
     email:String,
 });
 

@@ -26,6 +26,7 @@ router.post("/",  async function (req, res) {
     assetId,
     assetName,
     category,
+    assigned,
     status
 
   } = req.body;
@@ -36,6 +37,7 @@ router.post("/",  async function (req, res) {
     assetId === undefined ||
     !assetName||
     !category ||
+    !assigned||
     !status
   ) {
     return res.status(400).json({
@@ -52,7 +54,7 @@ router.post("/",  async function (req, res) {
 // Status validation
 const allowedStatus = ["Available", "Assigned", "Repair"];
 
-if (!allowedStatus.includes(status)) {
+if (!allowedStatus.includes(req.body.status)) {
   return res.status(400).json({
     message: "Invalid status"
   });
@@ -76,6 +78,7 @@ if (existingAsset) {
   assetId,
   assetName,
   category,
+  assigned,
   status
 });
   newAsset.save()
@@ -95,6 +98,13 @@ if (existingAsset) {
 router.put("/:id", function (req, res) {
   const id = Number(req.params.id);
 
+   // ID validation
+  if (isNaN(id)) {
+    return res.status(400).json({
+      message: "id must be a number"
+    });
+  }
+
   Asset.findOne({ id: id })
     .then(function (asset) {
 
@@ -107,15 +117,28 @@ router.put("/:id", function (req, res) {
 
       
       if (req.body.assetName !== undefined) {
-         asset.assetName = req.body.name;
+         asset.assetName = req.body.assetName;
         }
+
+        if (req.body.assigned !== undefined) {
+         asset.assigned = req.body.assigned;
+        }
+
 
     if (req.body.category !== undefined) {
         asset.category = req.body.category;
         }   
 
     if (req.body.status !== undefined) {
-        asset.status = req.body.status;
+      // Status validation
+      const allowedStatus = ["Available", "Assigned", "Repair"];
+
+      if (!allowedStatus.includes(req.body.status)) {
+        return res.status(400).json({
+          message: "Invalid status"
+        });
+      }
+              asset.status = req.body.status;
         }
 
       asset.save()

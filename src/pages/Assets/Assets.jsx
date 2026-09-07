@@ -1,6 +1,5 @@
-import { complaints } from "../../data/data";
 import "./Assets.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import { LuMonitorSpeaker } from "react-icons/lu";
 import { MdManageSearch } from "react-icons/md";
@@ -8,9 +7,24 @@ function Assets() {
   const [search, setSearch] = useState("");
   const [editingItem, setEditingItem] = useState(null);
   const [selecteditem, setSelectedItem] = useState(null);
-  const [asset, setAsset] = useState(
-    JSON.parse(localStorage.getItem("asset")) || complaints,
-  );
+  const [asset, setAsset] = useState([]);
+
+  useEffect(function () {
+    fetch("http://localhost:5000/api/assets")
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("Failed to fetch assets");
+        }
+
+        return response.json();
+      })
+      .then(function (data) {
+        setAsset(data);
+      })
+      .catch(function (error) {
+        console.log("Error fetching assets:", error);
+      });
+  }, []);
   const [showform, setShowform] = useState(false);
   const [assetid, setAssetid] = useState("");
   const [assetname, setAssetname] = useState("");
@@ -19,12 +33,18 @@ function Assets() {
   const [status, setStatus] = useState("");
   const filtereddAssets = asset.filter(function (item) {
     return (
-      item.assetId.toLowerCase().includes(search.toLowerCase()) ||
+      String(item.assetId).toLowerCase().includes(search.toLowerCase()) ||
       item.assetName.toLowerCase().includes(search.toLowerCase()) ||
       item.category.toLowerCase().includes(search.toLowerCase())
     );
   });
+
+  function formatAssetId(id) {
+    return "AST" + String(id).padStart(3, "0");
+  }
+
   function highlightText(text) {
+    text = String(text);
     if (!search) {
       return text;
     }
@@ -40,46 +60,94 @@ function Assets() {
     });
   }
   function handleSaveAsset() {
+    console.log("start");
     if (editingItem) {
-      const updatedAsset = asset.map(function (assetItem) {
-        if (assetItem.id === editingItem.id) {
-          return {
-            ...assetItem,
-            assetId: assetid,
-            assetName: assetname,
-            category: category,
-            assigned: assigned,
-            status: status,
-          };
-        }
+      fetch("http://localhost:5000/api/assets/" + editingItem.id, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          assetName: assetname,
+          category: category,
+          assigned: assigned,
+          status: status,
+        }),
+      })
+        .then(function (response) {
+          if (!response.ok) {
+            return response.json().then(function (errorData) {
+              throw new Error(errorData.message);
+            });
+          }
 
-        return assetItem;
-      });
+          return response.json();
+        })
+        .then(function (updatedAsset) {
+          setAsset(function (currentAssets) {
+            return currentAssets.map(function (assetItem) {
+              if (assetItem.id === updatedAsset.id) {
+                return updatedAsset;
+              }
 
-      setAsset(updatedAsset);
-      localStorage.setItem("asset", JSON.stringify(updatedAsset));
+              return assetItem;
+            });
+          });
+
+          setShowform(false);
+          setEditingItem(null);
+          setAssetid("");
+          setAssetname("");
+          setCategory("");
+          setAssigned("");
+          setStatus("");
+        })
+        .catch(function (error) {
+          console.log("Error updating asset:", error);
+        });
     } else {
       const newAsset = {
         id: Date.now(),
-        assetId: assetid,
+        assetId: Number(assetid),
         assetName: assetname,
         category: category,
         assigned: assigned,
         status: status,
       };
+      console.log("Sending asset:", newAsset);
+      fetch("http://localhost:5000/api/assets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newAsset),
+      })
+        .then(function (response) {
+          if (!response.ok) {
+            return response.json().then(function (errorData) {
+              throw new Error(errorData.message);
+            });
+          }
 
-      setAsset([...asset, newAsset]);
+          return response.json();
+        })
+        .then(function (createdAsset) {
+          setAsset(function (currentAssets) {
+            return [...currentAssets, createdAsset];
+          });
+
+          setShowform(false);
+          setEditingItem(null);
+          setAssetid("");
+          setAssetname("");
+          setCategory("");
+          setAssigned("");
+          setStatus("");
+        })
+        .catch(function (error) {
+          console.log("Error creating asset:", error);
+        });
     }
-
-    setShowform(false);
-
-    setEditingItem(null);
-
-    setAssetid("");
-    setAssetname("");
-    setCategory("");
-    setAssigned("");
-    setStatus("");
   }
   return (
     <div className="assets">
@@ -127,8 +195,8 @@ function Assets() {
           <tbody>
             {filtereddAssets.map(function (item) {
               return (
-                <tr key={item.id}>
-                  <td>{highlightText(item.assetId)}</td>
+                <tr key={item._id}>
+                  <td>{highlightText(formatAssetId(item.assetId))}</td>
                   <td>{highlightText(item.assetName)}</td>
                   <td>{highlightText(item.category)}</td>
                   <td>{item.assigned}</td>
@@ -146,16 +214,26 @@ function Assets() {
                       <button
                         className="delete-btn"
                         onClick={function () {
-                          const updatedAsset = asset.filter(function (x) {
-                            return x.id !== item.id;
-                          });
+                          fetch("http://localhost:5000/api/assets/" + item.id, {
+                            method: "DELETE",
+                          })
+                            .then(function (response) {
+                              if (!response.ok) {
+                                throw new Error("Failed to delete asset");
+                              }
 
-                          setAsset(updatedAsset);
-
-                          localStorage.setItem(
-                            "asset",
-                            JSON.stringify(updatedAsset),
-                          );
+                              return response.json();
+                            })
+                            .then(function () {
+                              setAsset(
+                                asset.filter(function (assetItem) {
+                                  return assetItem.id !== item.id;
+                                }),
+                              );
+                            })
+                            .catch(function (error) {
+                              console.log("Error deleting asset:", error);
+                            });
                         }}
                       >
                         Delete
@@ -165,7 +243,7 @@ function Assets() {
                         onClick={function () {
                           setEditingItem(item);
 
-                          setAssetid(item.assetId);
+                          setAssetid(String(item.assetId));
                           setAssetname(item.assetName);
                           setCategory(item.category);
                           setAssigned(item.assigned);
@@ -197,7 +275,8 @@ function Assets() {
               <h2>Assets Details</h2>
 
               <p>
-                <strong>Assets ID:</strong> {selecteditem.assetId}
+                <strong>Assets ID:</strong>{" "}
+                {formatAssetId(selecteditem.assetId)}
               </p>
               <p>
                 <strong>Asset Name:</strong> {selecteditem.assetName}
@@ -316,9 +395,10 @@ function Assets() {
                   setStatus(x.target.value);
                 }}
               >
-                <option value="open">Open</option>
-                <option value="In-progress">In-Progress</option>
-                <option value="resolved">Resolved</option>
+                <option value="">Select Status</option>
+                <option value="Available">Available</option>
+                <option value="Assigned">Assigned</option>
+                <option value="Repair">Repair</option>
               </select>
             </div>
 
@@ -339,7 +419,13 @@ function Assets() {
                 Cancel
               </button>
 
-              <button className="update-add" onClick={handleSaveAsset}>
+              <button
+                className="update-add"
+                onClick={function () {
+                  console.log("button clicked");
+                  handleSaveAsset();
+                }}
+              >
                 {editingItem ? "Update Details" : "Assets Details"}
               </button>
             </div>

@@ -1,7 +1,7 @@
 import React from "react";
 import "./Suppiler.css";
-import { complaints } from "../../data/data";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import { FaTruck } from "react-icons/fa6";
 import { MdManageSearch } from "react-icons/md";
@@ -10,9 +10,23 @@ function Suppiler() {
   const [search, setSeacrh] = useState("");
   const [editingItem, setEditingItem] = useState(null);
   const [selecteditem, setSelectedItem] = useState(null);
-  const [supplier, setsupplier] = useState(
-    JSON.parse(localStorage.getItem("supplier")) || complaints,
-  );
+  const [supplier, setsupplier] = useState([]);
+  useEffect(function () {
+    fetch("http://localhost:5000/api/suppliers")
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("Failed to fetch suppliers");
+        }
+
+        return response.json();
+      })
+      .then(function (data) {
+        setsupplier(data);
+      })
+      .catch(function (error) {
+        console.log("Error fetching employees:", error);
+      });
+  }, []);
   const [showform, setShowform] = useState(false);
   const [supplierid, setSupplierid] = useState("");
   const [suppliername, setSuppliername] = useState("");
@@ -42,41 +56,91 @@ function Suppiler() {
   }
   function handleSaveSupplier() {
     if (editingItem) {
-      const updatedSupplier = supplier.map(function (supplierItem) {
-        if (supplierItem.id === editingItem.id) {
-          return {
-            ...supplierItem,
-            supplierId: supplierid,
-            supplierName: suppliername,
-            companyName: company,
-            companyContactNumber: contactno,
-          };
-        }
+      fetch("http://localhost:5000/api/suppliers/" + editingItem.id, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          supplierId: Number(supplierid),
+          supplierName: suppliername,
+          companyName: company,
+          companyContactNumber: contactno,
+        }),
+      })
+        .then(function (response) {
+          if (!response.ok) {
+            return response.json().then(function (errorData) {
+              throw new Error(errorData.message);
+            });
+          }
 
-        return supplierItem;
-      });
+          return response.json();
+        })
+        .then(function (updatedSupplier) {
+          setsupplier(function (currentSuppliers) {
+            return currentSuppliers.map(function (supplierItem) {
+              if (supplierItem.id === updatedSupplier.id) {
+                return updatedSupplier;
+              }
 
-      setsupplier(updatedSupplier);
-      localStorage.setItem("supplier", JSON.stringify(updatedSupplier));
+              return supplierItem;
+            });
+          });
+
+          setShowform(false);
+          setEditingItem(null);
+
+          setSupplierid("");
+          setSuppliername("");
+          setcompany("");
+          setContactno("");
+        })
+        .catch(function (error) {
+          console.log("Error updating supplier:", error);
+        });
     } else {
       const newSupplier = {
         id: Date.now(),
-        supplierId: supplierid,
+        supplierId: Number(supplierid),
         supplierName: suppliername,
         companyName: company,
         companyContactNumber: contactno,
       };
 
-      setsupplier([...supplier, newSupplier]);
+      fetch("http://localhost:5000/api/suppliers", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newSupplier),
+      })
+        .then(function (response) {
+          if (!response.ok) {
+            return response.json().then(function (errorData) {
+              throw new Error(errorData.message);
+            });
+          }
+
+          return response.json();
+        })
+        .then(function (createdSupplier) {
+          setsupplier(function (currentSuppliers) {
+            return [...currentSuppliers, createdSupplier];
+          });
+
+          setShowform(false);
+          setEditingItem(null);
+
+          setSupplierid("");
+          setSuppliername("");
+          setcompany("");
+          setContactno("");
+        })
+        .catch(function (error) {
+          console.log("Error creating supplier:", error);
+        });
     }
-
-    setShowform(false);
-    setEditingItem(null);
-
-    setSupplierid("");
-    setSuppliername("");
-    setcompany("");
-    setContactno("");
   }
 
   return (
@@ -157,16 +221,35 @@ function Suppiler() {
                       <button
                         className="delete-btn"
                         onClick={function () {
-                          const updatedSupplier = supplier.filter(function (x) {
-                            return x.id !== item.id;
-                          });
+                          fetch(
+                            "http://localhost:5000/api/suppliers/" + item.id,
+                            {
+                              method: "DELETE",
+                            },
+                          )
+                            .then(function (response) {
+                              if (!response.ok) {
+                                return response
+                                  .json()
+                                  .then(function (errorData) {
+                                    throw new Error(errorData.message);
+                                  });
+                              }
 
-                          setsupplier(updatedSupplier);
-
-                          localStorage.setItem(
-                            "supplier",
-                            JSON.stringify(updatedSupplier),
-                          );
+                              return response.json();
+                            })
+                            .then(function () {
+                              setsupplier(function (currentSuppliers) {
+                                return currentSuppliers.filter(
+                                  function (supplierItem) {
+                                    return supplierItem.id !== item.id;
+                                  },
+                                );
+                              });
+                            })
+                            .catch(function (error) {
+                              console.log("Error deleting supplier:", error);
+                            });
                         }}
                       >
                         Delete

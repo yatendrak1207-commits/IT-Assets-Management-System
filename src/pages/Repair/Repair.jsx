@@ -1,7 +1,7 @@
 import React from "react";
-import { complaints } from "../../data/data";
+
 import "./Repair.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { data } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
 import { GiAutoRepair } from "react-icons/gi";
@@ -10,9 +10,23 @@ export default function Repair() {
   const [search, setsearch] = useState("");
   const [editingItem, setEditingItem] = useState(null);
   const [selecteditem, setSelectedItem] = useState(null);
-  const [repair, setRepairs] = useState(
-    JSON.parse(localStorage.getItem("repair")) || complaints,
-  );
+  const [repair, setRepairs] = useState([]);
+  useEffect(function () {
+    fetch("http://localhost:5000/api/repairs")
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("Failed to fetch repairs");
+        }
+
+        return response.json();
+      })
+      .then(function (data) {
+        setRepairs(data);
+      })
+      .catch(function (error) {
+        console.log("Error fetching repair:", error);
+      });
+  }, []);
   const [showform, setShowform] = useState(false);
   const [repairId, setRepairId] = useState("");
   const [assetname, setAssetname] = useState("");
@@ -44,28 +58,56 @@ export default function Repair() {
   }
   function handleSaveRepair() {
     if (editingItem) {
-      const updatedRepair = repair.map(function (repairItem) {
-        if (repairItem.id === editingItem.id) {
-          return {
-            ...repairItem,
-            repairId: repairId,
-            assetName: assetname,
-            assigned: assigned,
-            complaint: issue,
-            complaintDate: repairdate,
-            status: status,
-          };
-        }
+      fetch("http://localhost:5000/api/repairs/" + editingItem.id, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          repairId: Number(repairId),
+          assetName: assetname,
+          assigned: assigned,
+          complaint: issue,
+          complaintDate: repairdate,
+          status: status,
+        }),
+      })
+        .then(function (response) {
+          if (!response.ok) {
+            return response.json().then(function (errorData) {
+              throw new Error(errorData.message);
+            });
+          }
 
-        return repairItem;
-      });
+          return response.json();
+        })
+        .then(function (updatedRepair) {
+          setRepairs(function (currentRepairs) {
+            return currentRepairs.map(function (repairItem) {
+              if (repairItem.id === updatedRepair.id) {
+                return updatedRepair;
+              }
 
-      setRepairs(updatedRepair);
-      localStorage.setItem("repair", JSON.stringify(updatedRepair));
+              return repairItem;
+            });
+          });
+
+          setShowform(false);
+          setEditingItem(null);
+          setRepairId("");
+          setAssetname("");
+          setAssigned("");
+          setIssue("");
+          setRepairdate("");
+          setStatus("Pending");
+        })
+        .catch(function (error) {
+          console.log("Error updating repair:", error);
+        });
     } else {
       const newRepair = {
         id: Date.now(),
-        repairId: repairId,
+        repairId: Number(repairId),
         assetName: assetname,
         assigned: assigned,
         complaint: issue,
@@ -73,19 +115,40 @@ export default function Repair() {
         status: status,
       };
 
-      setRepairs([...repair, newRepair]);
+      fetch("http://localhost:5000/api/repairs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newRepair),
+      })
+        .then(function (response) {
+          if (!response.ok) {
+            return response.json().then(function (errorData) {
+              throw new Error(errorData.message);
+            });
+          }
+
+          return response.json();
+        })
+        .then(function (createdRepair) {
+          setRepairs(function (currentRepairs) {
+            return [...currentRepairs, createdRepair];
+          });
+
+          setShowform(false);
+          setEditingItem(null);
+          setRepairId("");
+          setAssetname("");
+          setAssigned("");
+          setIssue("");
+          setRepairdate("");
+          setStatus("Pending");
+        })
+        .catch(function (error) {
+          console.log("Error creating repair:", error);
+        });
     }
-
-    setShowform(false);
-
-    setEditingItem(null);
-
-    setRepairId("");
-    setAssetname("");
-    setAssigned("");
-    setIssue("");
-    setRepairdate("");
-    setStatus("Pending");
   }
   return (
     <div className="repair">
@@ -139,7 +202,11 @@ export default function Repair() {
                   <td>{highlightText(item.assetName)}</td>
                   <td>{highlightText(item.assigned)}</td>
                   <td>{item.complaint}</td>
-                  <td>{item.complaintDate}</td>
+                  <td>
+                    {item.complaintDate
+                      ? new Date(item.complaintDate).toLocaleDateString("en-GB")
+                      : ""}
+                  </td>
                   <td
                     className={
                       item.status === "Open"
@@ -187,7 +254,13 @@ export default function Repair() {
                           setAssetname(item.assetName);
                           setAssigned(item.assigned);
                           setIssue(item.complaint);
-                          setRepairdate(item.complaintDate);
+                          setRepairdate(
+                            item.complaintDate
+                              ? new Date(item.complaintDate)
+                                  .toISOString()
+                                  .slice(0, 10)
+                              : "",
+                          );
                           setStatus(item.status);
 
                           setShowform(true);
@@ -228,7 +301,12 @@ export default function Repair() {
                 <strong>Issue:</strong> {selecteditem.complaint}
               </p>
               <p>
-                <strong>Repair Date:</strong> {selecteditem.complaintDate}
+                <strong>Repair Date:</strong>{" "}
+                {selecteditem.complaintDate
+                  ? new Date(selecteditem.complaintDate).toLocaleDateString(
+                      "en-GB",
+                    )
+                  : ""}
               </p>
               <p>
                 <strong>Repair Center</strong> {selecteditem.repairCenter}
@@ -341,8 +419,9 @@ export default function Repair() {
                 }}
               >
                 <option value="pending">Pending</option>
-                <option value="in-progress">In Progress</option>
-                <option value="complete">Completed</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Complete">Completed</option>
+                <option value="Completed">Completed</option>
               </select>
             </div>
 

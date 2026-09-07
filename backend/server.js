@@ -1,11 +1,13 @@
 const express = require("express");
 const mongoose=require("mongoose");
 const dns = require("dns");
+const cors=require("cors");
 
 const assetRoutes = require("./Routes/assetRoutes");
 const employeeRoutes = require("./Routes/employeeRoutes");
 const repairRoutes=require("./Routes/repairRoutes");
 const supplierRoutes=require("./Routes/supplierRoutes");
+const complaintRoutes=require("./Routes/complaintRoutes");
 
 dns.setServers(["8.8.8.8"]);
 
@@ -24,12 +26,16 @@ const app = express();
 
 const PORT = 5000;
 
+app.use(cors());
+app.use(express.json());
+
 // JSON data read karne ke liye
 app.use(express.json());
 app.use("/api/assets", assetRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/repairs", repairRoutes);
 app.use("/api/suppliers", supplierRoutes);
+app.use("/api/complaints",complaintRoutes)
 
 
 // Test route
