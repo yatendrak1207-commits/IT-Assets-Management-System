@@ -2,8 +2,14 @@ const mongoose = require("mongoose");
 
 const complaintSchema = new mongoose.Schema({
   id: Number,
-  employeeName: String,
-  assetName: String,
+  employee: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Employee",
+  },
+  asset: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Asset",
+  },
   complaint: String,
   complaintDate: Date,
   status: String

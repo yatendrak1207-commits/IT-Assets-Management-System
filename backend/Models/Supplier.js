@@ -6,6 +6,10 @@ const supplierSchema= new mongoose.Schema({
     supplierName: String,
     companyName: String,
     companyContactNumber: String,
+    companyEmail: String,
+    companyAddress: String,
+    assetsSupplied: String,
+    supplierStatus: String,
 });
 
 const Supplier=mongoose.model("Supplier",supplierSchema);

@@ -7,6 +7,13 @@ const employeeSchema= new mongoose.Schema({
     department:String,
     phone:String,
     email:String,
+    employeestatus:String,
+   assignedAsset: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Asset"
+},
+    
+
 });
 
 const Employee=mongoose.model("Employee",employeeSchema);

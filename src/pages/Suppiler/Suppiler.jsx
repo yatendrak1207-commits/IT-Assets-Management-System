@@ -32,6 +32,10 @@ function Suppiler() {
   const [suppliername, setSuppliername] = useState("");
   const [company, setcompany] = useState("");
   const [contactno, setContactno] = useState("");
+  const [companyEmail, setCompanyEmail] = useState("");
+  const [companyAddress, setCompanyAddress] = useState("");
+  const [assetsSupplied, setAssetsSupplied] = useState("");
+  const [supplierStatus, setSupplierStatus] = useState("");
 
   const filteredsupplier = supplier.filter(function (item) {
     return (
@@ -66,6 +70,10 @@ function Suppiler() {
           supplierName: suppliername,
           companyName: company,
           companyContactNumber: contactno,
+          companyEmail: companyEmail,
+          companyAddress: companyAddress,
+          assetsSupplied: assetsSupplied,
+          supplierStatus: supplierStatus,
         }),
       })
         .then(function (response) {
@@ -106,6 +114,10 @@ function Suppiler() {
         supplierName: suppliername,
         companyName: company,
         companyContactNumber: contactno,
+        companyEmail: companyEmail,
+        companyAddress: companyAddress,
+        assetsSupplied: assetsSupplied,
+        supplierStatus: supplierStatus,
       };
 
       fetch("http://localhost:5000/api/suppliers", {
@@ -212,6 +224,10 @@ function Suppiler() {
                           setSuppliername(item.supplierName);
                           setcompany(item.companyName);
                           setContactno(item.companyContactNumber);
+                          setCompanyEmail(item.companyEmail);
+                          setCompanyAddress(item.companyAddress);
+                          setAssetsSupplied(item.assetsSupplied);
+                          setSupplierStatus(item.supplierStatus);
 
                           setShowform(true);
                         }}
@@ -323,6 +339,10 @@ function Suppiler() {
                 setSuppliername("");
                 setcompany("");
                 setContactno("");
+                setCompanyEmail("");
+                setCompanyAddress("");
+                setAssetsSupplied("");
+                setSupplierStatus("");
               }}
             >
               ×
@@ -374,6 +394,55 @@ function Suppiler() {
                 }}
               />
             </div>
+            <div className="form-field">
+              <label>Company Email</label>
+              <input
+                type="email"
+                placeholder="Company Email"
+                value={companyEmail}
+                onChange={function (x) {
+                  setCompanyEmail(x.target.value);
+                }}
+              />
+            </div>
+
+            <div className="form-field">
+              <label>Company Address</label>
+              <input
+                type="text"
+                placeholder="Company Address"
+                value={companyAddress}
+                onChange={function (x) {
+                  setCompanyAddress(x.target.value);
+                }}
+              />
+            </div>
+
+            <div className="form-field">
+              <label>Assets Supplied</label>
+              <input
+                type="text"
+                placeholder="Assets Supplied"
+                value={assetsSupplied}
+                onChange={function (x) {
+                  setAssetsSupplied(x.target.value);
+                }}
+              />
+            </div>
+
+            <div className="form-field">
+              <label>Supplier Status</label>
+              <select
+                value={supplierStatus}
+                onChange={function (x) {
+                  setSupplierStatus(x.target.value);
+                }}
+              >
+                <option value="">Select Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
             <div className="supplier-form-buttons">
               <button
                 className="cancel"
@@ -385,6 +454,10 @@ function Suppiler() {
                   setSuppliername("");
                   setcompany("");
                   setContactno("");
+                  setCompanyEmail("");
+                  setCompanyAddress("");
+                  setAssetsSupplied("");
+                  setSupplierStatus("");
                 }}
               >
                 Cancel

@@ -27,7 +27,11 @@ router.post("/",async function (req, res) {
     supplierId,
     supplierName,
     companyName,
-    companyContactNumber
+    companyContactNumber,
+    companyEmail,
+    companyAddress,
+    assetsSupplied,
+    supplierStatus
   } = req.body;
 
   // Required fields check
@@ -36,7 +40,11 @@ router.post("/",async function (req, res) {
     supplierId === undefined ||
     !supplierName ||
     !companyName ||
-    !companyContactNumber
+    !companyContactNumber||
+    !companyEmail||
+    !companyAddress||
+    !assetsSupplied||
+    !supplierStatus
   ) {
     return res.status(400).json({
       message: "All supplier fields are required"
@@ -77,7 +85,12 @@ if (existingsupplier) {
   supplierId,
   supplierName,
   companyName,
-  companyContactNumber
+  companyContactNumber,
+  companyEmail,
+  companyAddress,
+  assetsSupplied,
+  supplierStatus
+
 });
   newSupplier.save()
     .then(function (supplier) {
@@ -139,6 +152,21 @@ router.put("/:id", function (req, res) {
 
         supplier.companyContactNumber = req.body.companyContactNumber;
       }
+      if (req.body.companyEmail !== undefined) {
+           supplier.companyEmail = req.body.companyEmail;
+        }
+
+        if (req.body.companyAddress !== undefined) {
+          supplier.companyAddress = req.body.companyAddress;
+        }
+
+        if (req.body.assetsSupplied !== undefined) {
+          supplier.assetsSupplied = req.body.assetsSupplied;
+        }
+
+        if (req.body.supplierStatus !== undefined) {
+          supplier.supplierStatus = req.body.supplierStatus;
+        }
 
 
       return supplier.save();

@@ -8,6 +8,7 @@ function Assets() {
   const [editingItem, setEditingItem] = useState(null);
   const [selecteditem, setSelectedItem] = useState(null);
   const [asset, setAsset] = useState([]);
+  const [employees, setEmployees] = useState([]);
 
   useEffect(function () {
     fetch("http://localhost:5000/api/assets")
@@ -23,6 +24,22 @@ function Assets() {
       })
       .catch(function (error) {
         console.log("Error fetching assets:", error);
+      });
+
+    // Fetch employees so "Assigned" can be picked from the real
+    // Employee list instead of being freely typed text.
+    fetch("http://localhost:5000/api/employees")
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("Failed to fetch employees");
+        }
+        return response.json();
+      })
+      .then(function (data) {
+        setEmployees(data);
+      })
+      .catch(function (error) {
+        console.log("Error fetching employees:", error);
       });
   }, []);
   const [showform, setShowform] = useState(false);
@@ -60,6 +77,10 @@ function Assets() {
     });
   }
   function handleSaveAsset() {
+    if (!assetid || !assetname || !category || !status) {
+      alert("Please fill all required fields");
+      return;
+    }
     console.log("start");
     if (editingItem) {
       fetch("http://localhost:5000/api/assets/" + editingItem.id, {
@@ -70,7 +91,7 @@ function Assets() {
         body: JSON.stringify({
           assetName: assetname,
           category: category,
-          assigned: assigned,
+          assignedTo: assigned || null,
           status: status,
         }),
       })
@@ -111,7 +132,7 @@ function Assets() {
         assetId: Number(assetid),
         assetName: assetname,
         category: category,
-        assigned: assigned,
+        assignedTo: assigned || null,
         status: status,
       };
       console.log("Sending asset:", newAsset);
@@ -199,7 +220,9 @@ function Assets() {
                   <td>{highlightText(formatAssetId(item.assetId))}</td>
                   <td>{highlightText(item.assetName)}</td>
                   <td>{highlightText(item.category)}</td>
-                  <td>{item.assigned}</td>
+                  <td>
+                    {item.assignedTo ? item.assignedTo.employeeName : "-"}
+                  </td>
                   <td>{item.status}</td>
                   <td>
                     <div className="action-buttons">
@@ -246,7 +269,9 @@ function Assets() {
                           setAssetid(String(item.assetId));
                           setAssetname(item.assetName);
                           setCategory(item.category);
-                          setAssigned(item.assigned);
+                          setAssigned(
+                            item.assignedTo ? item.assignedTo._id : "",
+                          );
                           setStatus(item.status);
 
                           setShowform(true);
@@ -285,7 +310,10 @@ function Assets() {
                 <strong>Category:</strong> {selecteditem.category}
               </p>
               <p>
-                <strong>Assigned:</strong> {selecteditem.assigned}
+                <strong>Assigned:</strong>{" "}
+                {selecteditem.assignedTo
+                  ? selecteditem.assignedTo.employeeName
+                  : "-"}
               </p>
               <p>
                 <strong>Status:</strong> {selecteditem.status}
@@ -375,15 +403,27 @@ function Assets() {
               </select>
             </div>
             <div className="form-field">
-              <label>Assigned </label>
+              <label>Assigned</label>
+
               <input
                 type="text"
-                placeholder="Assigned"
+                list="employee-list"
+                placeholder="Select or enter employee"
                 value={assigned}
                 onChange={function (x) {
                   setAssigned(x.target.value);
                 }}
               />
+
+              <datalist id="employee-list">
+                {employees.map(function (emp) {
+                  return (
+                    <option key={emp._id} value={emp._id}>
+                      {emp.employeeName}
+                    </option>
+                  );
+                })}
+              </datalist>
             </div>
             <div className="form-field">
               <label>Status</label>

@@ -45,10 +45,10 @@ function Dashboard() {
       <div className="card-container">
         <Card title="Total Assets" value={assets.length} />
         <Card title="Employees" value={employee.length} />
-        <Card title="Complaints" value="15" />
+        <Card title="Complaints" value={repair.length} />
         <Card title="Repair" value={repair.length} />
       </div>
-      <RecentComplaints complaints={[]} />
+      <RecentComplaints complaints={repair} />
       <button
         onClick={function () {
           navigate("/assets");

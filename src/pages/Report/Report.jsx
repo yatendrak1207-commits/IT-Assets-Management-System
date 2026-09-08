@@ -1,8 +1,8 @@
 import React from "react";
 import Card from "../../Components/Card/Card";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./Report.css";
-import { complaints } from "../../data/data";
+
 import { IoBarChart } from "react-icons/io5";
 import {
   BarChart,
@@ -23,18 +23,56 @@ import {
 export default function Report() {
   const [reportFor, setReportFor] = useState("assets");
   const [chartType, setCharttype] = useState("bar");
+  const [assets, setAssets] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [repairs, setRepairs] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  const [complaints, setComplaints] = useState([]);
+
+  useEffect(function () {
+    fetch("http://localhost:5000/api/assets")
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        setAssets(data);
+      });
+
+    fetch("http://localhost:5000/api/employees")
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        setEmployees(data);
+      });
+
+    fetch("http://localhost:5000/api/repairs")
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        setRepairs(data);
+      });
+    fetch("http://localhost:5000/api/suppliers")
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        setSuppliers(data);
+      });
+  }, []);
+
   //---------------Assets calculation--------------
-  const assetIds = complaints.map(function (item) {
-    return item.assetId;
-  });
-  const uniqueAssets = new Set(assetIds);
-  const totalAssets = uniqueAssets.size;
-  const assigned = complaints.filter(function (item) {
-    return item.assigned;
+  const totalAssets = assets.length;
+
+  const assigned = assets.filter(function (item) {
+    return item.assignedTo;
   }).length;
+
   const avaliable = totalAssets - assigned;
-  const repair = complaints.filter(function (item) {
-    return item.status == "Pending";
+
+  const repair = repairs.filter(function (item) {
+    return item.status === "Pending";
   }).length;
 
   const assetReport = {
@@ -51,19 +89,15 @@ export default function Report() {
   };
 
   //------------------Employee calculation----------------
-  const employeeId = complaints.map(function (item) {
-    return item.employeeId;
-  });
-  const totalemployees = employeeId.length;
+  const totalemployees = employees.length;
 
-  const assignedemployees = complaints.filter(function (item) {
-    return item.assigned && item.employeeStatus == "Active";
+  const assignedemployees = employees.filter(function (item) {
+    return item.assignedAsset;
   }).length;
 
   const avaliableemployee = totalemployees - assignedemployees;
-  const inactiveemployees = complaints.filter(function (item) {
-    return item.employeeStatus == "Inactive";
-  }).length;
+
+  const inactiveemployees = 0;
 
   const employeeReport = {
     title: "Employee",
@@ -78,25 +112,7 @@ export default function Report() {
     repair: inactiveemployees,
   };
   //-------------Suppiler calculation-------
-  const supplierId = complaints.map(function (item) {
-    return item.supplierId;
-  });
-  const uniqueSuppilers = new Set(supplierId);
-  const totalsupplier = uniqueSuppilers.size;
-
-  const activesupplier = complaints.filter(function (item) {
-    return item.supplierStatus == "Active";
-  }).length;
-
-  const Inactivesupplier = complaints.filter(function (item) {
-    return item.supplierStatus == "Inactive";
-  }).length;
-
-  const assetsSupplied = complaints.map(function (item) {
-    return item.category;
-  });
-  const Uniqueassetssupplie = new Set(assetsSupplied);
-  const totalAssetsupplier = Uniqueassetssupplie.size;
+  const totalsupplier = suppliers.length;
 
   const supplierReport = {
     title: "supplier",
@@ -106,27 +122,24 @@ export default function Report() {
     ReapairLabel: "Total Assets Supplied",
 
     total: totalsupplier,
-    assigned: activesupplier,
-    available: Inactivesupplier,
-    repair: totalAssetsupplier,
+    assigned: 0,
+    available: 0,
+    repair: 0,
   };
 
   //-----------Repair Calculation--------
-  const repairId = complaints.map(function (item) {
-    return item.repairId;
-  });
-  const totalrepairs = repairId.length;
+  const totalrepairs = repairs.length;
 
-  const pendingrepair = complaints.filter(function (item) {
-    return item.repairStatus == "Pending";
+  const pendingrepair = repairs.filter(function (item) {
+    return item.status === "Pending";
   }).length;
 
-  const Inprogressrepair = complaints.filter(function (item) {
-    return item.repairStatus == "In Progress";
+  const Inprogressrepair = repairs.filter(function (item) {
+    return item.status === "In Progress";
   }).length;
 
-  const completerepairs = complaints.filter(function (item) {
-    return item.repairStatus == "Complete";
+  const completerepairs = repairs.filter(function (item) {
+    return item.status === "Completed";
   }).length;
 
   const repairReport = {
@@ -267,7 +280,7 @@ export default function Report() {
               />
               <Bar
                 dataKey="available"
-                name={currentReport.avaliableLabel}
+                name={currentReport.availableLabel}
                 fill="#10865e"
               />
               <Bar

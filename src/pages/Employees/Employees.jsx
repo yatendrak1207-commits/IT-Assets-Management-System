@@ -11,6 +11,7 @@ function Employees() {
   const [editingItem, setEditingItem] = useState(null);
   const [selecteditem, setSelectedItem] = useState(null);
   const [employee, setEmployee] = useState([]);
+  const [assets, setAssets] = useState([]);
   useEffect(function () {
     fetch("http://localhost:5000/api/employees")
       .then(function (response) {
@@ -26,6 +27,20 @@ function Employees() {
       .catch(function (error) {
         console.log("Error fetching employees:", error);
       });
+    fetch("http://localhost:5000/api/assets")
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("Failed to fetch assets");
+        }
+
+        return response.json();
+      })
+      .then(function (data) {
+        setAssets(data);
+      })
+      .catch(function (error) {
+        console.log("Error fetching assets:", error);
+      });
   }, []);
   const [showform, setShowform] = useState(false);
   const [empid, setEmpid] = useState("");
@@ -33,6 +48,8 @@ function Employees() {
   const [department, setDepartment] = useState("");
   const [email, setEmail] = useState("");
   const [phoneno, setPhoneno] = useState("");
+  const [employeestatus, setemployeeStatus] = useState("");
+  const [assignedAsset, setassignedAsset] = useState("");
   const filteredEmployee = employee.filter(function (item) {
     return (
       String(item.employeeId).toLowerCase().includes(search.toLowerCase()) ||
@@ -68,6 +85,8 @@ function Employees() {
           department: department,
           email: email,
           phone: phoneno,
+          assignedAsset: assignedAsset,
+          employeestatus: employeestatus,
         }),
       })
         .then(function (response) {
@@ -97,6 +116,8 @@ function Employees() {
           setDepartment("");
           setEmail("");
           setPhoneno("");
+          setassignedAsset("");
+          setemployeeStatus("");
         })
         .catch(function (error) {
           console.log("Error updating employee:", error);
@@ -109,6 +130,8 @@ function Employees() {
         department: department,
         email: email,
         phone: phoneno,
+        employeestatus: employeestatus,
+        assignedAsset: assignedAsset,
       };
 
       fetch("http://localhost:5000/api/employees", {
@@ -185,6 +208,7 @@ function Employees() {
               <th>Department</th>
               <th>Email</th>
               <th>Phone No.</th>
+              <th>Assigned Assets</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -197,6 +221,9 @@ function Employees() {
                   <td>{highlightText(item.department)}</td>
                   <td>{item.email}</td>
                   <td>{item.phone}</td>
+                  <td>
+                    {item.assignedAsset ? item.assignedAsset : "Not Assigned"}
+                  </td>
                   <td>
                     <div className="action-buttons">
                       <button
@@ -253,6 +280,9 @@ function Employees() {
                           setDepartment(item.department);
                           setEmail(item.email);
                           setPhoneno(item.phone);
+                          setemployeeStatus(item.employeestatus);
+
+                          setassignedAsset(item.assignedAsset || "");
 
                           setShowform(true);
                         }}
@@ -295,7 +325,14 @@ function Employees() {
                 <strong>Phone No. :</strong> {selecteditem.phone}
               </p>
               <p>
-                <strong>Employee Status :</strong> {selecteditem.employeeStatus}
+                <strong>Employee Status:</strong>
+                {selecteditem.employeestatus}
+              </p>
+              <p>
+                <strong>Assigned Assets :</strong>{" "}
+                {selecteditem.assignedAsset
+                  ? selecteditem.assignedAsset
+                  : "Not Assigned"}
               </p>
               <button
                 onClick={function () {
@@ -322,6 +359,7 @@ function Employees() {
                 setDepartment("");
                 setEmail("");
                 setPhoneno("");
+                setemployeeStatus("");
               }}
             >
               ×
@@ -396,6 +434,42 @@ function Employees() {
                 }}
               />
             </div>
+            <div className="form-field">
+              <label>Assigned Assets</label>
+              <select
+                value={assignedAsset}
+                onChange={function (x) {
+                  setassignedAsset(x.target.value);
+                }}
+              >
+                <option value="">Select Asset</option>
+
+                {assets.map(function (assetItem) {
+                  return (
+                    <option key={assetItem._id} value={assetItem.assetName}>
+                      {" "}
+                      {assetItem.assetName}{" "}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+            <div className="form-field">
+              <label>Employee Status</label>
+              <select
+                value={employeestatus}
+                onChange={function (x) {
+                  setemployeeStatus(x.target.value);
+                }}
+              >
+                <option value="">---Select Status---</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">In-Active</option>
+                <option value="ON-leave">On-leave</option>
+                <option value="probation">Probation(Traning)</option>
+                <option value="Notice Period">Notice Period</option>
+              </select>
+            </div>
 
             <div className="employee-form-buttons">
               <button
@@ -409,6 +483,8 @@ function Employees() {
                   setDepartment("");
                   setEmail("");
                   setPhoneno("");
+                  setassignedAsset("");
+                  setemployeeStatus("");
                 }}
               >
                 Cancel

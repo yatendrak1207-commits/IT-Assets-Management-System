@@ -2,7 +2,6 @@ import React from "react";
 
 import "./Repair.css";
 import { useState, useEffect } from "react";
-import { data } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
 import { GiAutoRepair } from "react-icons/gi";
 import { MdManageSearch } from "react-icons/md";
@@ -11,7 +10,27 @@ export default function Repair() {
   const [editingItem, setEditingItem] = useState(null);
   const [selecteditem, setSelectedItem] = useState(null);
   const [repair, setRepairs] = useState([]);
+  const [assets, setAssets] = useState([]);
+  const [employees, setEmployees] = useState([]);
   useEffect(function () {
+    fetch("http://localhost:5000/api/assets")
+      .then(function (r) {
+        return r.json();
+      })
+      .then(setAssets)
+      .catch(function (e) {
+        console.log("Error fetching assets:", e);
+      });
+
+    fetch("http://localhost:5000/api/employees")
+      .then(function (r) {
+        return r.json();
+      })
+      .then(setEmployees)
+      .catch(function (e) {
+        console.log("Error fetching employees:", e);
+      });
+
     fetch("http://localhost:5000/api/repairs")
       .then(function (response) {
         if (!response.ok) {
@@ -33,11 +52,13 @@ export default function Repair() {
   const [assigned, setAssigned] = useState("");
   const [issue, setIssue] = useState("");
   const [repairdate, setRepairdate] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState("pending");
   const filteredRepair = repair.filter(function (item) {
+    const assetName = item.asset ? item.asset.assetName : "";
+    const employeeName = item.employee ? item.employee.employeeName : "";
     return (
-      item.assetName.toLowerCase().includes(search.toLowerCase()) ||
-      item.assigned.toLowerCase().includes(search.toLowerCase()) ||
+      assetName.toLowerCase().includes(search.toLowerCase()) ||
+      employeeName.toLowerCase().includes(search.toLowerCase()) ||
       item.status.toLowerCase().includes(search.toLowerCase())
     );
   });
@@ -57,6 +78,18 @@ export default function Repair() {
     });
   }
   function handleSaveRepair() {
+    if (
+      !repairId ||
+      !assetname ||
+      !assigned ||
+      !issue ||
+      !repairdate ||
+      !status
+    ) {
+      alert("Please fill all required fields");
+      return;
+    }
+
     if (editingItem) {
       fetch("http://localhost:5000/api/repairs/" + editingItem.id, {
         method: "PUT",
@@ -65,8 +98,10 @@ export default function Repair() {
         },
         body: JSON.stringify({
           repairId: Number(repairId),
+          asset: editingItem.asset._id,
           assetName: assetname,
-          assigned: assigned,
+          employee: editingItem.employee._id,
+          employeeName: assigned,
           complaint: issue,
           complaintDate: repairdate,
           status: status,
@@ -99,7 +134,7 @@ export default function Repair() {
           setAssigned("");
           setIssue("");
           setRepairdate("");
-          setStatus("Pending");
+          setStatus("");
         })
         .catch(function (error) {
           console.log("Error updating repair:", error);
@@ -109,7 +144,7 @@ export default function Repair() {
         id: Date.now(),
         repairId: Number(repairId),
         assetName: assetname,
-        assigned: assigned,
+        employeeName: assigned,
         complaint: issue,
         complaintDate: repairdate,
         status: status,
@@ -143,7 +178,7 @@ export default function Repair() {
           setAssigned("");
           setIssue("");
           setRepairdate("");
-          setStatus("Pending");
+          setStatus("");
         })
         .catch(function (error) {
           console.log("Error creating repair:", error);
@@ -199,8 +234,14 @@ export default function Repair() {
               return (
                 <tr key={item.id}>
                   <td>{item.repairId}</td>
-                  <td>{highlightText(item.assetName)}</td>
-                  <td>{highlightText(item.assigned)}</td>
+                  <td>
+                    {highlightText(item.asset ? item.asset.assetName : "-")}
+                  </td>
+                  <td>
+                    {highlightText(
+                      item.employee ? item.employee.employeeName : "-",
+                    )}
+                  </td>
                   <td>{item.complaint}</td>
                   <td>
                     {item.complaintDate
@@ -231,16 +272,35 @@ export default function Repair() {
                       <button
                         className="delete-btn"
                         onClick={function () {
-                          const updatedRepair = repair.filter(function (x) {
-                            return x.id !== item.id;
-                          });
+                          fetch(
+                            "http://localhost:5000/api/repairs/" + item.id,
+                            {
+                              method: "DELETE",
+                            },
+                          )
+                            .then(function (response) {
+                              if (!response.ok) {
+                                return response
+                                  .json()
+                                  .then(function (errorData) {
+                                    throw new Error(errorData.message);
+                                  });
+                              }
 
-                          setRepairs(updatedRepair);
-
-                          localStorage.setItem(
-                            "repair",
-                            JSON.stringify(updatedRepair),
-                          );
+                              return response.json();
+                            })
+                            .then(function () {
+                              setRepairs(function (currentRepairs) {
+                                return currentRepairs.filter(
+                                  function (repairItem) {
+                                    return repairItem.id !== item.id;
+                                  },
+                                );
+                              });
+                            })
+                            .catch(function (error) {
+                              console.log("Error deleting repair:", error);
+                            });
                         }}
                       >
                         Delete
@@ -251,8 +311,10 @@ export default function Repair() {
                           setEditingItem(item);
 
                           setRepairId(item.repairId);
-                          setAssetname(item.assetName);
-                          setAssigned(item.assigned);
+                          setAssetname(item.asset ? item.asset.assetName : "");
+                          setAssigned(
+                            item.employee ? item.employee.employeeName : "",
+                          );
                           setIssue(item.complaint);
                           setRepairdate(
                             item.complaintDate
@@ -292,10 +354,14 @@ export default function Repair() {
                 <strong>Repair ID:</strong> {selecteditem.repairId}
               </p>
               <p>
-                <strong>Asset Name:</strong> {selecteditem.assetName}
+                <strong>Asset Name:</strong>{" "}
+                {selecteditem.asset ? selecteditem.asset.assetName : "-"}
               </p>
               <p>
-                <strong>Assigned To:</strong> {selecteditem.assigned}
+                <strong>Assigned To:</strong>{" "}
+                {selecteditem.employee
+                  ? selecteditem.employee.employeeName
+                  : "-"}
               </p>
               <p>
                 <strong>Issue:</strong> {selecteditem.complaint}
@@ -380,7 +446,7 @@ export default function Repair() {
               <label>Assigned to</label>
               <input
                 type="text"
-                placeholder="Assigned To"
+                placeholder="Employee Name"
                 value={assigned}
                 onChange={function (x) {
                   setAssigned(x.target.value);
@@ -421,7 +487,6 @@ export default function Repair() {
                 <option value="pending">Pending</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Complete">Completed</option>
-                <option value="Completed">Completed</option>
               </select>
             </div>
 

@@ -1,8 +1,10 @@
 import "./RecentComplaints.css";
+
 function RecentComplaints({ complaints }) {
   return (
     <div className="recent-complaint">
       <h2>Recent Complains</h2>
+
       <table className="complaint-tabel">
         <thead>
           <tr>
@@ -13,22 +15,26 @@ function RecentComplaints({ complaints }) {
             <th>Status</th>
           </tr>
         </thead>
+
         <tbody>
           {complaints.map(function (item) {
             return (
               <tr key={item.id}>
-                <td>{item.employeeName}</td>
-                <td>{item.assetName}</td>
+                <td>{item.employee ? item.employee.employeeName : "-"}</td>
+
+                <td>{item.asset ? item.asset.assetName : "-"}</td>
+
                 <td>{item.complaint}</td>
+
                 <td>
-                  {" "}
                   {item.complaintDate
                     ? new Date(item.complaintDate).toLocaleDateString("en-GB")
                     : ""}
                 </td>
+
                 <td
                   className={
-                    item.status === "Open"
+                    item.status === "Pending"
                       ? "Open"
                       : item.status === "In Progress"
                         ? "Progress"
