@@ -5,12 +5,27 @@ import { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import { FaTruck } from "react-icons/fa6";
 import { MdManageSearch } from "react-icons/md";
+import PhoneInputModule from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import { isValidPhoneNumber } from "libphonenumber-js";
+
+const PhoneInput = PhoneInputModule.default || PhoneInputModule;
 
 function Suppiler() {
   const [search, setSeacrh] = useState("");
   const [editingItem, setEditingItem] = useState(null);
   const [selecteditem, setSelectedItem] = useState(null);
   const [supplier, setsupplier] = useState([]);
+
+  const [showform, setShowform] = useState(false);
+  const [suppliername, setSuppliername] = useState("");
+  const [company, setcompany] = useState("");
+  const [contactno, setContactno] = useState("");
+  const [companyEmail, setCompanyEmail] = useState("");
+  const [companyAddress, setCompanyAddress] = useState("");
+  const [assetsSupplied, setAssetsSupplied] = useState("");
+  const [supplierStatus, setSupplierStatus] = useState("");
+
   useEffect(function () {
     fetch("http://localhost:5000/api/suppliers")
       .then(function (response) {
@@ -27,15 +42,6 @@ function Suppiler() {
         console.log("Error fetching employees:", error);
       });
   }, []);
-  const [showform, setShowform] = useState(false);
-  const [supplierid, setSupplierid] = useState("");
-  const [suppliername, setSuppliername] = useState("");
-  const [company, setcompany] = useState("");
-  const [contactno, setContactno] = useState("");
-  const [companyEmail, setCompanyEmail] = useState("");
-  const [companyAddress, setCompanyAddress] = useState("");
-  const [assetsSupplied, setAssetsSupplied] = useState("");
-  const [supplierStatus, setSupplierStatus] = useState("");
 
   const filteredsupplier = supplier.filter(function (item) {
     return (
@@ -43,6 +49,7 @@ function Suppiler() {
       item.supplierName.toLowerCase().includes(search.toLowerCase())
     );
   });
+
   function highlightText(text) {
     if (!search) {
       return text;
@@ -58,7 +65,22 @@ function Suppiler() {
       return part;
     });
   }
+
   function handleSaveSupplier() {
+    if (!contactno) {
+      alert("Please enter contact number");
+      return;
+    }
+
+    const fullPhoneNumber = contactno.replace(/\s/g, "");
+
+    if (!isValidPhoneNumber(fullPhoneNumber)) {
+      alert(
+        "Please enter a valid contact number according to the selected country",
+      );
+      return;
+    }
+
     if (editingItem) {
       fetch("http://localhost:5000/api/suppliers/" + editingItem.id, {
         method: "PUT",
@@ -66,7 +88,6 @@ function Suppiler() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          supplierId: Number(supplierid),
           supplierName: suppliername,
           companyName: company,
           companyContactNumber: contactno,
@@ -99,10 +120,13 @@ function Suppiler() {
           setShowform(false);
           setEditingItem(null);
 
-          setSupplierid("");
           setSuppliername("");
           setcompany("");
           setContactno("");
+          setCompanyEmail("");
+          setCompanyAddress("");
+          setAssetsSupplied("");
+          setSupplierStatus("");
         })
         .catch(function (error) {
           console.log("Error updating supplier:", error);
@@ -110,7 +134,6 @@ function Suppiler() {
     } else {
       const newSupplier = {
         id: Date.now(),
-        supplierId: Number(supplierid),
         supplierName: suppliername,
         companyName: company,
         companyContactNumber: contactno,
@@ -144,10 +167,13 @@ function Suppiler() {
           setShowform(false);
           setEditingItem(null);
 
-          setSupplierid("");
           setSuppliername("");
           setcompany("");
           setContactno("");
+          setCompanyEmail("");
+          setCompanyAddress("");
+          setAssetsSupplied("");
+          setSupplierStatus("");
         })
         .catch(function (error) {
           console.log("Error creating supplier:", error);
@@ -163,9 +189,11 @@ function Suppiler() {
             <FaTruck />
             Supplier
           </h1>
+
           <div className="supplier-action-btn">
             <div className="search-box">
               <MdManageSearch className="search-icon" />
+
               <input
                 type="text"
                 placeholder="Search by Company/Supplier_____"
@@ -175,6 +203,7 @@ function Suppiler() {
                 }}
               />
             </div>
+
             <button
               onClick={function () {
                 setShowform(true);
@@ -186,6 +215,7 @@ function Suppiler() {
           </div>
         </div>
       </div>
+
       <div className="table-container">
         <table className="suppiler-tabel">
           <thead>
@@ -197,14 +227,19 @@ function Suppiler() {
               <th>Action</th>
             </tr>
           </thead>
+
           <tbody>
             {filteredsupplier.map(function (item) {
               return (
                 <tr key={item.id}>
                   <td>{item.supplierId}</td>
+
                   <td>{highlightText(item.supplierName)}</td>
+
                   <td>{highlightText(item.companyName)}</td>
+
                   <td>{item.companyContactNumber}</td>
+
                   <td>
                     <div className="action-buttons">
                       <button
@@ -215,12 +250,12 @@ function Suppiler() {
                       >
                         View
                       </button>
+
                       <button
                         className="update-btn"
                         onClick={function () {
                           setEditingItem(item);
 
-                          setSupplierid(item.supplierId);
                           setSuppliername(item.supplierName);
                           setcompany(item.companyName);
                           setContactno(item.companyContactNumber);
@@ -234,6 +269,7 @@ function Suppiler() {
                       >
                         Update
                       </button>
+
                       <button
                         className="delete-btn"
                         onClick={function () {
@@ -277,6 +313,7 @@ function Suppiler() {
             })}
           </tbody>
         </table>
+
         {selecteditem && (
           <div className="view-overlay">
             <div className="view-form">
@@ -288,33 +325,42 @@ function Suppiler() {
               >
                 ×
               </button>
+
               <h2>Assets Details</h2>
 
               <p>
                 <strong>Supplier ID:</strong> {selecteditem.supplierId}
               </p>
+
               <p>
                 <strong>Supplier Name:</strong> {selecteditem.supplierName}
               </p>
+
               <p>
                 <strong>Company Name:</strong> {selecteditem.companyName}
               </p>
+
               <p>
                 <strong>Company Email:</strong> {selecteditem.companyEmail}
               </p>
+
               <p>
                 <strong>Company phone No. :</strong>{" "}
                 {selecteditem.companyContactNumber}
               </p>
+
               <p>
                 <strong>Company Address :</strong> {selecteditem.companyAddress}
               </p>
+
               <p>
                 <strong>Assets Supplied :</strong> {selecteditem.assetsSupplied}
               </p>
+
               <p>
-                <strong>Supplier Status :</strong> {selecteditem.supplierStatus}
+                <strong>Supplier Status:</strong> {selecteditem.supplierStatus}
               </p>
+
               <button
                 onClick={function () {
                   setSelectedItem(null);
@@ -326,6 +372,7 @@ function Suppiler() {
           </div>
         )}
       </div>
+
       {showform && (
         <div className="supplier-overlay">
           <div className="supplier-form">
@@ -335,7 +382,6 @@ function Suppiler() {
                 setShowform(false);
                 setEditingItem(null);
 
-                setSupplierid("");
                 setSuppliername("");
                 setcompany("");
                 setContactno("");
@@ -347,22 +393,12 @@ function Suppiler() {
             >
               ×
             </button>
+
             <h2>{editingItem ? "Update Supplier" : "Add supplier"}</h2>
 
             <div className="form-field">
-              <label>Supplier Id</label>
-              <input
-                type="text"
-                placeholder="Supplier ID"
-                value={supplierid}
-                onChange={function (x) {
-                  setSupplierid(x.target.value);
-                }}
-              />
-            </div>
-
-            <div className="form-field">
               <label>Supplier Name</label>
+
               <input
                 type="text"
                 placeholder="Supplier Name"
@@ -372,8 +408,10 @@ function Suppiler() {
                 }}
               />
             </div>
+
             <div className="form-field">
               <label>Company Name</label>
+
               <input
                 type="text"
                 placeholder="Company Name"
@@ -383,19 +421,32 @@ function Suppiler() {
                 }}
               />
             </div>
+
             <div className="form-field">
               <label>Contact No.</label>
-              <input
-                type="text"
-                placeholder="Contact No."
-                value={contactno}
-                onChange={function (x) {
-                  setContactno(x.target.value);
+
+              <PhoneInput
+                country={"in"}
+                value={contactno.replace(/\D/g, "")}
+                onChange={function (phone, country) {
+                  if (!phone) {
+                    setContactno("");
+                    return;
+                  }
+
+                  const dialCode = country.dialCode;
+                  const localNumber = phone.substring(dialCode.length);
+
+                  setContactno("+" + dialCode + " " + localNumber);
                 }}
+                enableSearch={true}
+                countryCodeEditable={false}
               />
             </div>
+
             <div className="form-field">
               <label>Company Email</label>
+
               <input
                 type="email"
                 placeholder="Company Email"
@@ -408,6 +459,7 @@ function Suppiler() {
 
             <div className="form-field">
               <label>Company Address</label>
+
               <input
                 type="text"
                 placeholder="Company Address"
@@ -420,29 +472,55 @@ function Suppiler() {
 
             <div className="form-field">
               <label>Assets Supplied</label>
-              <input
-                type="text"
-                placeholder="Assets Supplied"
+
+              <select
                 value={assetsSupplied}
                 onChange={function (x) {
                   setAssetsSupplied(x.target.value);
                 }}
-              />
+              >
+                <option value="" disabled>
+                  ----Select Asset----
+                </option>
+
+                <option value="Laptop">Laptop</option>
+                <option value="Desktop">Desktop</option>
+                <option value="Monitor">Monitor</option>
+                <option value="Keyboard">Keyboard</option>
+                <option value="Mouse">Mouse</option>
+                <option value="Printer">Printer</option>
+                <option value="Scanner">Scanner</option>
+                <option value="Projector">Projector</option>
+                <option value="Server">Server</option>
+                <option value="Router">Router</option>
+                <option value="Switch">Switch</option>
+                <option value="UPS">UPS</option>
+                <option value="Mobile">Mobile</option>
+                <option value="Tablet">Tablet</option>
+                <option value="Headset">Headset</option>
+                <option value="Webcam">Webcam</option>
+              </select>
             </div>
 
             <div className="form-field">
               <label>Supplier Status</label>
+
               <select
                 value={supplierStatus}
                 onChange={function (x) {
                   setSupplierStatus(x.target.value);
                 }}
               >
-                <option value="">Select Status</option>
+                <option value="" disabled>
+                  Select Status
+                </option>
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
+                <option value="On-hold">On Hold</option>
+                <option value="Blacklisted">Blacklisted</option>
               </select>
             </div>
+
             <div className="supplier-form-buttons">
               <button
                 className="cancel"
@@ -450,7 +528,6 @@ function Suppiler() {
                   setShowform(false);
                   setEditingItem(null);
 
-                  setSupplierid("");
                   setSuppliername("");
                   setcompany("");
                   setContactno("");

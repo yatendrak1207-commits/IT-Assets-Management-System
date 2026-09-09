@@ -440,7 +440,31 @@
     background-color: #ef4444;
     color: white;
 }
+.supplier-form .react-tel-input {
+    width: 100%;
+    margin-bottom: 15px;
+}
 
+.supplier-form .react-tel-input .form-control {
+    width: 100% !important;
+    height: 45px !important;
+    box-sizing: border-box;
+    font-size: 15px;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    padding-left: 48px;
+}
+
+.supplier-form .react-tel-input .flag-dropdown {
+    height: 45px !important;
+    border: 1px solid #aaa;
+    border-radius: 6px 0 0 6px;
+}
+
+.supplier-form .react-tel-input .selected-flag {
+    height: 43px !important;
+    padding-left: 12px;
+}
 /* =========================================================
    FORM BUTTONS
 ========================================================= */

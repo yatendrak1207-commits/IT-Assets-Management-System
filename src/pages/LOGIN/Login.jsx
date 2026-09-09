@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { complaints } from "../../data/data";
 import "./Login.css";
 
 function Login() {
@@ -11,47 +10,59 @@ function Login() {
 
   function handleLogin(e) {
     e.preventDefault();
-    console.log("Email:", email);
-    console.log("Password:", password);
 
-    // admin
-    if (email === "admin@company.com" && password === "admin123") {
-      sessionStorage.setItem(
-        "loggedInUser",
-        JSON.stringify({
-          role: "admin",
-          email: email,
-        }),
-      );
+    fetch("http://localhost:5000/api/admins/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
+    })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return {
+            ok: response.ok,
+            data: data,
+          };
+        });
+      })
+      .then(function (result) {
+        if (!result.ok) {
+          alert(result.data.message || "Invalid Email or Password");
+          return;
+        }
 
-      navigate("/");
-      return;
-    }
+        const data = result.data;
 
-    // user
-    const user = complaints.find(function (item) {
-      return item.email === email && item.password === password;
-    });
+        // JWT token save
+        sessionStorage.setItem("token", data.token);
 
-    if (user) {
-      sessionStorage.setItem(
-        "loggedInUser",
-        JSON.stringify({
-          ...user,
-          role: "user",
-        }),
-      );
+        // Logged-in admin data save
+        sessionStorage.setItem(
+          "loggedInUser",
+          JSON.stringify({
+            ...data.admin,
+            role: data.admin.role,
+          }),
+        );
 
-      navigate("/user");
-    } else {
-      alert("Invalid Email or Password");
-    }
+        // Admin dashboard
+        navigate("/");
+      })
+      .catch(function (error) {
+        console.log("Login error:", error);
+        alert("Server se connection nahi ho raha");
+      });
   }
 
   return (
     <div className="login-page">
       <div className="login-box">
         <h1>Login</h1>
+
         <form onSubmit={handleLogin}>
           <div className="login-field">
             <label>Username</label>

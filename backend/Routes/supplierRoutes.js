@@ -1,229 +1,312 @@
 const express = require("express");
 const router = express.Router();
+
 const Supplier = require("../Models/Supplier");
+const { isValidPhoneNumber } = require("libphonenumber-js");
 
 // ================= GET =================
+
 router.get("/", function (req, res) {
 
-  Supplier.find()
-    .then(function (supplier) {
-      res.json(supplier);
-    })
-    .catch(function (error) {
-      res.status(500).json({
-        message: "Failed to fetch supplier",
-        error: error
-      });
-    });
+    Supplier.find()
+        .then(function (supplier) {
+
+            res.json(supplier);
+
+        })
+        .catch(function (error) {
+
+            res.status(500).json({
+                message: "Failed to fetch supplier",
+                error: error
+            });
+
+        });
 
 });
-
 
 // ================= POST =================
-router.post("/",async function (req, res) {
 
-    const {
-    id,
-    supplierId,
-    supplierName,
-    companyName,
-    companyContactNumber,
-    companyEmail,
-    companyAddress,
-    assetsSupplied,
-    supplierStatus
-  } = req.body;
+router.post("/", async function (req, res) {
 
-  // Required fields check
-  if (
-    id === undefined ||
-    supplierId === undefined ||
-    !supplierName ||
-    !companyName ||
-    !companyContactNumber||
-    !companyEmail||
-    !companyAddress||
-    !assetsSupplied||
-    !supplierStatus
-  ) {
-    return res.status(400).json({
-      message: "All supplier fields are required"
-    });
-  }
+    try {
 
-   // Number validation
-  if (typeof id !== "number" || typeof supplierId !== "number") {
-  return res.status(400).json({
-    message: "id and supplierId must be numbers"
-  });
-}
-// Phone validation
-const phonePattern = /^[0-9]{10}$/;
+        const {
+            id,
+            supplierName,
+            companyName,
+            companyContactNumber,
+            companyEmail,
+            companyAddress,
+            assetsSupplied,
+            supplierStatus
+        } = req.body;
 
-if (!phonePattern.test(companyContactNumber)) {
-  return res.status(400).json({
-    message: "Phone number must be exactly 10 digits"
-  });
-}
-// Duplicate validation
-const existingsupplier = await Supplier.findOne({
-  $or: [
-    { id: id },
-    { supplierId: supplierId }
-  ]
+        // Required fields
+
+        if (
+            id === undefined ||
+            !supplierName ||
+            !companyName ||
+            !companyContactNumber ||
+            !companyEmail ||
+            !companyAddress ||
+            !assetsSupplied ||
+            !supplierStatus
+        ) {
+
+            return res.status(400).json({
+                message: "All supplier fields are required"
+            });
+
+        }
+
+        // Internal ID validation
+
+        if (typeof id !== "number") {
+
+            return res.status(400).json({
+                message: "ID must be a number"
+            });
+
+        }
+
+        // Phone validation
+
+        const fullPhoneNumber =
+            companyContactNumber.replace(/\s/g, "");
+
+        if (!isValidPhoneNumber(fullPhoneNumber)) {
+
+            return res.status(400).json({
+                message: "Invalid phone number for selected country"
+            });
+
+        }
+
+        // Duplicate internal ID
+
+        const existingId = await Supplier.findOne({
+            id: id
+        });
+
+        if (existingId) {
+
+            return res.status(409).json({
+                message: "Internal ID already exists"
+            });
+
+        }
+
+        // ================= AUTO SUPPLIER ID =================
+
+        const lastSupplier = await Supplier.findOne({
+            supplierId: /^SUP\d+$/
+        }).sort({
+            supplierId: -1
+        });
+
+        let nextNumber = 1;
+
+        if (lastSupplier) {
+
+            const lastNumber = Number(
+                lastSupplier.supplierId.replace("SUP", "")
+            );
+
+            nextNumber = lastNumber + 1;
+
+        }
+
+        const supplierId =
+            "SUP" + String(nextNumber).padStart(3, "0");
+
+        // ================= CREATE =================
+
+        const newSupplier = new Supplier({
+
+            id: id,
+
+            supplierId: supplierId,
+
+            supplierName: supplierName,
+
+            companyName: companyName,
+
+            companyContactNumber: companyContactNumber,
+
+            companyEmail: companyEmail,
+
+            companyAddress: companyAddress,
+
+            assetsSupplied: assetsSupplied,
+
+            supplierStatus: supplierStatus
+
+        });
+
+        const supplier = await newSupplier.save();
+
+        res.status(201).json(supplier);
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: "Failed to create supplier",
+            error: error
+        });
+
+    }
+
 });
-
-if (existingsupplier) {
-  return res.status(409).json({
-    message: "id or supplierId already exists"
-  });
-}
-
-
- const newSupplier = new Supplier({
-  id,
-  supplierId,
-  supplierName,
-  companyName,
-  companyContactNumber,
-  companyEmail,
-  companyAddress,
-  assetsSupplied,
-  supplierStatus
-
-});
-  newSupplier.save()
-    .then(function (supplier) {
-      res.status(201).json(supplier);
-    })
-    .catch(function (error) {
-      res.status(500).json({
-        message: "Failed to create supplier",
-        error: error
-      });
-    });
-
-});
-
 
 // ================= PUT =================
-router.put("/:id", function (req, res) {
 
-  const id = Number(req.params.id);
+router.put("/:id", async function (req, res) {
 
-  
-// ID validation
-  if (isNaN(id)) {
-    return res.status(400).json({
-      message: "id must be a number"
-    });
-  }
+    try {
 
-  Supplier.findOne({ id: id })
-    .then(function (supplier) {
+        const id = Number(req.params.id);
 
-      if (!supplier) {
-        return res.status(404).json({
-          message: "Supplier not found"
+        if (isNaN(id)) {
+
+            return res.status(400).json({
+                message: "id must be a number"
+            });
+
+        }
+
+        const supplier = await Supplier.findOne({
+            id: id
         });
-      }
 
-      if (req.body.supplierId !== undefined) {
-        supplier.supplierId = req.body.supplierId;
-      }
+        if (!supplier) {
 
-      if (req.body.supplierName !== undefined) {
-        supplier.supplierName = req.body.supplierName;
-      }
+            return res.status(404).json({
+                message: "Supplier not found"
+            });
 
-      if (req.body.companyName !== undefined) {
-        supplier.companyName = req.body.companyName;
-      }
+        }
 
-      if (req.body.companyContactNumber !== undefined) {
+        // supplierId intentionally NOT updated
 
-        const phonePattern = /^[0-9]{10}$/;
+        if (req.body.supplierName !== undefined) {
 
-      if (!phonePattern.test(req.body.companyContactNumber)) {
-        return res.status(400).json({
-          message: "Phone number must be exactly 10 digits"
-        });
-      }
+            supplier.supplierName =
+                req.body.supplierName;
 
-        supplier.companyContactNumber = req.body.companyContactNumber;
-      }
-      if (req.body.companyEmail !== undefined) {
-           supplier.companyEmail = req.body.companyEmail;
+        }
+
+        if (req.body.companyName !== undefined) {
+
+            supplier.companyName =
+                req.body.companyName;
+
+        }
+
+        if (req.body.companyContactNumber !== undefined) {
+
+            const fullPhoneNumber =
+                req.body.companyContactNumber.replace(/\s/g, "");
+
+            if (!isValidPhoneNumber(fullPhoneNumber)) {
+
+                return res.status(400).json({
+                    message: "Invalid phone number for selected country"
+                });
+
+            }
+
+            supplier.companyContactNumber =
+                req.body.companyContactNumber;
+
+        }
+
+        if (req.body.companyEmail !== undefined) {
+
+            supplier.companyEmail =
+                req.body.companyEmail;
+
         }
 
         if (req.body.companyAddress !== undefined) {
-          supplier.companyAddress = req.body.companyAddress;
+
+            supplier.companyAddress =
+                req.body.companyAddress;
+
         }
 
         if (req.body.assetsSupplied !== undefined) {
-          supplier.assetsSupplied = req.body.assetsSupplied;
+
+            supplier.assetsSupplied =
+                req.body.assetsSupplied;
+
         }
 
         if (req.body.supplierStatus !== undefined) {
-          supplier.supplierStatus = req.body.supplierStatus;
+
+            supplier.supplierStatus =
+                req.body.supplierStatus;
+
         }
 
+        const updatedSupplier =
+            await supplier.save();
 
-      return supplier.save();
+        res.json(updatedSupplier);
 
-    })
-    .then(function (updatedSupplier) {
+    } catch (error) {
 
-      res.json(updatedSupplier);
+        res.status(500).json({
+            message: "Failed to update supplier",
+            error: error
+        });
 
-    })
-    .catch(function (error) {
-
-      res.status(500).json({
-        message: "Failed to update supplier",
-        error: error
-      });
-
-    });
+    }
 
 });
-
 
 // ================= DELETE =================
+
 router.delete("/:id", function (req, res) {
 
-  const id = Number(req.params.id);
+    const id = Number(req.params.id);
 
-  Supplier.findOne({ id: id })
-    .then(function (supplier) {
+    Supplier.findOne({
+        id: id
+    })
 
-      if (!supplier) {
-        return res.status(404).json({
-          message: "Supplier not found"
+        .then(function (supplier) {
+
+            if (!supplier) {
+
+                return res.status(404).json({
+                    message: "Supplier not found"
+                });
+
+            }
+
+            return supplier.deleteOne();
+
+        })
+
+        .then(function () {
+
+            res.json({
+                message: "Supplier deleted successfully"
+            });
+
+        })
+
+        .catch(function (error) {
+
+            res.status(500).json({
+                message: "Failed to delete supplier",
+                error: error
+            });
+
         });
-      }
-
-      return supplier.deleteOne();
-
-    })
-    .then(function () {
-
-      res.json({
-        message: "Supplier deleted successfully"
-      });
-
-    })
-    .catch(function (error) {
-
-      res.status(500).json({
-        message: "Failed to delete supplier",
-        error: error
-      });
-
-    });
 
 });
 
-
-// ================= EXPORT =================
 module.exports = router;

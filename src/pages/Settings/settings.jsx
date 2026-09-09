@@ -1,125 +1,341 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./settings.css";
-import { use } from "react";
 import { IoSettings } from "react-icons/io5";
 
 function Settings() {
-  /*------------------useStates----------------*/
+  /*------------------ useStates ----------------*/
+
   const [openSection, setOpensection] = useState(null);
 
   const [editmode, seteditmode] = useState(false);
-  const [company, setCompany] = useState(
-    localStorage.getItem("company") || "IT Assets World",
-  );
-  const [companyEmail, setCompanyEmail] = useState(
-    localStorage.getItem("companyEmail") || "info@itassetsworld.com",
-  );
-  const [companyno, setCompanynNo] = useState(
-    localStorage.getItem("companyno") || "+91 9310483219",
-  );
+
+  const [company, setCompany] = useState("IT Assets World");
+  const [companyEmail, setCompanyEmail] = useState("info@itassetsworld.com");
+  const [companyno, setCompanynNo] = useState("+91 9310483219");
   const [companyAddress, setCompanyAddress] = useState(
-    localStorage.getItem("comapnyaddress") ||
-      "A-19, Ground Floor, FIEE Complex, Suite No-1041, Okhla Industrial Area Phase-2, New Delhi – 110020",
+    "A-19, Ground Floor, FIEE Complex, Suite No-1041, Okhla Industrial Area Phase-2, New Delhi – 110020",
   );
-  const [emailNotification, setEmailNotification] = useState(
-    localStorage.getItem("emailNotification") === "true",
-  );
-  const [complaintNotification, setComplaintNotification] = useState(
-    localStorage.getItem("complaintNotification") === "true",
-  );
-  const [repairNotification, setRepairNotification] = useState(
-    localStorage.getItem("repairNotification") === "true",
-  );
-  const [assetNotification, setAssetNotification] = useState(
-    localStorage.getItem("assetNotification") === "true",
-  );
-  const [lowStockAlert, setLowStockAlert] = useState(
-    localStorage.getItem("lowStockAlert") === "true",
-  );
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "day");
-  const [items, setItems] = useState(localStorage.getItem("items") || "one");
-  const [Date, setDate] = useState(localStorage.getItem("Date") || "days");
+
+  const [emailNotification, setEmailNotification] = useState(false);
+  const [complaintNotification, setComplaintNotification] = useState(false);
+  const [repairNotification, setRepairNotification] = useState(false);
+  const [assetNotification, setAssetNotification] = useState(false);
+  const [lowStockAlert, setLowStockAlert] = useState(false);
+
+  const [theme, setTheme] = useState("day");
+  const [items, setItems] = useState("one");
+  const [Date, setDate] = useState("days");
+
   const [currentpassword, setCurrentpassword] = useState("");
   const [newpassword, setNewpassword] = useState("");
   const [conformpassword, setConformpassword] = useState("");
-  const [showpassword, setShowpassword] = useState(false);
-  const [twofactor, setTwofactor] = useState(
-    localStorage.getItem("twofactor") === "true",
-  );
-  const [logout, setLogout] = useState(
-    localStorage.getItem("logout") || "Never",
-  );
+
+  const [twofactor, setTwofactor] = useState(false);
+  const [logout, setLogout] = useState("Never");
+
   const [changepassword, setChangepassword] = useState(false);
 
+  /*------------------ Admin ID ----------------*/
+
+  const loggedInUser = JSON.parse(
+    sessionStorage.getItem("loggedInUser") || "{}",
+  );
+
+  const adminId = loggedInUser.id;
+
+  /*------------------ GET SETTINGS ----------------*/
+
+  useEffect(
+    function () {
+      if (!adminId) {
+        return;
+      }
+
+      fetch("http://localhost:5000/api/admins/" + adminId + "/settings")
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error("Failed to fetch settings");
+          }
+
+          return response.json();
+        })
+        .then(function (settings) {
+          /* General */
+
+          if (settings && settings.general) {
+            setCompany(settings.general.company || "IT Assets World");
+
+            setCompanyEmail(
+              settings.general.companyEmail || "info@itassetsworld.com",
+            );
+
+            setCompanynNo(settings.general.companyno || "+91 9310483219");
+
+            setCompanyAddress(
+              settings.general.companyAddress ||
+                "A-19, Ground Floor, FIEE Complex, Suite No-1041, Okhla Industrial Area Phase-2, New Delhi – 110020",
+            );
+          }
+
+          /* Notifications */
+
+          if (settings && settings.notifications) {
+            setEmailNotification(
+              settings.notifications.emailNotification || false,
+            );
+
+            setComplaintNotification(
+              settings.notifications.complaintNotification || false,
+            );
+
+            setRepairNotification(
+              settings.notifications.repairNotification || false,
+            );
+
+            setAssetNotification(
+              settings.notifications.assetNotification || false,
+            );
+
+            setLowStockAlert(settings.notifications.lowStockAlert || false);
+          }
+
+          /* Display */
+
+          if (settings && settings.display) {
+            setTheme(settings.display.theme || "day");
+
+            setItems(settings.display.items || "one");
+
+            setDate(settings.display.dateFormat || "days");
+          }
+
+          /* Security */
+
+          if (settings && settings.security) {
+            setTwofactor(settings.security.twofactor || false);
+
+            setLogout(settings.security.logout || "Never");
+          }
+        })
+        .catch(function (error) {
+          console.log("Settings fetch error:", error);
+        });
+    },
+    [adminId],
+  );
+
+  /*------------------ GENERAL SETTINGS ----------------*/
+
+  function saveGenralSettings() {
+    fetch("http://localhost:5000/api/admins/" + adminId + "/settings", {
+      method: "PUT",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        general: {
+          company: company,
+          companyEmail: companyEmail,
+          companyno: companyno,
+          companyAddress: companyAddress,
+        },
+      }),
+    })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return {
+            ok: response.ok,
+            data: data,
+          };
+        });
+      })
+      .then(function (result) {
+        if (!result.ok) {
+          alert(result.data.message || "Failed to save general settings");
+          return;
+        }
+
+        alert("General settings saved successfully");
+        seteditmode(false);
+      })
+      .catch(function (error) {
+        console.log("General settings error:", error);
+        alert("Server se connection nahi ho raha");
+      });
+  }
+
+  /*------------------ NOTIFICATION SETTINGS ----------------*/
+
+  function saveNotificationSettings() {
+    fetch("http://localhost:5000/api/admins/" + adminId + "/settings", {
+      method: "PUT",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        notifications: {
+          emailNotification: emailNotification,
+          complaintNotification: complaintNotification,
+          repairNotification: repairNotification,
+          assetNotification: assetNotification,
+          lowStockAlert: lowStockAlert,
+        },
+      }),
+    })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return {
+            ok: response.ok,
+            data: data,
+          };
+        });
+      })
+      .then(function (result) {
+        if (!result.ok) {
+          alert(result.data.message || "Failed to save notification settings");
+          return;
+        }
+
+        alert("Notification settings saved successfully");
+      })
+      .catch(function (error) {
+        console.log("Notification settings error:", error);
+        alert("Server se connection nahi ho raha");
+      });
+  }
+
+  /*------------------ DISPLAY SETTINGS ----------------*/
+
+  function saveDisplaySettings() {
+    fetch("http://localhost:5000/api/admins/" + adminId + "/settings", {
+      method: "PUT",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        display: {
+          theme: theme,
+          items: items,
+          dateFormat: Date,
+        },
+      }),
+    })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return {
+            ok: response.ok,
+            data: data,
+          };
+        });
+      })
+      .then(function (result) {
+        if (!result.ok) {
+          alert(result.data.message || "Failed to save display settings");
+          return;
+        }
+
+        alert("Display settings saved successfully");
+      })
+      .catch(function (error) {
+        console.log("Display settings error:", error);
+        alert("Server se connection nahi ho raha");
+      });
+  }
+
+  /*------------------ SECURITY SETTINGS ----------------*/
+
+  function saveSecuritySettings() {
+    fetch("http://localhost:5000/api/admins/" + adminId + "/settings", {
+      method: "PUT",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        security: {
+          twofactor: twofactor,
+          logout: logout,
+        },
+      }),
+    })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return {
+            ok: response.ok,
+            data: data,
+          };
+        });
+      })
+      .then(function (result) {
+        if (!result.ok) {
+          alert(result.data.message || "Failed to save security settings");
+          return;
+        }
+
+        alert("Security settings saved successfully");
+      })
+      .catch(function (error) {
+        console.log("Security settings error:", error);
+        alert("Server se connection nahi ho raha");
+      });
+  }
+
+  /*------------------ PASSWORD ----------------*/
+
   function Changepassword() {
-    const savedPassword = localStorage.getItem("currentpassword");
     if (currentpassword == "") {
-      alert("Please Enter your Currrent Password");
+      alert("Please Enter your Current Password");
       return;
     }
+
     if (newpassword == "") {
       alert("Please Enter your New Password");
       return;
     }
+
     if (conformpassword == "") {
       alert("Please Enter your Conform Password");
       return;
     }
+
     if (newpassword != conformpassword) {
       alert("Your New password and Conform password is not match");
       return;
     }
+
     if (newpassword.length < 6) {
       alert("Password must be at least 6 character");
       return;
     }
-    localStorage.setItem("currentpassword", currentpassword);
-    localStorage.setItem("newpassword", newpassword);
-    localStorage.setItem("conformpassword", conformpassword);
+
+    /*
+      Password API baad mein banayenge.
+      Abhi plaintext password localStorage mein save nahi karna hai.
+    */
+
+    alert("Password API abhi connect nahi ki gayi hai");
 
     setCurrentpassword("");
     setNewpassword("");
     setConformpassword("");
-    alert("Password changed successfully");
   }
-  function saveNotificationSettings() {
-    localStorage.setItem("emailNotification", emailNotification);
-    localStorage.setItem("complaintNotification", complaintNotification);
-    localStorage.setItem("repairNotification", repairNotification);
-    localStorage.setItem("assetNotification", assetNotification);
-    localStorage.setItem("lowStockAlert", lowStockAlert);
 
-    alert("Notification settings saved successfully");
-  }
-  function saveDisplaySettings() {
-    localStorage.setItem("theme", theme);
-    localStorage.setItem("items", items);
-    localStorage.setItem("Date", Date);
-
-    alert("Display settings saved successfully");
-  }
-  function saveGenralSettings() {
-    localStorage.setItem("company", company);
-    localStorage.setItem("companyEmail", companyEmail);
-    localStorage.setItem("companyno", companyno);
-    localStorage.setItem("companyAddress", companyAddress);
-
-    alert("General settings saved successfully");
-  }
-  function saveSecuritySettings() {
-    localStorage.setItem("twofactor", twofactor);
-    localStorage.setItem("logout", logout);
-
-    alert("security settings saved successfully");
-  }
   return (
-    /*----------setting--------------- */
     <div className="settings">
       <h1>
         <IoSettings />
         Settings
       </h1>
-      {/*--------------Gernal setting------------*/}
+
+      {/*-------------- General setting ------------*/}
+
       <div
         className="settings-section-header"
         onClick={function () {
@@ -127,15 +343,17 @@ function Settings() {
         }}
       >
         <h2>Gernal Settings</h2>
+
         <span className={openSection == "general" ? "arrow rotate" : "arrow"}>
           ▲
         </span>
       </div>
-      {/*-------General setting options--------------*/}
+
       {openSection == "general" && (
         <div className="settings-content">
           <div className="settings-item">
             <label>Company Name</label>
+
             {editmode ? (
               <input
                 type="text"
@@ -149,8 +367,10 @@ function Settings() {
               <h4>{company}</h4>
             )}
           </div>
+
           <div className="settings-item">
             <label>Company Email</label>
+
             {editmode ? (
               <input
                 type="text"
@@ -164,8 +384,10 @@ function Settings() {
               <h4>{companyEmail}</h4>
             )}
           </div>
+
           <div className="settings-item">
             <label>Company phone No.</label>
+
             {editmode ? (
               <input
                 type="text"
@@ -179,8 +401,10 @@ function Settings() {
               <h4>{companyno}</h4>
             )}
           </div>
+
           <div className="settings-item">
             <label>Company Address</label>
+
             {editmode ? (
               <input
                 type="text"
@@ -194,13 +418,15 @@ function Settings() {
               <h4>{companyAddress}</h4>
             )}
           </div>
+
           <div className="save-button">
             <button
               onClick={function () {
                 if (editmode) {
                   saveGenralSettings();
+                } else {
+                  seteditmode(true);
                 }
-                seteditmode(!editmode);
               }}
             >
               {editmode ? "Save Changes" : "Update detail"}
@@ -208,7 +434,9 @@ function Settings() {
           </div>
         </div>
       )}
-      {/*--------------Notification setting------------*/}
+
+      {/*-------------- Notification setting ------------*/}
+
       <div
         className="settings-section-header"
         onClick={function () {
@@ -216,17 +444,19 @@ function Settings() {
         }}
       >
         <h2>Notification Settings</h2>
+
         <span
           className={openSection == "notification" ? "arrow rotate" : "arrow"}
         >
           ▲
         </span>
       </div>
-      {/*--------------Notification setting options------------*/}
+
       {openSection == "notification" && (
         <div className="settings-content">
           <div className="settings-item">
             <label>Email Notification</label>
+
             <label className="switch">
               <input
                 type="checkbox"
@@ -235,11 +465,14 @@ function Settings() {
                   setEmailNotification(!emailNotification);
                 }}
               />
+
               <span className="slider"></span>
             </label>
           </div>
+
           <div className="settings-item">
             <label>Complaint Notification</label>
+
             <label className="switch">
               <input
                 type="checkbox"
@@ -248,11 +481,14 @@ function Settings() {
                   setComplaintNotification(!complaintNotification);
                 }}
               />
+
               <span className="slider"></span>
             </label>
           </div>
+
           <div className="settings-item">
             <label>Repair Notification</label>
+
             <label className="switch">
               <input
                 type="checkbox"
@@ -261,11 +497,14 @@ function Settings() {
                   setRepairNotification(!repairNotification);
                 }}
               />
+
               <span className="slider"></span>
             </label>
           </div>
+
           <div className="settings-item">
             <label>Asset Assignment Notification</label>
+
             <label className="switch">
               <input
                 type="checkbox"
@@ -274,11 +513,14 @@ function Settings() {
                   setAssetNotification(!assetNotification);
                 }}
               />
+
               <span className="slider"></span>
             </label>
           </div>
+
           <div className="settings-item">
             <label>Low Stock Alert</label>
+
             <label className="switch">
               <input
                 type="checkbox"
@@ -287,15 +529,19 @@ function Settings() {
                   setLowStockAlert(!lowStockAlert);
                 }}
               />
+
               <span className="slider"></span>
             </label>
           </div>
+
           <div className="save-button">
-            <button onClick={saveDisplaySettings}>Save Changes</button>
+            <button onClick={saveNotificationSettings}>Save Changes</button>
           </div>
         </div>
       )}
-      {/*--------------Display setting------------*/}
+
+      {/*-------------- Display setting ------------*/}
+
       <div
         className="settings-section-header"
         onClick={function () {
@@ -303,15 +549,17 @@ function Settings() {
         }}
       >
         <h2>Display Settings</h2>
+
         <span className={openSection == "display" ? "arrow rotate" : "arrow"}>
           ▲
         </span>
       </div>
-      {/*--------------Display setting option------------*/}
+
       {openSection == "display" && (
         <div className="settings-content">
           <div className="settings-item">
             <label>Theme</label>
+
             <select
               value={theme}
               onChange={function (item) {
@@ -326,6 +574,7 @@ function Settings() {
 
           <div className="settings-item">
             <label>Items per page</label>
+
             <select
               value={items}
               onChange={function (item) {
@@ -339,8 +588,10 @@ function Settings() {
               <option value="five">50 items Per page</option>
             </select>
           </div>
+
           <div className="settings-item">
             <label>Date Format</label>
+
             <select
               value={Date}
               onChange={function (item) {
@@ -352,12 +603,15 @@ function Settings() {
               <option value="year">YYYY/MM/DD</option>
             </select>
           </div>
+
           <div className="save-button">
             <button onClick={saveDisplaySettings}>Save Changes</button>
           </div>
         </div>
       )}
-      {/*--------------Security setting------------*/}
+
+      {/*-------------- Security setting ------------*/}
+
       <div
         className="settings-section-header"
         onClick={function () {
@@ -365,15 +619,17 @@ function Settings() {
         }}
       >
         <h2>Security Settings</h2>
+
         <span className={openSection == "security" ? "arrow rotate" : "arrow"}>
           ▲
         </span>
       </div>
-      {/*--------------Security setting option------------*/}
+
       {openSection == "security" && (
         <div className="settings-content">
           <div className="settings-item">
             <label>Change Password</label>
+
             <label className="switch">
               <input
                 type="checkbox"
@@ -382,13 +638,16 @@ function Settings() {
                   setChangepassword(!changepassword);
                 }}
               />
+
               <span className="slider"></span>
             </label>
           </div>
+
           {changepassword && (
             <div className="password-fields">
               <div className="settings-item">
                 <label>Current Password</label>
+
                 <input
                   type="password"
                   placeholder="Enter your Current Password"
@@ -398,8 +657,10 @@ function Settings() {
                   }}
                 />
               </div>
+
               <div className="settings-item">
                 <label>New Password</label>
+
                 <input
                   type="password"
                   placeholder="Enter your New Password"
@@ -409,24 +670,29 @@ function Settings() {
                   }}
                 />
               </div>
+
               <div className="settings-item">
                 <label>Conform Password</label>
+
                 <input
                   type="password"
-                  placeholder=" Conform your Password"
+                  placeholder="Conform your Password"
                   value={conformpassword}
                   onChange={function (item) {
                     setConformpassword(item.target.value);
                   }}
                 />
               </div>
+
               <div className="save-button">
                 <button onClick={Changepassword}>Save Changes</button>
               </div>
             </div>
           )}
+
           <div className="settings-item">
             <label>Two-Factor Authentication</label>
+
             <label className="switch">
               <input
                 type="checkbox"
@@ -435,28 +701,35 @@ function Settings() {
                   setTwofactor(!twofactor);
                 }}
               />
+
               <span className="slider"></span>
             </label>
           </div>
+
           <div className="settings-item">
             <label>Auto Log-Out</label>
+
             <select
               value={logout}
               onChange={function (item) {
                 setLogout(item.target.value);
               }}
             >
-              <option value="null">Never</option>
+              <option value="Never">Never</option>
               <option value="15">15 min</option>
               <option value="30">30 min</option>
               <option value="60">60 min</option>
             </select>
           </div>
+
           <div className="save-button">
             <button onClick={saveSecuritySettings}>Save Changes</button>
           </div>
         </div>
       )}
+
+      {/*-------------- System Information ------------*/}
+
       <div
         className="settings-section-header"
         onClick={function () {
@@ -464,36 +737,44 @@ function Settings() {
         }}
       >
         <h2>System Information</h2>
+
         <span className={openSection == "system" ? "arrow rotate" : "arrow"}>
           ▲
         </span>
       </div>
+
       {openSection == "system" && (
         <div className="settings-content">
           <div className="settings-item">
             <label>Operating System</label>
             <span>Window 11</span>
           </div>
+
           <div className="settings-item">
             <label>Browser</label>
             <span>Chrome / Edge</span>
           </div>
+
           <div className="settings-item">
             <label>Screen Resolution</label>
             <span>1920 × 1080</span>
           </div>
+
           <div className="settings-item">
             <label>Application Version</label>
             <span>1.0.0</span>
           </div>
+
           <div className="settings-item">
             <label>System Status</label>
             <span>Running</span>
           </div>
+
           <div className="settings-item">
             <label>Last Update</label>
-            <span> 17 Aug 2026</span>
+            <span>17 Aug 2026</span>
           </div>
+
           <div className="settings-item">
             <label>System Uptime</label>
             <span>5 hours 32 minutes</span>

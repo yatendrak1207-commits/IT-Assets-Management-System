@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "icons": "^1.0.0",
+    "libphonenumber-js": "^1.13.12",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-icons": "^5.7.0",
+    "react-phone-input-2": "^2.15.1",
     "react-router-dom": "^7.18.2",
     "recharts": "^3.10.1"
   },

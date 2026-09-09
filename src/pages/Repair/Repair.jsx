@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import { GiAutoRepair } from "react-icons/gi";
 import { MdManageSearch } from "react-icons/md";
+
 export default function Repair() {
   const [search, setsearch] = useState("");
   const [editingItem, setEditingItem] = useState(null);
@@ -12,21 +13,34 @@ export default function Repair() {
   const [repair, setRepairs] = useState([]);
   const [assets, setAssets] = useState([]);
   const [employees, setEmployees] = useState([]);
+
   useEffect(function () {
     fetch("http://localhost:5000/api/assets")
       .then(function (r) {
+        if (!r.ok) {
+          throw new Error("Failed to fetch assets");
+        }
+
         return r.json();
       })
-      .then(setAssets)
+      .then(function (data) {
+        setAssets(data);
+      })
       .catch(function (e) {
         console.log("Error fetching assets:", e);
       });
 
     fetch("http://localhost:5000/api/employees")
       .then(function (r) {
+        if (!r.ok) {
+          throw new Error("Failed to fetch employees");
+        }
+
         return r.json();
       })
-      .then(setEmployees)
+      .then(function (data) {
+        setEmployees(data);
+      })
       .catch(function (e) {
         console.log("Error fetching employees:", e);
       });
@@ -46,22 +60,26 @@ export default function Repair() {
         console.log("Error fetching repair:", error);
       });
   }, []);
+
   const [showform, setShowform] = useState(false);
   const [repairId, setRepairId] = useState("");
-  const [assetname, setAssetname] = useState("");
-  const [assigned, setAssigned] = useState("");
+  const [selectedAsset, setSelectedAsset] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState("");
   const [issue, setIssue] = useState("");
   const [repairdate, setRepairdate] = useState("");
-  const [status, setStatus] = useState("pending");
+  const [status, setStatus] = useState("Pending");
+
   const filteredRepair = repair.filter(function (item) {
     const assetName = item.asset ? item.asset.assetName : "";
     const employeeName = item.employee ? item.employee.employeeName : "";
+
     return (
       assetName.toLowerCase().includes(search.toLowerCase()) ||
       employeeName.toLowerCase().includes(search.toLowerCase()) ||
       item.status.toLowerCase().includes(search.toLowerCase())
     );
   });
+
   function highlightText(text) {
     if (!search) {
       return text;
@@ -77,11 +95,22 @@ export default function Repair() {
       return part;
     });
   }
+
+  function resetForm() {
+    setShowform(false);
+    setEditingItem(null);
+
+    setSelectedAsset("");
+    setSelectedEmployee("");
+    setIssue("");
+    setRepairdate("");
+    setStatus("Pending");
+  }
+
   function handleSaveRepair() {
     if (
-      !repairId ||
-      !assetname ||
-      !assigned ||
+      !selectedAsset ||
+      !selectedEmployee ||
       !issue ||
       !repairdate ||
       !status
@@ -97,11 +126,8 @@ export default function Repair() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          repairId: Number(repairId),
-          asset: editingItem.asset._id,
-          assetName: assetname,
-          employee: editingItem.employee._id,
-          employeeName: assigned,
+          asset: selectedAsset,
+          employee: selectedEmployee,
           complaint: issue,
           complaintDate: repairdate,
           status: status,
@@ -127,24 +153,18 @@ export default function Repair() {
             });
           });
 
-          setShowform(false);
-          setEditingItem(null);
-          setRepairId("");
-          setAssetname("");
-          setAssigned("");
-          setIssue("");
-          setRepairdate("");
-          setStatus("");
+          resetForm();
         })
         .catch(function (error) {
           console.log("Error updating repair:", error);
+          alert(error.message);
         });
     } else {
       const newRepair = {
         id: Date.now(),
-        repairId: Number(repairId),
-        assetName: assetname,
-        employeeName: assigned,
+
+        asset: selectedAsset,
+        employee: selectedEmployee,
         complaint: issue,
         complaintDate: repairdate,
         status: status,
@@ -171,20 +191,15 @@ export default function Repair() {
             return [...currentRepairs, createdRepair];
           });
 
-          setShowform(false);
-          setEditingItem(null);
-          setRepairId("");
-          setAssetname("");
-          setAssigned("");
-          setIssue("");
-          setRepairdate("");
-          setStatus("");
+          resetForm();
         })
         .catch(function (error) {
           console.log("Error creating repair:", error);
+          alert(error.message);
         });
     }
   }
+
   return (
     <div className="repair">
       <div className="repair-Header">
@@ -193,9 +208,11 @@ export default function Repair() {
             <GiAutoRepair />
             Repair
           </h1>
+
           <div className="repair-action-btn">
             <div className="search-box">
               <MdManageSearch className="search-icon" />
+
               <input
                 type="text"
                 placeholder="Search by Asset/Assigned/Status____ "
@@ -205,9 +222,17 @@ export default function Repair() {
                 }}
               />
             </div>
+
             <button
               onClick={function () {
                 setShowform(true);
+                setEditingItem(null);
+
+                setSelectedAsset("");
+                setSelectedEmployee("");
+                setIssue("");
+                setRepairdate("");
+                setStatus("Pending");
               }}
             >
               <FaPlus />
@@ -216,6 +241,7 @@ export default function Repair() {
           </div>
         </div>
       </div>
+
       <div className="table-container">
         <table className="repair-tabel">
           <thead>
@@ -229,36 +255,45 @@ export default function Repair() {
               <th>Action</th>
             </tr>
           </thead>
+
           <tbody>
             {filteredRepair.map(function (item) {
               return (
                 <tr key={item.id}>
                   <td>{item.repairId}</td>
+
                   <td>
                     {highlightText(item.asset ? item.asset.assetName : "-")}
                   </td>
+
                   <td>
                     {highlightText(
                       item.employee ? item.employee.employeeName : "-",
                     )}
                   </td>
+
                   <td>{item.complaint}</td>
+
                   <td>
                     {item.complaintDate
                       ? new Date(item.complaintDate).toLocaleDateString("en-GB")
                       : ""}
                   </td>
+
                   <td
                     className={
-                      item.status === "Open"
+                      item.status === "Pending"
                         ? "Open"
                         : item.status === "In Progress"
                           ? "Progress"
-                          : "Resolved"
+                          : item.status === "Completed"
+                            ? "Resolved"
+                            : "Cancelled"
                     }
                   >
                     {highlightText(item.status)}
                   </td>
+
                   <td>
                     <div className="action-buttons">
                       <button
@@ -269,6 +304,7 @@ export default function Repair() {
                       >
                         View
                       </button>
+
                       <button
                         className="delete-btn"
                         onClick={function () {
@@ -305,17 +341,20 @@ export default function Repair() {
                       >
                         Delete
                       </button>
+
                       <button
                         className="update-btn"
                         onClick={function () {
                           setEditingItem(item);
 
-                          setRepairId(item.repairId);
-                          setAssetname(item.asset ? item.asset.assetName : "");
-                          setAssigned(
-                            item.employee ? item.employee.employeeName : "",
+                          setSelectedAsset(item.asset ? item.asset._id : "");
+
+                          setSelectedEmployee(
+                            item.employee ? item.employee._id : "",
                           );
+
                           setIssue(item.complaint);
+
                           setRepairdate(
                             item.complaintDate
                               ? new Date(item.complaintDate)
@@ -323,6 +362,7 @@ export default function Repair() {
                                   .slice(0, 10)
                               : "",
                           );
+
                           setStatus(item.status);
 
                           setShowform(true);
@@ -337,6 +377,7 @@ export default function Repair() {
             })}
           </tbody>
         </table>
+
         {selecteditem && (
           <div className="view-overlay">
             <div className="view-form">
@@ -348,24 +389,29 @@ export default function Repair() {
               >
                 ×
               </button>
+
               <h2>Repair Details</h2>
 
               <p>
                 <strong>Repair ID:</strong> {selecteditem.repairId}
               </p>
+
               <p>
                 <strong>Asset Name:</strong>{" "}
                 {selecteditem.asset ? selecteditem.asset.assetName : "-"}
               </p>
+
               <p>
                 <strong>Assigned To:</strong>{" "}
                 {selecteditem.employee
                   ? selecteditem.employee.employeeName
                   : "-"}
               </p>
+
               <p>
                 <strong>Issue:</strong> {selecteditem.complaint}
               </p>
+
               <p>
                 <strong>Repair Date:</strong>{" "}
                 {selecteditem.complaintDate
@@ -374,18 +420,11 @@ export default function Repair() {
                     )
                   : ""}
               </p>
+
               <p>
-                <strong>Repair Center</strong> {selecteditem.repairCenter}
+                <strong>Repair Status:</strong> {selecteditem.status}
               </p>
-              <p>
-                <strong> Repair Status:</strong> {selecteditem.repairStatus}
-              </p>
-              <p>
-                <strong>Estimated Cost</strong> {selecteditem.estimatedCost}
-              </p>
-              <p>
-                <strong>Description</strong> {selecteditem.description}
-              </p>
+
               <button
                 onClick={function () {
                   setSelectedItem(null);
@@ -397,65 +436,66 @@ export default function Repair() {
           </div>
         )}
       </div>
+
       {showform && (
         <div className="repair-overlay">
           <div className="repair-form">
             <button
               className="close-btn"
               onClick={function () {
-                setShowform(false);
-                setEditingItem(null);
-
-                setRepairId("");
-                setAssetname("");
-                setAssigned("");
-                setIssue("");
-                setRepairdate("");
-                setStatus("");
+                resetForm();
               }}
             >
               ×
             </button>
+
             <h2>{editingItem ? "Update details" : "Add Repair"}</h2>
 
             <div className="form-field">
-              <label>Repair ID</label>
-              <input
-                type="text"
-                placeholder="Repair ID"
-                value={repairId}
-                onChange={function (x) {
-                  setRepairId(x.target.value);
-                }}
-              />
-            </div>
-
-            <div className="form-field">
               <label>Assets Name</label>
-              <input
-                type="text"
-                placeholder="Asset Name"
-                value={assetname}
+
+              <select
+                value={selectedAsset}
                 onChange={function (x) {
-                  setAssetname(x.target.value);
+                  setSelectedAsset(x.target.value);
                 }}
-              />
+              >
+                <option value="">Select Asset</option>
+
+                {assets.map(function (assetItem) {
+                  return (
+                    <option key={assetItem._id} value={assetItem._id}>
+                      {assetItem.assetName}
+                    </option>
+                  );
+                })}
+              </select>
             </div>
 
             <div className="form-field">
               <label>Assigned to</label>
-              <input
-                type="text"
-                placeholder="Employee Name"
-                value={assigned}
+
+              <select
+                value={selectedEmployee}
                 onChange={function (x) {
-                  setAssigned(x.target.value);
+                  setSelectedEmployee(x.target.value);
                 }}
-              />
+              >
+                <option value="">Select Employee</option>
+
+                {employees.map(function (employeeItem) {
+                  return (
+                    <option key={employeeItem._id} value={employeeItem._id}>
+                      {employeeItem.employeeName}
+                    </option>
+                  );
+                })}
+              </select>
             </div>
 
             <div className="form-field">
               <label>Issue</label>
+
               <input
                 type="text"
                 placeholder="Issue"
@@ -468,6 +508,7 @@ export default function Repair() {
 
             <div className="form-field">
               <label>Repair Date</label>
+
               <input
                 type="date"
                 value={repairdate}
@@ -476,17 +517,20 @@ export default function Repair() {
                 }}
               />
             </div>
+
             <div className="form-field">
               <label>Status</label>
+
               <select
                 value={status}
                 onChange={function (x) {
                   setStatus(x.target.value);
                 }}
               >
-                <option value="pending">Pending</option>
+                <option value="Pending">Pending</option>
                 <option value="In Progress">In Progress</option>
-                <option value="Complete">Completed</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
               </select>
             </div>
 
@@ -494,15 +538,7 @@ export default function Repair() {
               <button
                 className="cancel"
                 onClick={function () {
-                  setShowform(false);
-                  setEditingItem(null);
-
-                  setRepairId("");
-                  setAssetname("");
-                  setAssigned("");
-                  setIssue("");
-                  setRepairdate("");
-                  setStatus("Pending");
+                  resetForm();
                 }}
               >
                 Cancel

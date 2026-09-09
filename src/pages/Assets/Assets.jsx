@@ -3,12 +3,19 @@ import { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import { LuMonitorSpeaker } from "react-icons/lu";
 import { MdManageSearch } from "react-icons/md";
+
 function Assets() {
   const [search, setSearch] = useState("");
   const [editingItem, setEditingItem] = useState(null);
   const [selecteditem, setSelectedItem] = useState(null);
   const [asset, setAsset] = useState([]);
   const [employees, setEmployees] = useState([]);
+
+  const [showform, setShowform] = useState(false);
+  const [assetname, setAssetname] = useState("");
+  const [category, setCategory] = useState("");
+  const [assigned, setAssigned] = useState("");
+  const [status, setStatus] = useState("");
 
   useEffect(function () {
     fetch("http://localhost:5000/api/assets")
@@ -26,13 +33,12 @@ function Assets() {
         console.log("Error fetching assets:", error);
       });
 
-    // Fetch employees so "Assigned" can be picked from the real
-    // Employee list instead of being freely typed text.
     fetch("http://localhost:5000/api/employees")
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Failed to fetch employees");
         }
+
         return response.json();
       })
       .then(function (data) {
@@ -42,12 +48,28 @@ function Assets() {
         console.log("Error fetching employees:", error);
       });
   }, []);
-  const [showform, setShowform] = useState(false);
-  const [assetid, setAssetid] = useState("");
-  const [assetname, setAssetname] = useState("");
-  const [category, setCategory] = useState("");
-  const [assigned, setAssigned] = useState("");
-  const [status, setStatus] = useState("");
+
+  const assetNamesByCategory = {
+    Laptop: ["Dell", "HP", "Lenovo", "Asus", "Acer", "Apple"],
+    Desktop: ["Dell", "HP", "Lenovo", "Asus", "Acer", "Apple"],
+    Monitor: ["Dell", "LG", "Samsung", "HP", "Acer", "BenQ"],
+    Keyboard: ["Logitech", "HP", "Dell", "Lenovo", "Microsoft"],
+    Mouse: ["Logitech", "HP", "Dell", "Lenovo", "Microsoft"],
+    Printer: ["HP", "Canon", "Epson", "Brother", "Xerox"],
+    Scanner: ["Canon", "Epson", "HP", "Brother"],
+    Projector: ["Epson", "BenQ", "Sony", "ViewSonic"],
+    Server: ["Dell", "HP", "Lenovo", "IBM"],
+    Router: ["Cisco", "TP-Link", "D-Link", "Netgear"],
+    Switch: ["Cisco", "TP-Link", "D-Link", "Netgear"],
+    UPS: ["APC", "Microtek", "Luminous", "Numeric"],
+    Mobile: ["Apple", "Samsung", "OnePlus", "Xiaomi", "Realme", "Vivo", "Oppo"],
+    Tablet: ["Apple", "Samsung", "Lenovo", "Xiaomi", "Microsoft"],
+    Headset: ["JBL", "Boat", "Sony", "Logitech", "HyperX"],
+    Webcam: ["Logitech", "HP", "Lenovo", "Microsoft"],
+    "External Hard Drive": ["Seagate", "Western Digital", "Toshiba", "Samsung"],
+    "Docking Station": ["Dell", "HP", "Lenovo", "Anker"],
+  };
+
   const filtereddAssets = asset.filter(function (item) {
     return (
       String(item.assetId).toLowerCase().includes(search.toLowerCase()) ||
@@ -56,12 +78,9 @@ function Assets() {
     );
   });
 
-  function formatAssetId(id) {
-    return "AST" + String(id).padStart(3, "0");
-  }
-
   function highlightText(text) {
     text = String(text);
+
     if (!search) {
       return text;
     }
@@ -76,12 +95,22 @@ function Assets() {
       return part;
     });
   }
+
+  function resetForm() {
+    setShowform(false);
+    setEditingItem(null);
+    setAssetname("");
+    setCategory("");
+    setAssigned("");
+    setStatus("");
+  }
+
   function handleSaveAsset() {
-    if (!assetid || !assetname || !category || !status) {
+    if (!assetname || !category || !status) {
       alert("Please fill all required fields");
       return;
     }
-    console.log("start");
+
     if (editingItem) {
       fetch("http://localhost:5000/api/assets/" + editingItem.id, {
         method: "PUT",
@@ -115,13 +144,7 @@ function Assets() {
             });
           });
 
-          setShowform(false);
-          setEditingItem(null);
-          setAssetid("");
-          setAssetname("");
-          setCategory("");
-          setAssigned("");
-          setStatus("");
+          resetForm();
         })
         .catch(function (error) {
           console.log("Error updating asset:", error);
@@ -129,13 +152,14 @@ function Assets() {
     } else {
       const newAsset = {
         id: Date.now(),
-        assetId: Number(assetid),
         assetName: assetname,
         category: category,
         assignedTo: assigned || null,
         status: status,
       };
+
       console.log("Sending asset:", newAsset);
+
       fetch("http://localhost:5000/api/assets", {
         method: "POST",
         headers: {
@@ -157,19 +181,14 @@ function Assets() {
             return [...currentAssets, createdAsset];
           });
 
-          setShowform(false);
-          setEditingItem(null);
-          setAssetid("");
-          setAssetname("");
-          setCategory("");
-          setAssigned("");
-          setStatus("");
+          resetForm();
         })
         .catch(function (error) {
           console.log("Error creating asset:", error);
         });
     }
   }
+
   return (
     <div className="assets">
       <div className="assets-header">
@@ -178,9 +197,11 @@ function Assets() {
             <LuMonitorSpeaker />
             Assets
           </h1>
+
           <div className="assets-action-btn">
             <div className="search-box">
               <MdManageSearch className="search-icon" />
+
               <input
                 type="text"
                 placeholder="Search by ID/Name/Category______"
@@ -190,8 +211,14 @@ function Assets() {
                 }}
               />
             </div>
+
             <button
               onClick={function () {
+                setEditingItem(null);
+                setAssetname("");
+                setCategory("");
+                setAssigned("");
+                setStatus("");
                 setShowform(true);
               }}
             >
@@ -201,6 +228,7 @@ function Assets() {
           </div>
         </div>
       </div>
+
       <div className="table-container">
         <table className="assets-tabel">
           <thead>
@@ -213,17 +241,23 @@ function Assets() {
               <th>Action</th>
             </tr>
           </thead>
+
           <tbody>
             {filtereddAssets.map(function (item) {
               return (
                 <tr key={item._id}>
-                  <td>{highlightText(formatAssetId(item.assetId))}</td>
+                  <td>{highlightText(item.assetId)}</td>
+
                   <td>{highlightText(item.assetName)}</td>
+
                   <td>{highlightText(item.category)}</td>
+
                   <td>
                     {item.assignedTo ? item.assignedTo.employeeName : "-"}
                   </td>
+
                   <td>{item.status}</td>
+
                   <td>
                     <div className="action-buttons">
                       <button
@@ -234,6 +268,7 @@ function Assets() {
                       >
                         View
                       </button>
+
                       <button
                         className="delete-btn"
                         onClick={function () {
@@ -248,11 +283,13 @@ function Assets() {
                               return response.json();
                             })
                             .then(function () {
-                              setAsset(
-                                asset.filter(function (assetItem) {
-                                  return assetItem.id !== item.id;
-                                }),
-                              );
+                              setAsset(function (currentAssets) {
+                                return currentAssets.filter(
+                                  function (assetItem) {
+                                    return assetItem.id !== item.id;
+                                  },
+                                );
+                              });
                             })
                             .catch(function (error) {
                               console.log("Error deleting asset:", error);
@@ -261,17 +298,19 @@ function Assets() {
                       >
                         Delete
                       </button>
+
                       <button
                         className="update-btn"
                         onClick={function () {
                           setEditingItem(item);
 
-                          setAssetid(String(item.assetId));
                           setAssetname(item.assetName);
                           setCategory(item.category);
+
                           setAssigned(
                             item.assignedTo ? item.assignedTo._id : "",
                           );
+
                           setStatus(item.status);
 
                           setShowform(true);
@@ -286,6 +325,7 @@ function Assets() {
             })}
           </tbody>
         </table>
+
         {selecteditem && (
           <div className="view-overlay">
             <div className="view-form">
@@ -297,24 +337,28 @@ function Assets() {
               >
                 ×
               </button>
+
               <h2>Assets Details</h2>
 
               <p>
-                <strong>Assets ID:</strong>{" "}
-                {formatAssetId(selecteditem.assetId)}
+                <strong>Assets ID:</strong> {selecteditem.assetId}
               </p>
+
               <p>
                 <strong>Asset Name:</strong> {selecteditem.assetName}
               </p>
+
               <p>
                 <strong>Category:</strong> {selecteditem.category}
               </p>
+
               <p>
                 <strong>Assigned:</strong>{" "}
                 {selecteditem.assignedTo
                   ? selecteditem.assignedTo.employeeName
                   : "-"}
               </p>
+
               <p>
                 <strong>Status:</strong> {selecteditem.status}
               </p>
@@ -337,51 +381,27 @@ function Assets() {
             <button
               className="close-btn"
               onClick={function () {
-                setShowform(false);
-                setEditingItem(null);
-
-                setAssetid("");
-                setAssetname("");
-                setCategory("");
-                setAssigned("");
-                setStatus("");
+                resetForm();
               }}
             >
               ×
             </button>
+
             <h2>{editingItem ? "Update Details" : "Assets Details"}</h2>
-            <div className="form-field">
-              <label>Assets ID</label>
-              <input
-                type="text"
-                placeholder="Assets ID"
-                value={assetid}
-                onChange={function (x) {
-                  setAssetid(x.target.value);
-                }}
-              />
-            </div>
 
             <div className="form-field">
-              <label>Assets Name</label>
-              <input
-                type="text"
-                placeholder="Assets Name"
-                value={assetname}
-                onChange={function (x) {
-                  setAssetname(x.target.value);
-                }}
-              />
-            </div>
-            <div className="form-field">
               <label>Category</label>
+
               <select
                 value={category}
                 onChange={function (x) {
                   setCategory(x.target.value);
+
+                  setAssetname("");
                 }}
               >
                 <option value="">Select Asset Category</option>
+
                 <option value="Laptop">Laptop</option>
                 <option value="Desktop">Desktop</option>
                 <option value="Monitor">Monitor</option>
@@ -402,20 +422,44 @@ function Assets() {
                 <option value="Docking Station">Docking Station</option>
               </select>
             </div>
+
+            <div className="form-field">
+              <label>Assets Name</label>
+
+              <select
+                value={assetname}
+                onChange={function (x) {
+                  setAssetname(x.target.value);
+                }}
+                disabled={!category}
+              >
+                <option value="">
+                  {category ? "Select Asset Name" : "Select Category First"}
+                </option>
+
+                {category &&
+                  assetNamesByCategory[category] &&
+                  assetNamesByCategory[category].map(function (name) {
+                    return (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    );
+                  })}
+              </select>
+            </div>
+
             <div className="form-field">
               <label>Assigned</label>
 
-              <input
-                type="text"
-                list="employee-list"
-                placeholder="Select or enter employee"
+              <select
                 value={assigned}
                 onChange={function (x) {
                   setAssigned(x.target.value);
                 }}
-              />
+              >
+                <option value="">Select Employee</option>
 
-              <datalist id="employee-list">
                 {employees.map(function (emp) {
                   return (
                     <option key={emp._id} value={emp._id}>
@@ -423,19 +467,22 @@ function Assets() {
                     </option>
                   );
                 })}
-              </datalist>
+              </select>
             </div>
+
             <div className="form-field">
               <label>Status</label>
+
               <select
-                type="text"
-                placeholder="Status"
                 value={status}
                 onChange={function (x) {
                   setStatus(x.target.value);
                 }}
               >
-                <option value="">Select Status</option>
+                <option value="" disabled>
+                  Select Status
+                </option>
+
                 <option value="Available">Available</option>
                 <option value="Assigned">Assigned</option>
                 <option value="Repair">Repair</option>
@@ -446,14 +493,7 @@ function Assets() {
               <button
                 className="cancel"
                 onClick={function () {
-                  setShowform(false);
-                  setEditingItem(null);
-
-                  setAssetid("");
-                  setAssetname("");
-                  setCategory("");
-                  setAssigned("");
-                  setStatus("");
+                  resetForm();
                 }}
               >
                 Cancel
@@ -462,11 +502,10 @@ function Assets() {
               <button
                 className="update-add"
                 onClick={function () {
-                  console.log("button clicked");
                   handleSaveAsset();
                 }}
               >
-                {editingItem ? "Update Details" : "Assets Details"}
+                {editingItem ? "Update Details" : "Add Asset"}
               </button>
             </div>
           </div>

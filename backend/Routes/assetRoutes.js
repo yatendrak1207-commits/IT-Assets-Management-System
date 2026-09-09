@@ -1,251 +1,326 @@
 const express = require("express");
-
 const router = express.Router();
+
 const Asset = require("../Models/Asset");
 const Employee = require("../Models/Employee");
 
-// GET
-router.get("/", function (req, res) {
 
-  Asset.find()
-    .populate("assignedTo")
-    .then(function (assets) {
-      res.json(assets);
-    })
-    .catch(function (error) {
-      res.status(500).json({
-        message: "Failed to fetch assets",
-        error: error
-      });
-    });
+// ================= GET =================
+router.get("/", async function (req, res) {
 
-});
+    try {
 
+        const assets = await Asset.find().populate("assignedTo");
 
-// POST - Create new asset
-router.post("/", async function (req, res) {
+        res.json(assets);
 
-  const {
-    id,
-    assetId,
-    assetName,
-    category,
-    assignedTo,
-    status
-  } = req.body;
+    } catch (error) {
 
+        res.status(500).json({
+            message: "Failed to fetch assets",
+            error: error
+        });
 
-  // Required fields check
-  if (
-    id === undefined ||
-    assetId === undefined ||
-    !assetName ||
-    !category ||
-    !status
-  ) {
-    return res.status(400).json({
-      message: "All assets fields are required"
-    });
-  }
-
-
-  // Number validation
-  if (typeof id !== "number" || typeof assetId !== "number") {
-    return res.status(400).json({
-      message: "id and assetId must be numbers"
-    });
-  }
-
-
-  // Status validation
-  const allowedStatus = ["Available", "Assigned", "Repair"];
-
-  if (!allowedStatus.includes(status)) {
-    return res.status(400).json({
-      message: "Invalid status"
-    });
-  }
-
-
-  // Employee reference validation
-  if (assignedTo) {
-
-    const employee = await Employee.findById(assignedTo);
-
-    if (!employee) {
-      return res.status(404).json({
-        message: "Employee not found"
-      });
     }
 
-  }
+});
 
 
-  // Duplicate validation
-  const existingAsset = await Asset.findOne({
-    $or: [
-      { id: id },
-      { assetId: assetId }
-    ]
-  });
+// ================= POST =================
+router.post("/", async function (req, res) {
 
-  if (existingAsset) {
-    return res.status(409).json({
-      message: "id or assetId already exists"
-    });
-  }
+    try {
 
-
-  // Create asset
-  const newAsset = new Asset({
-    id,
-    assetId,
-    assetName,
-    category,
-    assignedTo,
-    status
-  });
+        const {
+            id,
+            assetName,
+            category,
+            assignedTo,
+            status
+        } = req.body;
 
 
-  newAsset.save()
-    .then(function (asset) {
-      res.status(201).json(asset);
-    })
-    .catch(function (error) {
-      res.status(500).json({
-        message: "Failed to create asset",
-        error: error
-      });
-    });
+        // Required fields
+        if (
+            id === undefined ||
+            !assetName ||
+            !category ||
+            !status
+        ) {
+
+            return res.status(400).json({
+                message: "All required fields are required"
+            });
+
+        }
+
+
+        // ID validation
+        if (typeof id !== "number") {
+
+            return res.status(400).json({
+                message: "ID must be a number"
+            });
+
+        }
+
+
+        // Status validation
+        const allowedStatus = [
+            "Available",
+            "Assigned",
+            "Repair"
+        ];
+
+        if (!allowedStatus.includes(status)) {
+
+            return res.status(400).json({
+                message: "Invalid asset status"
+            });
+
+        }
+
+
+        // Check employee
+        if (assignedTo) {
+
+            const employee = await Employee.findById(assignedTo);
+
+            if (!employee) {
+
+                return res.status(404).json({
+                    message: "Employee not found"
+                });
+
+            }
+
+        }
+
+
+        // Duplicate id
+        const existingId = await Asset.findOne({
+            id: id
+        });
+
+        if (existingId) {
+
+            return res.status(409).json({
+                message: "ID already exists"
+            });
+
+        }
+
+
+        // ================= AUTO ASSET ID =================
+
+        const totalAssets = await Asset.countDocuments();
+
+        const nextNumber = totalAssets + 1;
+
+        const assetId = "AST" + String(nextNumber).padStart(3, "0");
+
+
+        // Create asset
+        const newAsset = new Asset({
+
+            id: id,
+
+            assetId: assetId,
+
+            assetName: assetName,
+
+            category: category,
+
+            assignedTo: assignedTo || null,
+
+            status: status
+
+        });
+
+
+        const asset = await newAsset.save();
+
+        const populatedAsset = await asset.populate("assignedTo");
+
+        res.status(201).json(populatedAsset);
+
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: "Failed to create asset",
+            error: error
+        });
+
+    }
 
 });
 
 
-// UPDATE
+// ================= PUT =================
 router.put("/:id", async function (req, res) {
 
-  const id = Number(req.params.id);
+    try {
+
+        const id = Number(req.params.id);
 
 
-  // ID validation
-  if (isNaN(id)) {
-    return res.status(400).json({
-      message: "id must be a number"
-    });
-  }
+        if (isNaN(id)) {
 
-
-  Asset.findOne({ id: id })
-    .then(async function (asset) {
-
-      if (!asset) {
-        return res.status(404).json({
-          message: "Asset not found"
-        });
-      }
-
-
-      // Asset name
-      if (req.body.assetName !== undefined) {
-        asset.assetName = req.body.assetName;
-      }
-
-
-      // Category
-      if (req.body.category !== undefined) {
-        asset.category = req.body.category;
-      }
-
-
-      // Employee reference
-      if (req.body.assignedTo !== undefined) {
-
-        if (req.body.assignedTo) {
-
-          const employee = await Employee.findById(req.body.assignedTo);
-
-          if (!employee) {
-            return res.status(404).json({
-              message: "Employee not found"
+            return res.status(400).json({
+                message: "Invalid asset ID"
             });
-          }
 
         }
 
-        asset.assignedTo = req.body.assignedTo;
-      }
+
+        const asset = await Asset.findOne({
+            id: id
+        });
 
 
-      // Status
-      if (req.body.status !== undefined) {
+        if (!asset) {
 
-        const allowedStatus = ["Available", "Assigned", "Repair"];
+            return res.status(404).json({
+                message: "Asset not found"
+            });
 
-        if (!allowedStatus.includes(req.body.status)) {
-          return res.status(400).json({
-            message: "Invalid status"
-          });
         }
 
-        asset.status = req.body.status;
-      }
+
+        const {
+            assetName,
+            category,
+            assignedTo,
+            status
+        } = req.body;
 
 
-      asset.save()
-        .then(function (updatedAsset) {
-          res.json(updatedAsset);
-        })
-        .catch(function (error) {
-          res.status(500).json({
+        // Check employee when assigning asset
+        if (assignedTo) {
+
+            const employee = await Employee.findById(assignedTo);
+
+            if (!employee) {
+
+                return res.status(404).json({
+                    message: "Employee not found"
+                });
+
+            }
+
+        }
+
+
+        // Update fields
+        if (assetName !== undefined) {
+
+            asset.assetName = assetName;
+
+        }
+
+
+        if (category !== undefined) {
+
+            asset.category = category;
+
+        }
+
+
+        if (assignedTo !== undefined) {
+
+            asset.assignedTo = assignedTo || null;
+
+        }
+
+
+        if (status !== undefined) {
+
+            const allowedStatus = [
+                "Available",
+                "Assigned",
+                "Repair"
+            ];
+
+            if (!allowedStatus.includes(status)) {
+
+                return res.status(400).json({
+                    message: "Invalid asset status"
+                });
+
+            }
+
+            asset.status = status;
+
+        }
+
+
+        const updatedAsset = await asset.save();
+
+        const populatedAsset = await updatedAsset.populate("assignedTo");
+
+        res.json(populatedAsset);
+
+
+    } catch (error) {
+
+        res.status(500).json({
             message: "Failed to update asset",
             error: error
-          });
         });
 
-    })
-    .catch(function (error) {
-      res.status(500).json({
-        message: "Failed to find asset",
-        error: error
-      });
-    });
+    }
 
 });
 
 
-// DELETE
-router.delete("/:id", function (req, res) {
+// ================= DELETE =================
+router.delete("/:id", async function (req, res) {
 
-  const id = Number(req.params.id);
+    try {
+
+        const id = Number(req.params.id);
 
 
-  Asset.findOne({ id: id })
-    .then(function (asset) {
+        if (isNaN(id)) {
 
-      if (!asset) {
-        return res.status(404).json({
-          message: "Asset not found"
+            return res.status(400).json({
+                message: "Invalid asset ID"
+            });
+
+        }
+
+
+        const asset = await Asset.findOne({
+            id: id
         });
-      }
 
-      return asset.deleteOne();
 
-    })
-    .then(function () {
+        if (!asset) {
 
-      res.json({
-        message: "Asset deleted successfully"
-      });
+            return res.status(404).json({
+                message: "Asset not found"
+            });
 
-    })
-    .catch(function (error) {
+        }
 
-      res.status(500).json({
-        message: "Failed to delete asset",
-        error: error
-      });
 
-    });
+        await asset.deleteOne();
+
+
+        res.json({
+            message: "Asset deleted successfully"
+        });
+
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: "Failed to delete asset",
+            error: error
+        });
+
+    }
 
 });
 

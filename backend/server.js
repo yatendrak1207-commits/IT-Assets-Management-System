@@ -8,6 +8,8 @@ const employeeRoutes = require("./Routes/employeeRoutes");
 const repairRoutes=require("./Routes/repairRoutes");
 const supplierRoutes=require("./Routes/supplierRoutes");
 const complaintRoutes=require("./Routes/complaintRoutes");
+const adminRoutes = require("./Routes/adminRoutes");
+
 
 dns.setServers(["8.8.8.8"]);
 
@@ -35,7 +37,9 @@ app.use("/api/assets", assetRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/repairs", repairRoutes);
 app.use("/api/suppliers", supplierRoutes);
-app.use("/api/complaints",complaintRoutes)
+app.use("/api/complaints",complaintRoutes);
+app.use("/api/admins", adminRoutes);
+
 
 
 // Test route

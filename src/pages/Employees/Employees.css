@@ -8,7 +8,32 @@
     background-color: #f7faf9;
     box-sizing: border-box;
 }
+/* Phone Input */
+.employee-form .react-tel-input {
+    width: 100%;
+    margin-bottom: 15px;
+}
 
+.employee-form .react-tel-input .form-control {
+    width: 100% !important;
+    height: 45px !important;
+    box-sizing: border-box;
+    font-size: 15px;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    padding-left: 48px;
+}
+
+.employee-form .react-tel-input .flag-dropdown {
+    height: 45px !important;
+    border: 1px solid #aaa;
+    border-radius: 6px 0 0 6px;
+}
+
+.employee-form .react-tel-input .selected-flag {
+    height: 43px !important;
+    padding-left: 12px;
+}
 
 /* =========================================================
    EMPLOYEE HEADER
@@ -317,7 +342,26 @@
     color: white;
 }
 
+.phone-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
 
+.employee-form .phone-input select {
+    width: 80px !important;
+    min-width: 80px !important;
+    flex: 0 0 80px !important;
+    margin: 0 !important;
+}
+
+.employee-form .phone-input input {
+    width: auto !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+    margin: 0 !important;
+}
 /* =========================================================
    EMPLOYEE ADD / UPDATE OVERLAY
 ========================================================= */

@@ -1,294 +1,311 @@
-
 const express = require("express");
-
 const router = express.Router();
+const { isValidPhoneNumber } = require("libphonenumber-js");
 
 const Employee = require("../Models/Employee");
+const Asset = require("../Models/Asset");
 
-// GET
+// ================= GET =================
+
 router.get("/", async function (req, res) {
 
-  try {
+    try {
 
-    const employees = await Employee.find();
+        const employees = await Employee.find();
 
-    res.json(employees);
+        res.json(employees);
 
-  } catch (error) {
+    } catch (error) {
 
-    res.status(500).json({
-      message: "Failed to fetch employee",
-      error: error
-    });
-
-  }
-
-});
-
-
-// POST
-router.post("/", async function (req, res) {
-
-  const {
-    id,
-    employeeId,
-    employeeName,
-    department,
-    phone,
-    email,
-    assignedAsset,
-    employeestatus
-  } = req.body;
-
-
-  // Required fields check
-  if (
-    id === undefined ||
-    employeeId === undefined ||
-    !employeeName ||
-    !department ||
-    !phone ||
-    !email ||
-    !assignedAsset ||
-    !employeestatus
-  ) {
-
-    return res.status(400).json({
-      message: "All employee fields are required"
-    });
-
-  }
-
-
-  // Phone validation
-  const phonePattern = /^[0-9]{10}$/;
-
-  if (!phonePattern.test(phone)) {
-
-    return res.status(400).json({
-      message: "Phone number must be exactly 10 digits"
-    });
-
-  }
-
-
-  // Number validation
-  if (typeof id !== "number" || typeof employeeId !== "number") {
-
-    return res.status(400).json({
-      message: "id and employeeId must be numbers"
-    });
-
-  }
-
-
-  // Duplicate validation
-  const existingemployee = await Employee.findOne({
-    $or: [
-      { id: id },
-      { employeeId: employeeId }
-    ]
-  });
-
-
-  if (existingemployee) {
-
-    return res.status(409).json({
-      message: "id or employeeId already exists"
-    });
-
-  }
-
-
-  // Create employee
-  const newEmployee = new Employee({
-
-    id,
-    employeeId,
-    employeeName,
-    department,
-    phone,
-    email,
-    assignedAsset,
-    employeestatus
-
-  });
-
-
-  newEmployee.save()
-
-    .then(function (employee) {
-
-      res.status(201).json(employee);
-
-    })
-
-    .catch(function (error) {
-
-      res.status(500).json({
-        message: "Failed to create employee",
-        error: error
-      });
-
-    });
-
-});
-
-
-// UPDATE
-router.put("/:id", function (req, res) {
-
-  const id = Number(req.params.id);
-
-
-  // ID validation
-  if (isNaN(id)) {
-
-    return res.status(400).json({
-      message: "id must be a number"
-    });
-
-  }
-
-
-  Employee.findOne({ id: id })
-
-    .then(function (employee) {
-
-      if (!employee) {
-
-        return res.status(404).json({
-          message: "Employee not found"
+        res.status(500).json({
+            message: "Failed to fetch employees",
+            error: error
         });
 
-      }
+    }
 
+});
 
-      if (req.body.employeeName !== undefined) {
+// ================= POST =================
 
-        employee.employeeName = req.body.employeeName;
+router.post("/", async function (req, res) {
 
-      }
+    try {
 
+        const {
+            id,
+            employeeName,
+            department,
+            phone,
+            email,
+            employeestatus
+        } = req.body;
 
-      if (req.body.department !== undefined) {
+        // Required fields
+        if (
+            id === undefined ||
+            !employeeName ||
+            !department ||
+            !phone ||
+            !email ||
+            !employeestatus
+        ) {
 
-        employee.department = req.body.department;
-
-      }
-
-
-      if (req.body.phone !== undefined) {
-
-        const phonePattern = /^[0-9]{10}$/;
-
-        if (!phonePattern.test(req.body.phone)) {
-
-          return res.status(400).json({
-            message: "Phone number must be exactly 10 digits"
-          });
+            return res.status(400).json({
+                message: "All fields are required"
+            });
 
         }
 
-        employee.phone = req.body.phone;
+        // Internal ID validation
+        if (typeof id !== "number") {
 
-      }
+            return res.status(400).json({
+                message: "ID must be a number"
+            });
 
+        }
 
-      if (req.body.email !== undefined) {
+        // Phone validation
+        const fullPhoneNumber = phone.replace(/\s/g, "");
 
-        employee.email = req.body.email;
+        if (!isValidPhoneNumber(fullPhoneNumber)) {
 
-      }
+            return res.status(400).json({
+                message: "Invalid phone number for selected country"
+            });
 
+        }
 
-      // Assigned Asset is just a normal field
-      if (req.body.assignedAsset !== undefined) {
+        // Duplicate internal ID
+        const existingId = await Employee.findOne({
+            id: id
+        });
 
-        employee.assignedAsset = req.body.assignedAsset;
+        if (existingId) {
 
-      }
+            return res.status(409).json({
+                message: "Internal ID already exists"
+            });
 
+        }
 
-      // Employee Status is just a normal field
-      if (req.body.employeestatus !== undefined) {
+        // ================= AUTO EMPLOYEE ID =================
 
-        employee.employeestatus = req.body.employeestatus;
+        const lastEmployee = await Employee.findOne({
+            employeeId: /^EMP\d+$/
+        }).sort({
+            employeeId: -1
+        });
 
-      }
+        let nextNumber = 1;
 
+        if (lastEmployee) {
 
-      employee.save()
+            const lastNumber = Number(
+                lastEmployee.employeeId.replace("EMP", "")
+            );
 
-        .then(function (updatedEmployee) {
+            nextNumber = lastNumber + 1;
 
-          res.json(updatedEmployee);
+        }
 
-        })
+        const employeeId =
+            "EMP" + String(nextNumber).padStart(3, "0");
 
-        .catch(function (error) {
+        // ================= CREATE =================
 
-          res.status(500).json({
+        const newEmployee = new Employee({
+
+            id: id,
+
+            employeeId: employeeId,
+
+            employeeName: employeeName,
+
+            department: department,
+
+            phone: phone,
+
+            email: email,
+
+            employeestatus: employeestatus
+
+        });
+
+        const employee = await newEmployee.save();
+
+        res.status(201).json(employee);
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: "Failed to create employee",
+            error: error
+        });
+
+    }
+
+});
+
+// ================= PUT =================
+
+router.put("/:id", async function (req, res) {
+
+    try {
+
+        const id = Number(req.params.id);
+
+        if (isNaN(id)) {
+
+            return res.status(400).json({
+                message: "Invalid employee ID"
+            });
+
+        }
+
+        const employee = await Employee.findOne({
+            id: id
+        });
+
+        if (!employee) {
+
+            return res.status(404).json({
+                message: "Employee not found"
+            });
+
+        }
+
+        const {
+            employeeName,
+            department,
+            phone,
+            email,
+            employeestatus
+        } = req.body;
+
+        // Phone validation
+        if (phone !== undefined) {
+
+            const fullPhoneNumber = phone.replace(/\s/g, "");
+
+            if (!isValidPhoneNumber(fullPhoneNumber)) {
+
+                return res.status(400).json({
+                    message: "Invalid phone number for selected country"
+                });
+
+            }
+
+            employee.phone = phone;
+
+        }
+
+        // Update fields
+
+        if (employeeName !== undefined) {
+            employee.employeeName = employeeName;
+        }
+
+        if (department !== undefined) {
+            employee.department = department;
+        }
+
+        if (email !== undefined) {
+            employee.email = email;
+        }
+
+        if (employeestatus !== undefined) {
+            employee.employeestatus = employeestatus;
+        }
+
+        // employeeId intentionally NOT updated
+
+        const updatedEmployee = await employee.save();
+
+        res.json(updatedEmployee);
+
+    } catch (error) {
+
+        res.status(500).json({
             message: "Failed to update employee",
             error: error
-          });
-
         });
 
-    })
-
-    .catch(function (error) {
-
-      res.status(500).json({
-        message: "Failed to find employee",
-        error: error
-      });
-
-    });
+    }
 
 });
 
+// ================= DELETE =================
 
-// DELETE
-router.delete("/:id", function (req, res) {
+router.delete("/:id", async function (req, res) {
 
-  const id = Number(req.params.id);
+    try {
 
+        const id = Number(req.params.id);
 
-  Employee.findOne({ id: id })
+        if (isNaN(id)) {
 
-    .then(function (employee) {
+            return res.status(400).json({
+                message: "Invalid employee ID"
+            });
 
-      if (!employee) {
+        }
 
-        return res.status(404).json({
-          message: "Employee not found"
+        const employee = await Employee.findOne({
+            id: id
         });
 
-      }
+        if (!employee) {
 
-      return employee.deleteOne();
+            return res.status(404).json({
+                message: "Employee not found"
+            });
 
-    })
+        }
 
-    .then(function () {
+        // Unassign assets from this employee
 
-      res.json({
-        message: "Employee deleted successfully"
-      });
+        await Asset.updateMany(
+            {
+                assignedTo: employee._id,
+                status: "Assigned"
+            },
+            {
+                $set: {
+                    assignedTo: null,
+                    status: "Available"
+                }
+            }
+        );
 
-    })
+        // Repair assets
+        await Asset.updateMany(
+            {
+                assignedTo: employee._id
+            },
+            {
+                $set: {
+                    assignedTo: null
+                }
+            }
+        );
 
-    .catch(function (error) {
+        await employee.deleteOne();
 
-      res.status(500).json({
-        message: "Failed to delete employee",
-        error: error
-      });
+        res.json({
+            message: "Employee deleted successfully"
+        });
 
-    });
+    } catch (error) {
+
+        res.status(500).json({
+            message: "Failed to delete employee",
+            error: error
+        });
+
+    }
 
 });
-
 
 module.exports = router;
