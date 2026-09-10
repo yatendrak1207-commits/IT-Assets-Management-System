@@ -664,6 +664,8 @@
     width: 34px;
     height: 34px;
 
+    
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -759,7 +761,7 @@
     width: 120px;
     height: 42px;
 
-    margin: 30px auto 0;
+    margin: 30px auto ;
 
     background-color: white;
 

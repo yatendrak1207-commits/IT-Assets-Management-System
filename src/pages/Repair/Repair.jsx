@@ -161,8 +161,6 @@ export default function Repair() {
         });
     } else {
       const newRepair = {
-        id: Date.now(),
-
         asset: selectedAsset,
         employee: selectedEmployee,
         complaint: issue,

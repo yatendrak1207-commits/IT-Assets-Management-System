@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { isValidPhoneNumber } = require("libphonenumber-js");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const Employee = require("../Models/Employee");
 const Asset = require("../Models/Asset");
@@ -11,7 +13,7 @@ router.get("/", async function (req, res) {
 
     try {
 
-        const employees = await Employee.find();
+        const employees = await Employee.find().select("-password");
 
         res.json(employees);
 
@@ -38,6 +40,7 @@ router.post("/", async function (req, res) {
             department,
             phone,
             email,
+            password,
             employeestatus
         } = req.body;
 
@@ -48,6 +51,7 @@ router.post("/", async function (req, res) {
             !department ||
             !phone ||
             !email ||
+            !password ||
             !employeestatus
         ) {
 
@@ -90,6 +94,19 @@ router.post("/", async function (req, res) {
 
         }
 
+        // Duplicate email
+        const existingEmail = await Employee.findOne({
+            email: email.toLowerCase()
+        });
+
+        if (existingEmail) {
+
+            return res.status(409).json({
+                message: "Employee with this email already exists"
+            });
+
+        }
+
         // ================= AUTO EMPLOYEE ID =================
 
         const lastEmployee = await Employee.findOne({
@@ -115,6 +132,8 @@ router.post("/", async function (req, res) {
 
         // ================= CREATE =================
 
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const newEmployee = new Employee({
 
             id: id,
@@ -127,7 +146,9 @@ router.post("/", async function (req, res) {
 
             phone: phone,
 
-            email: email,
+            email: email.toLowerCase(),
+
+            password: hashedPassword,
 
             employeestatus: employeestatus
 
@@ -135,9 +156,21 @@ router.post("/", async function (req, res) {
 
         const employee = await newEmployee.save();
 
-        res.status(201).json(employee);
+        // Password frontend ko return nahi karna
+        const employeeResponse = {
+            id: employee.id,
+            employeeId: employee.employeeId,
+            employeeName: employee.employeeName,
+            department: employee.department,
+            phone: employee.phone,
+            email: employee.email,
+            employeestatus: employee.employeestatus
+        };
+
+        res.status(201).json(employeeResponse);
 
     } catch (error) {
+            console.log("EMPLOYEE LOGIN ERROR:", error);
 
         res.status(500).json({
             message: "Failed to create employee",
@@ -212,23 +245,113 @@ router.put("/:id", async function (req, res) {
         }
 
         if (email !== undefined) {
-            employee.email = email;
+            employee.email = email.toLowerCase();
         }
 
         if (employeestatus !== undefined) {
             employee.employeestatus = employeestatus;
         }
 
-        // employeeId intentionally NOT updated
+        // Password intentionally NOT updated by Admin
 
         const updatedEmployee = await employee.save();
 
-        res.json(updatedEmployee);
+        const employeeResponse = {
+            id: updatedEmployee.id,
+            employeeId: updatedEmployee.employeeId,
+            employeeName: updatedEmployee.employeeName,
+            department: updatedEmployee.department,
+            phone: updatedEmployee.phone,
+            email: updatedEmployee.email,
+            employeestatus: updatedEmployee.employeestatus
+        };
+
+        res.json(employeeResponse);
 
     } catch (error) {
 
         res.status(500).json({
             message: "Failed to update employee",
+            error: error
+        });
+
+    }
+
+});
+
+// ================= CHANGE PASSWORD =================
+
+router.put("/change-password/:id", async function (req, res) {
+
+    try {
+
+        const id = Number(req.params.id);
+
+        const {
+            currentPassword,
+            newPassword
+        } = req.body;
+
+        if (!currentPassword || !newPassword) {
+
+            return res.status(400).json({
+                message: "Current password and new password are required"
+            });
+
+        }
+
+        if (isNaN(id)) {
+
+            return res.status(400).json({
+                message: "Invalid employee ID"
+            });
+
+        }
+
+        const employee = await Employee.findOne({
+            id: id
+        });
+
+        if (!employee) {
+
+            return res.status(404).json({
+                message: "Employee not found"
+            });
+
+        }
+
+        // Check current password
+        const isCorrect = await bcrypt.compare(
+            currentPassword,
+            employee.password
+        );
+
+        if (!isCorrect) {
+
+            return res.status(401).json({
+                message: "Current password is incorrect"
+            });
+
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(
+            newPassword,
+            10
+        );
+
+        employee.password = hashedPassword;
+
+        await employee.save();
+
+        res.json({
+            message: "Password changed successfully"
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: "Failed to change password",
             error: error
         });
 
@@ -265,7 +388,6 @@ router.delete("/:id", async function (req, res) {
         }
 
         // Unassign assets from this employee
-
         await Asset.updateMany(
             {
                 assignedTo: employee._id,
@@ -302,6 +424,137 @@ router.delete("/:id", async function (req, res) {
         res.status(500).json({
             message: "Failed to delete employee",
             error: error
+        });
+
+    }
+
+});
+
+// ================= EMPLOYEE LOGIN =================
+
+router.post("/login", async function (req, res) {
+
+    try {
+
+        const {
+            email,
+            password
+        } = req.body;
+
+        // Check email and password
+        if (!email || !password) {
+
+            return res.status(400).json({
+                message: "Email and password are required"
+            });
+
+        }
+
+        // Find employee by email
+        const employee = await Employee.findOne({
+            email: email.toLowerCase()
+        });
+
+        // Employee not found
+        if (!employee) {
+
+            return res.status(401).json({
+                message: "Invalid email or password"
+            });
+
+        }
+
+        // Check employee status
+        if (employee.employeestatus !== "Active") {
+
+            return res.status(403).json({
+                message: "Employee account is not active"
+            });
+
+        }
+
+       // Check password
+        if (!employee.password) {
+            return res.status(500).json({
+                message: "Employee password is missing in database"
+            });
+        }
+
+        const isCorrect = await bcrypt.compare(
+            password,
+            employee.password
+        );
+
+        // Wrong password
+        if (!isCorrect) {
+
+            return res.status(401).json({
+                message: "Invalid email or password"
+            });
+
+        }
+
+        // Check JWT secret
+        if (!process.env.JWT_SECRET) {
+
+            return res.status(500).json({
+                message: "JWT_SECRET is not configured"
+            });
+
+        }
+
+        // Create JWT token
+        const token = jwt.sign(
+            {
+                id: employee.id,
+                employeeId: employee.employeeId,
+                role: "user"
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "1d"
+            }
+        );
+
+        // Successful login
+        res.json({
+
+            message: "Login successful",
+
+            token: token,
+
+            employee: {
+
+                id: employee.id,
+
+                employeeId: employee.employeeId,
+
+                name: employee.employeeName,
+
+                email: employee.email,
+
+                phone: employee.phone,
+
+                department: employee.department,
+
+                role: "user",
+
+                status: employee.employeestatus
+
+            }
+
+        });
+
+    } catch (error) {
+
+        console.error("Employee Login Error:", error);
+
+        res.status(500).json({
+
+            message: "Login failed",
+
+            error: error.message
+
         });
 
     }

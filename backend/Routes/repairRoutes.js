@@ -36,7 +36,6 @@ router.post("/", async function (req, res) {
     try {
 
         const {
-            id,
             asset,
             employee,
             complaint,
@@ -47,7 +46,6 @@ router.post("/", async function (req, res) {
         // Required fields
 
         if (
-            id === undefined ||
             !asset ||
             !employee ||
             !complaint ||
@@ -61,16 +59,7 @@ router.post("/", async function (req, res) {
 
         }
 
-        // Internal ID validation
-
-        if (typeof id !== "number") {
-
-            return res.status(400).json({
-                message: "ID must be a number"
-            });
-
-        }
-
+        
         // ObjectId validation
 
         if (!mongoose.Types.ObjectId.isValid(asset)) {
@@ -152,20 +141,13 @@ router.post("/", async function (req, res) {
 
         }
 
-        // Duplicate internal ID
+        const lastRepairById = await Repair.findOne().sort({ id: -1 });
 
-        const existingId = await Repair.findOne({
-            id: id
-        });
+        let nextInternalId = 1;
 
-        if (existingId) {
-
-            return res.status(409).json({
-                message: "Internal ID already exists"
-            });
-
+        if (lastRepairById && typeof lastRepairById.id === "number") {
+            nextInternalId = lastRepairById.id + 1;
         }
-
         // ================= AUTO REPAIR ID =================
 
         const lastRepair = await Repair.findOne({
@@ -193,7 +175,7 @@ router.post("/", async function (req, res) {
 
         const newRepair = new Repair({
 
-            id: id,
+            id: nextInternalId,
 
             repairId: repairId,
 

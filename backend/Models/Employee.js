@@ -20,7 +20,11 @@ const employeeSchema = new mongoose.Schema({
         unique: true
     },
 
-    password: String,
+    password: {
+        type: String,
+        required: true,
+        select: true
+    },
 
     employeestatus: String
 

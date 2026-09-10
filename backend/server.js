@@ -4,11 +4,11 @@ const dns = require("dns");
 const cors=require("cors");
 
 const assetRoutes = require("./Routes/assetRoutes");
-const employeeRoutes = require("./Routes/employeeRoutes");
 const repairRoutes=require("./Routes/repairRoutes");
 const supplierRoutes=require("./Routes/supplierRoutes");
 const complaintRoutes=require("./Routes/complaintRoutes");
 const adminRoutes = require("./Routes/adminRoutes");
+const employeeRoutes = require("./Routes/employeeRoutes");
 
 
 dns.setServers(["8.8.8.8"]);
@@ -32,13 +32,13 @@ app.use(cors());
 app.use(express.json());
 
 // JSON data read karne ke liye
-app.use(express.json());
 app.use("/api/assets", assetRoutes);
-app.use("/api/employees", employeeRoutes);
 app.use("/api/repairs", repairRoutes);
 app.use("/api/suppliers", supplierRoutes);
 app.use("/api/complaints",complaintRoutes);
 app.use("/api/admins", adminRoutes);
+app.use("/api/employees", employeeRoutes);
+
 
 
 

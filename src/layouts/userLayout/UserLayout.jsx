@@ -9,7 +9,7 @@ function UserLayout() {
   const navigate = useNavigate();
 
   return (
-    <div>
+    <div className="user-shell">
       <UserNavbar />
       <div className="layout">
         <UserSidebar setShowlogout={setShowlogout} />

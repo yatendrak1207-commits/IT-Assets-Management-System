@@ -1,5 +1,5 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
 
 import "./App.css";
 
@@ -26,8 +26,19 @@ import UserSettings from "./pages/UserSetting/UserSetting";
 import ProtectedRoute from "./pages/LOGIN/ProtectedRoutes";
 
 function App() {
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "day");
+
+  const location = useLocation();
+
+  /* Admin route par hi admin ka theme class lagao.
+     User routes par abhi ke liye "day" (default) rahega,
+     taaki admin ka theme user side par leak na ho.
+     User ka apna independent theme baad me isi condition me add karenge. */
+  const isAdminRoute = !location.pathname.startsWith("/user");
+  const activeTheme = isAdminRoute ? theme : "day";
+
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${activeTheme}`}>
       <Routes>
         {/* Login */}
         <Route path="/login" element={<Login />} />
@@ -46,7 +57,10 @@ function App() {
           <Route path="/suppiler" element={<Suppiler />} />
           <Route path="/repair" element={<Repair />} />
           <Route path="/report" element={<Report />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route
+            path="/settings"
+            element={<Settings theme={theme} setTheme={setTheme} />}
+          />
           <Route path="/profile" element={<Profile />} />
         </Route>
 

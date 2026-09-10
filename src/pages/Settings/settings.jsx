@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./settings.css";
 import { IoSettings } from "react-icons/io5";
 
-function Settings() {
+function Settings({ theme, setTheme }) {
   /*------------------ useStates ----------------*/
 
   const [openSection, setOpensection] = useState(null);
@@ -22,7 +22,6 @@ function Settings() {
   const [assetNotification, setAssetNotification] = useState(false);
   const [lowStockAlert, setLowStockAlert] = useState(false);
 
-  const [theme, setTheme] = useState("day");
   const [items, setItems] = useState("one");
   const [Date, setDate] = useState("days");
 
@@ -564,11 +563,11 @@ function Settings() {
               value={theme}
               onChange={function (item) {
                 setTheme(item.target.value);
+                localStorage.setItem("theme", item.target.value);
               }}
             >
               <option value="day">Day</option>
-              <option value="evening">Evening</option>
-              <option value="night">Night</option>
+              <option value="Night">Night</option>
             </select>
           </div>
 
