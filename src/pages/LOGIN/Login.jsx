@@ -1,10 +1,13 @@
 import React, { useState } from "react";
+import loginBg from "../../assets/itbga.jpeg";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -20,11 +23,9 @@ function Login() {
 
     fetch("http://localhost:5000/api/admins/login", {
       method: "POST",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify({
         email: email,
         password: password,
@@ -39,7 +40,6 @@ function Login() {
         });
       })
       .then(function (adminResult) {
-        // Admin login successful
         if (adminResult.ok) {
           const data = adminResult.data;
 
@@ -62,11 +62,9 @@ function Login() {
 
         return fetch("http://localhost:5000/api/employees/login", {
           method: "POST",
-
           headers: {
             "Content-Type": "application/json",
           },
-
           body: JSON.stringify({
             email: email,
             password: password,
@@ -89,10 +87,8 @@ function Login() {
 
             const data = employeeResult.data;
 
-            // JWT token save
             sessionStorage.setItem("token", data.token);
 
-            // Employee data save
             sessionStorage.setItem(
               "loggedInUser",
               JSON.stringify({
@@ -101,25 +97,26 @@ function Login() {
               }),
             );
 
-            // User dashboard
             navigate("/user");
           });
       })
       .catch(function (error) {
         console.log("Login error:", error);
-
         alert("Server se connection nahi ho raha");
       });
   }
 
   return (
-    <div className="login-page">
+    <div
+      className="login-container"
+      style={{ backgroundImage: `url(${loginBg})` }}
+    >
       <div className="login-box">
         <h1>Login</h1>
 
         <form onSubmit={handleLogin}>
           <div className="login-field">
-            <label>Username</label>
+            <label>Username :</label>
 
             <input
               type="email"
@@ -134,21 +131,41 @@ function Login() {
           </div>
 
           <div className="login-field">
-            <label>Password</label>
+            <label>Password :</label>
 
-            <input
-              type="password"
-              name="login-password"
-              autoComplete="new-password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={function (e) {
-                setPassword(e.target.value);
-              }}
-            />
+            <div className="password-box">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="login-password"
+                autoComplete="new-password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={function (e) {
+                  setPassword(e.target.value);
+                }}
+              />
+
+              <button
+                type="button"
+                className="password-eye"
+                onClick={function () {
+                  setShowPassword(!showPassword);
+                }}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
 
-          <button type="submit">Login</button>
+          <div className="login-buttons">
+            <button type="submit" className="login-btn">
+              Login
+            </button>
+
+            <button type="button" className="signin-btn">
+              Sign-in
+            </button>
+          </div>
         </form>
       </div>
     </div>
