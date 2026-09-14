@@ -1,45 +1,84 @@
-layout {
+/* =========================================================
+   MAIN LAYOUT
+========================================================= */
+
+.admin-shell {
+    height: 100%;
     display: flex;
-    min-height: 0;
-    flex: 1;
+    flex-direction: column;
 }
 
-.content {
+.layout {
+    display: flex;
     flex: 1;
-    padding: 20px;
+    min-height: 0;
 }
+
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
 
 .main-content {
     flex: 1;
     min-width: 0;
     min-height: 0;
+
     display: flex;
     flex-direction: column;
+
     overflow-y: auto;
+
+    scrollbar-width: none;
+        
+    -ms-overflow-style: none;
 }
+.main-content::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Edge, Safari */
+}
+
+
+/* =========================================================
+   LOGOUT OVERLAY
+========================================================= */
 
 .logout-overlay {
     position: fixed;
     top: 0;
     left: 0;
+
     width: 100vw;
     height: 100vh;
+
     display: flex;
     justify-content: center;
     align-items: center;
+
+    padding: 20px;
+    box-sizing: border-box;
+
     background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(4px);
+
     z-index: 1000;
 }
 
 .logout-box {
     width: 500px;
-    height: 300px;
+    max-width: 100%;
+
+    min-height: 300px;
+    height: auto;
+
     padding: 30px;
+    box-sizing: border-box;
+
     background-color: rgb(115, 225, 255);
+
     border-radius: 10px;
+
     text-align: center;
-    border-radius: 10px;
 }
 
 .logout-text {
@@ -48,7 +87,10 @@ layout {
 
 .logout-text h2 {
     padding: 20px;
+    margin: 0;
+
     text-decoration: underline;
+
     color: orangered;
     font-size: 30px;
 }
@@ -57,13 +99,92 @@ layout {
     font-size: 20px;
 }
 
+
+/* =========================================================
+   LOGOUT BUTTON
+========================================================= */
+
+.logout-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+
+    flex-wrap: wrap;
+}
+
+.cancel-btn,
+.logout-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
 .cancel-btn {
     background-color: white;
-    padding: 10px 20px;
 }
 
 .logout-btn {
     background-color: rgb(255, 48, 48);
     color: aliceblue;
-    padding: 10px 20px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .logout-box {
+        width: 90%;
+        padding: 25px;
+    }
+
+    .logout-text {
+        padding: 15px;
+    }
+
+    .logout-text h2 {
+        padding: 15px;
+        font-size: 26px;
+    }
+
+    .logout-text p {
+        font-size: 18px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .logout-box {
+        width: 100%;
+        min-height: auto;
+        padding: 20px;
+    }
+
+    .logout-text {
+        padding: 10px;
+    }
+
+    .logout-text h2 {
+        padding: 10px 5px;
+        font-size: 22px;
+    }
+
+    .logout-text p {
+        font-size: 16px;
+    }
+
+    .cancel-btn,
+    .logout-btn {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
 }

@@ -2,14 +2,26 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 
 function ProtectedRoute({ allowedRole, children }) {
+  const token = sessionStorage.getItem("token");
   const loggedInUser = sessionStorage.getItem("loggedInUser");
 
-  if (!loggedInUser) {
+  // Token ya user data nahi hai
+  if (!token || !loggedInUser) {
     return <Navigate to="/login" replace />;
   }
 
-  const user = JSON.parse(loggedInUser);
+  let user;
 
+  try {
+    user = JSON.parse(loggedInUser);
+  } catch (error) {
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("loggedInUser");
+
+    return <Navigate to="/login" replace />;
+  }
+
+  // Role check
   if (user.role !== allowedRole) {
     if (user.role === "admin") {
       return <Navigate to="/" replace />;

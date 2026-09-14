@@ -14,8 +14,19 @@ function Login() {
   function handleLogin(e) {
     e.preventDefault();
 
-    if (!email || !password) {
-      alert("Email and password are required");
+    if (!email && !password) {
+      alert("Please enter your email and password");
+
+      return;
+    }
+
+    if (!email) {
+      alert("Please enter your email");
+      return;
+    }
+
+    if (!password) {
+      alert("Please enter your password");
       return;
     }
 

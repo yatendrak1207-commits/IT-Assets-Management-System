@@ -1,36 +1,108 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./UserProfile.css";
 import { FaUser } from "react-icons/fa";
-import { complaints } from "../../data/data";
+
 function UserProfile() {
   const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
-  const userData = complaints.find(function (item) {
-    return item.employeeId === loggedInUser.employeeId;
-  });
+
+  const [userData, setUserData] = useState(null);
 
   const [editmode, setEditmode] = useState(false);
 
-  const [name, setName] = useState(loggedInUser.employeeName);
-  const [email, setEmail] = useState(loggedInUser.email);
-  const [phone, setPhone] = useState(userData.phone);
-  const [department, setDepartment] = useState(userData.department);
-  const [designation, setDesignation] = useState(
-    loggedInUser.designation || "Employee",
-  );
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [department, setDepartment] = useState("");
 
-  function saveDetails() {
-    const updatedUser = {
-      ...loggedInUser,
-      employeeName: name,
-      email: email,
-      phone: phone,
-      department: department,
-      designation: designation,
-    };
+  useEffect(function () {
+    async function fetchProfile() {
+      try {
+        const token = sessionStorage.getItem("token");
 
-    localStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+        const response = await fetch(
+          `http://localhost:5000/api/employees/${loggedInUser.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
 
-    setEditmode(false);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch profile");
+        }
+
+        setUserData(data);
+
+        setName(data.employeeName || "");
+        setEmail(data.email || "");
+        setPhone(data.phone || "");
+        setDepartment(data.department || "");
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    }
+
+    if (loggedInUser?.id) {
+      fetchProfile();
+    }
+  }, []);
+
+  async function saveDetails() {
+    try {
+      const token = sessionStorage.getItem("token");
+
+      const response = await fetch(
+        `http://localhost:5000/api/employees/${loggedInUser.id}`,
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+
+          body: JSON.stringify({
+            employeeName: name,
+            email: email,
+            phone: phone,
+            department: department,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update profile");
+      }
+
+      setUserData(data);
+
+      const updatedUser = {
+        ...loggedInUser,
+        employeeName: data.employeeName,
+        email: data.email,
+        phone: data.phone,
+        department: data.department,
+      };
+
+      sessionStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+
+      setEditmode(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  }
+
+  if (!userData) {
+    return (
+      <div className="UserProfile">
+        <p>Loading profile...</p>
+      </div>
+    );
   }
 
   return (
@@ -49,7 +121,9 @@ function UserProfile() {
 
         <div className="profile-header-info">
           <label>{name}</label>
-          <label>{designation}</label>
+
+          <label>Employee</label>
+
           <label>{email}</label>
         </div>
       </div>
@@ -129,17 +203,7 @@ function UserProfile() {
           <div className="profile-field">
             <label>Designation :</label>
 
-            {editmode ? (
-              <input
-                type="text"
-                value={designation}
-                onChange={function (x) {
-                  setDesignation(x.target.value);
-                }}
-              />
-            ) : (
-              <span>{designation}</span>
-            )}
+            <span>Employee</span>
           </div>
         </div>
 
@@ -150,22 +214,26 @@ function UserProfile() {
 
           <div className="profile-field">
             <label>Employee ID :</label>
-            <span>{loggedInUser.employeeId}</span>
+
+            <span>{userData.employeeId}</span>
           </div>
 
           <div className="profile-field">
             <label>Username :</label>
-            <span>{loggedInUser.email}</span>
+
+            <span>{userData.email}</span>
           </div>
 
           <div className="profile-field">
             <label>Role :</label>
+
             <span>User</span>
           </div>
 
           <div className="profile-field">
             <label>Status :</label>
-            <span>Active</span>
+
+            <span>{userData.employeestatus || "Active"}</span>
           </div>
         </div>
       </div>

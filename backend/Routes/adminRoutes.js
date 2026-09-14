@@ -4,37 +4,179 @@ const Admin = require("../Models/Admin");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const {
+    authMiddleware,
+    requireRole
+} = require("../middleware/authMiddleware");
 
-// ================= GET ALL ADMINS =================
-router.get("/", function (req, res) {
 
-    Admin.find()
-        .then(function (admins) {
-            res.json(admins);
+// ================= ADMIN LOGIN =================
+
+router.post("/login", function (req, res) {
+
+    const {
+        email,
+        password
+    } = req.body;
+
+
+    if (!email || !password) {
+
+        return res.status(400).json({
+            message: "Email and password are required"
+        });
+
+    }
+
+
+    Admin.findOne({
+        email: email.toLowerCase()
+    })
+        .then(function (admin) {
+
+            if (!admin) {
+
+                return res.status(401).json({
+                    message: "Email is incorrect"
+                });
+
+            }
+
+
+            if (admin.status !== "Active") {
+
+                return res.status(403).json({
+                    message: "Admin account is not active"
+                });
+
+            }
+
+
+            return bcrypt.compare(password, admin.password)
+                .then(function (isPasswordCorrect) {
+
+                    if (!isPasswordCorrect) {
+
+                        return res.status(401).json({
+                            message: "Password is incorrect"
+                        });
+
+                    }
+
+
+                    const token = jwt.sign(
+                        {
+                            id: admin.id,
+                            adminId: admin.adminId,
+                            role: admin.role
+                        },
+                        process.env.JWT_SECRET,
+                        {
+                            expiresIn: "1d"
+                        }
+                    );
+
+
+                    res.json({
+
+                        message: "Login successful",
+
+                        token: token,
+
+                        admin: {
+
+                            id: admin.id,
+
+                            adminId: admin.adminId,
+
+                            name: admin.name,
+
+                            email: admin.email,
+
+                            phone: admin.phone,
+
+                            role: admin.role,
+
+                            status: admin.status
+
+                        }
+
+                    });
+
+                });
+
         })
         .catch(function (error) {
+
+            console.log("Admin login error:", error);
+
+            res.status(500).json({
+
+                message: "Login failed",
+
+                error: error
+
+            });
+
+        });
+
+});
+
+
+// =================================================
+// ALL ROUTES BELOW THIS LINE ARE PROTECTED
+// ONLY ADMIN CAN ACCESS
+// =================================================
+
+router.use(
+    authMiddleware,
+    requireRole("admin")
+);
+
+
+// ================= GET ALL ADMINS =================
+
+router.get("/", 
+     authMiddleware,
+    requireRole("admin"),
+    function (req, res) {
+    Admin.find()
+        .select("-password")
+        .then(function (admins) {
+
+            res.json(admins);
+
+        })
+        .catch(function (error) {
+
             res.status(500).json({
                 message: "Failed to fetch admins",
                 error: error
             });
+
         });
 
 });
 
 
 // ================= GET ADMIN BY ID =================
+
 router.get("/:id", function (req, res) {
 
     Admin.findOne({
         id: Number(req.params.id)
     })
+        .select("-password")
         .then(function (admin) {
 
             if (!admin) {
+
                 return res.status(404).json({
                     message: "Admin not found"
                 });
+
             }
+
 
             res.json(admin);
 
@@ -52,7 +194,11 @@ router.get("/:id", function (req, res) {
 
 
 // ================= POST ADMIN =================
-router.post("/", function (req, res) {
+
+router.post("/", 
+     authMiddleware,
+    requireRole("user"),
+    function (req, res) {
 
     const {
         id,
@@ -89,6 +235,7 @@ router.post("/", function (req, res) {
 
             }
 
+
             return Admin.findOne({
                 email: email.toLowerCase()
             });
@@ -104,6 +251,7 @@ router.post("/", function (req, res) {
 
             }
 
+
             return Admin.findOne({
                 adminId: /^ADM\d+$/
             }).sort({
@@ -114,6 +262,7 @@ router.post("/", function (req, res) {
         .then(function (lastAdmin) {
 
             let nextNumber = 1;
+
 
             if (lastAdmin && lastAdmin.adminId) {
 
@@ -166,7 +315,27 @@ router.post("/", function (req, res) {
         })
         .then(function (savedAdmin) {
 
-            res.status(201).json(savedAdmin);
+            res.status(201).json({
+
+                id: savedAdmin.id,
+
+                adminId: savedAdmin.adminId,
+
+                name: savedAdmin.name,
+
+                email: savedAdmin.email,
+
+                phone: savedAdmin.phone,
+
+                department: savedAdmin.department,
+
+                designation: savedAdmin.designation,
+
+                role: savedAdmin.role,
+
+                status: savedAdmin.status
+
+            });
 
         })
         .catch(function (error) {
@@ -174,8 +343,11 @@ router.post("/", function (req, res) {
             console.log("Error creating admin:", error);
 
             res.status(500).json({
+
                 message: "Failed to create admin",
+
                 error: error
+
             });
 
         });
@@ -184,7 +356,11 @@ router.post("/", function (req, res) {
 
 
 // ================= PUT ADMIN =================
-router.put("/:id", function (req, res) {
+
+router.put("/:id",
+    authMiddleware,
+    requireRole("admin"),
+    function (req, res) {
 
     const {
         name,
@@ -213,14 +389,19 @@ router.put("/:id", function (req, res) {
 
 
             admin.name = name;
+
             admin.email = email
                 ? email.toLowerCase()
                 : admin.email;
 
             admin.phone = phone;
+
             admin.department = department;
+
             admin.designation = designation;
+
             admin.role = role;
+
             admin.status = status;
 
 
@@ -244,10 +425,33 @@ router.put("/:id", function (req, res) {
         .then(function (updatedAdmin) {
 
             if (!updatedAdmin) {
+
                 return;
+
             }
 
-            res.json(updatedAdmin);
+
+            res.json({
+
+                id: updatedAdmin.id,
+
+                adminId: updatedAdmin.adminId,
+
+                name: updatedAdmin.name,
+
+                email: updatedAdmin.email,
+
+                phone: updatedAdmin.phone,
+
+                department: updatedAdmin.department,
+
+                designation: updatedAdmin.designation,
+
+                role: updatedAdmin.role,
+
+                status: updatedAdmin.status
+
+            });
 
         })
         .catch(function (error) {
@@ -255,15 +459,20 @@ router.put("/:id", function (req, res) {
             console.log("Error updating admin:", error);
 
             res.status(500).json({
+
                 message: "Failed to update admin",
+
                 error: error
+
             });
 
         });
 
 });
 
+
 // ================= GET ADMIN SETTINGS =================
+
 router.get("/:id/settings", function (req, res) {
 
     Admin.findOne({
@@ -279,6 +488,7 @@ router.get("/:id/settings", function (req, res) {
 
             }
 
+
             res.json(admin.settings);
 
         })
@@ -287,8 +497,11 @@ router.get("/:id/settings", function (req, res) {
             console.log("Error fetching admin settings:", error);
 
             res.status(500).json({
+
                 message: "Failed to fetch admin settings",
+
                 error: error
+
             });
 
         });
@@ -297,6 +510,7 @@ router.get("/:id/settings", function (req, res) {
 
 
 // ================= UPDATE ADMIN SETTINGS =================
+
 router.put("/:id/settings", function (req, res) {
 
     const {
@@ -389,22 +603,37 @@ router.put("/:id/settings", function (req, res) {
         .then(function (updatedAdmin) {
 
             if (!updatedAdmin) {
+
                 return;
+
             }
 
+
             res.json({
-                message: "Admin settings updated successfully",
-                settings: updatedAdmin.settings
+
+                message:
+                    "Admin settings updated successfully",
+
+                settings:
+                    updatedAdmin.settings
+
             });
 
         })
         .catch(function (error) {
 
-            console.log("Error updating admin settings:", error);
+            console.log(
+                "Error updating admin settings:",
+                error
+            );
 
             res.status(500).json({
-                message: "Failed to update admin settings",
+
+                message:
+                    "Failed to update admin settings",
+
                 error: error
+
             });
 
         });
@@ -412,9 +641,12 @@ router.put("/:id/settings", function (req, res) {
 });
 
 
-
 // ================= DELETE ADMIN =================
-router.delete("/:id", function (req, res) {
+
+router.delete("/:id",
+     authMiddleware,
+    requireRole("admin"),
+    function (req, res) {
 
     Admin.findOneAndDelete({
         id: Number(req.params.id)
@@ -429,132 +661,24 @@ router.delete("/:id", function (req, res) {
 
             }
 
+
             res.json({
-                message: "Admin deleted successfully",
-                admin: deletedAdmin
+
+                message: "Admin deleted successfully"
+
             });
 
         })
         .catch(function (error) {
 
-            console.log("Error deleting admin:", error);
+            console.log(
+                "Error deleting admin:",
+                error
+            );
 
             res.status(500).json({
+
                 message: "Failed to delete admin",
-                error: error
-            });
-
-        });
-
-});
-
-
-// ================= ADMIN LOGIN =================
-router.post("/login", function (req, res) {
-
-    const {
-        email,
-        password
-    } = req.body;
-
-
-    if (!email || !password) {
-
-        return res.status(400).json({
-            message: "Email and password are required"
-        });
-
-    }
-
-
-    Admin.findOne({
-        email: email.toLowerCase()
-    })
-        .then(function (admin) {
-
-            if (!admin) {
-
-                return res.status(401).json({
-                    message: "Invalid email or password"
-                });
-
-            }
-
-
-            if (admin.status !== "Active") {
-
-                return res.status(403).json({
-                    message: "Admin account is not active"
-                });
-
-            }
-
-
-            return bcrypt.compare(password, admin.password)
-                .then(function (isPasswordCorrect) {
-
-                    if (!isPasswordCorrect) {
-
-                        return res.status(401).json({
-                            message: "Invalid email or password"
-                        });
-
-                    }
-
-
-                    const token = jwt.sign(
-
-                        {
-                            id: admin.id,
-                            adminId: admin.adminId,
-                            role: admin.role
-                        },
-
-                        process.env.JWT_SECRET,
-
-                        {
-                            expiresIn: "1d"
-                        }
-
-                    );
-
-
-                    res.json({
-
-                        message: "Login successful",
-
-                        token: token,
-
-                        admin: {
-
-                            id: admin.id,
-
-                            adminId: admin.adminId,
-
-                            name: admin.name,
-
-                            email: admin.email,
-
-                            phone: admin.phone,
-
-                            role: admin.role,
-
-                            status: admin.status
-
-                        }
-
-                    });
-
-                });
-
-        })
-        .catch(function (error) {
-
-            console.log("Admin login error:", error);
-
-            res.status(500).json({
-
-                message: "Login failed",
 
                 error: error
 

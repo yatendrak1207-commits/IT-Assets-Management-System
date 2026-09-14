@@ -23,46 +23,110 @@ import {
 export default function Report() {
   const [reportFor, setReportFor] = useState("assets");
   const [chartType, setCharttype] = useState("bar");
+
   const [assets, setAssets] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [repairs, setRepairs] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
-  const [complaints, setComplaints] = useState([]);
 
   useEffect(function () {
-    fetch("http://localhost:5000/api/assets")
+    const token = sessionStorage.getItem("token");
+
+    // Assets
+    fetch("http://localhost:5000/api/assets", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then(function (response) {
-        return response.json();
+        return response.json().then(function (data) {
+          if (!response.ok) {
+            throw new Error(data.message || "Failed to fetch assets");
+          }
+
+          return data;
+        });
       })
       .then(function (data) {
-        setAssets(data);
+        setAssets(Array.isArray(data) ? data : []);
+      })
+      .catch(function (error) {
+        console.log("Error fetching assets:", error);
+        setAssets([]);
       });
 
-    fetch("http://localhost:5000/api/employees")
+    // Employees
+    fetch("http://localhost:5000/api/employees", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then(function (response) {
-        return response.json();
+        return response.json().then(function (data) {
+          if (!response.ok) {
+            throw new Error(data.message || "Failed to fetch employees");
+          }
+
+          return data;
+        });
       })
       .then(function (data) {
-        setEmployees(data);
+        setEmployees(Array.isArray(data) ? data : []);
+      })
+      .catch(function (error) {
+        console.log("Error fetching employees:", error);
+        setEmployees([]);
       });
 
-    fetch("http://localhost:5000/api/repairs")
+    // Repairs
+    fetch("http://localhost:5000/api/repairs", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then(function (response) {
-        return response.json();
+        return response.json().then(function (data) {
+          if (!response.ok) {
+            throw new Error(data.message || "Failed to fetch repairs");
+          }
+
+          return data;
+        });
       })
       .then(function (data) {
-        setRepairs(data);
+        setRepairs(Array.isArray(data) ? data : []);
+      })
+      .catch(function (error) {
+        console.log("Error fetching repairs:", error);
+        setRepairs([]);
       });
-    fetch("http://localhost:5000/api/suppliers")
+
+    // Suppliers
+    fetch("http://localhost:5000/api/suppliers", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then(function (response) {
-        return response.json();
+        return response.json().then(function (data) {
+          if (!response.ok) {
+            throw new Error(data.message || "Failed to fetch suppliers");
+          }
+
+          return data;
+        });
       })
       .then(function (data) {
-        setSuppliers(data);
+        setSuppliers(Array.isArray(data) ? data : []);
+      })
+      .catch(function (error) {
+        console.log("Error fetching suppliers:", error);
+        setSuppliers([]);
       });
   }, []);
 
   //---------------Assets calculation--------------
+
   const totalAssets = assets.length;
 
   const assigned = assets.filter(function (item) {
@@ -89,6 +153,7 @@ export default function Report() {
   };
 
   //------------------Employee calculation----------------
+
   const totalemployees = employees.length;
 
   const assignedemployees = employees.filter(function (item) {
@@ -97,7 +162,9 @@ export default function Report() {
 
   const avaliableemployee = totalemployees - assignedemployees;
 
-  const inactiveemployees = 0;
+  const inactiveemployees = employees.filter(function (item) {
+    return item.employeestatus === "Inactive";
+  }).length;
 
   const employeeReport = {
     title: "Employee",
@@ -111,8 +178,22 @@ export default function Report() {
     available: avaliableemployee,
     repair: inactiveemployees,
   };
-  //-------------Suppiler calculation-------
+
+  //-------------Supplier calculation-------
+
   const totalsupplier = suppliers.length;
+
+  const activeSuppliers = suppliers.filter(function (item) {
+    return item.status === "Active";
+  }).length;
+
+  const inactiveSuppliers = suppliers.filter(function (item) {
+    return item.status === "Inactive";
+  }).length;
+
+  const totalAssetsSupplied = suppliers.reduce(function (total, item) {
+    return total + (item.assetsSupplied || 0);
+  }, 0);
 
   const supplierReport = {
     title: "supplier",
@@ -122,12 +203,13 @@ export default function Report() {
     ReapairLabel: "Total Assets Supplied",
 
     total: totalsupplier,
-    assigned: 0,
-    available: 0,
-    repair: 0,
+    assigned: activeSuppliers,
+    available: inactiveSuppliers,
+    repair: totalAssetsSupplied,
   };
 
   //-----------Repair Calculation--------
+
   const totalrepairs = repairs.length;
 
   const pendingrepair = repairs.filter(function (item) {
@@ -155,47 +237,16 @@ export default function Report() {
     repair: completerepairs,
   };
 
-  //---------------complaint calculation-------------------
-  const complainsId = complaints.map(function (item) {
-    return item.complaint;
-  });
-  const totalcomplain = complainsId.length;
-
-  const opencomplain = complaints.filter(function (item) {
-    return item.status == "Open";
-  }).length;
-
-  const inprogresscomplain = complaints.filter(function (item) {
-    return item.status == "In Progress";
-  }).length;
-
-  const Resolvedcomplain = complaints.filter(function (item) {
-    return item.status == "Resolved";
-  }).length;
-
-  const complainReport = {
-    title: "Complain",
-    totalLabel: "Total Complaints",
-    assignedLabel: "Open Complaints",
-    availableLabel: "In Progress",
-    ReapairLabel: "Resolved Complaints",
-
-    total: totalcomplain,
-    assigned: opencomplain,
-    available: inprogresscomplain,
-    repair: Resolvedcomplain,
-  };
-
   //--------card change according to report for------------
+
   let currentReport = assetReport;
-  if (reportFor == "employees") {
+
+  if (reportFor === "employees") {
     currentReport = employeeReport;
-  } else if (reportFor == "supplier") {
+  } else if (reportFor === "supplier") {
     currentReport = supplierReport;
-  } else if (reportFor == "repair") {
+  } else if (reportFor === "repair") {
     currentReport = repairReport;
-  } else if (reportFor == "complains") {
-    currentReport = complainReport;
   }
 
   return (
@@ -205,8 +256,10 @@ export default function Report() {
           <IoBarChart />
           Report
         </h1>
+
         <div className="report-filter">
           <label>Report for</label>
+
           <select
             value={reportFor}
             onChange={function (event) {
@@ -217,30 +270,35 @@ export default function Report() {
             <option value="employees">Employees</option>
             <option value="supplier">Supplier</option>
             <option value="repair">Repair</option>
-            <option value="complains">Complain</option>
           </select>
         </div>
       </div>
+
       <div className="report-cards">
         <div className="report-card">
           <h3>{currentReport.totalLabel}</h3>
           <p>{currentReport.total}</p>
         </div>
+
         <div className="report-card">
           <h3>{currentReport.assignedLabel}</h3>
           <p>{currentReport.assigned}</p>
         </div>
+
         <div className="report-card">
           <h3>{currentReport.availableLabel}</h3>
           <p>{currentReport.available}</p>
         </div>
+
         <div className="report-card">
           <h3>{currentReport.ReapairLabel}</h3>
           <p>{currentReport.repair}</p>
         </div>
       </div>
+
       <div className="chart-filter">
         <label>Chart Type</label>
+
         <select
           value={chartType}
           onChange={function (item) {
@@ -252,16 +310,18 @@ export default function Report() {
           <option value="pie">Pie Chart</option>
         </select>
       </div>
+
       <div className="chart-heading">
         <h2>{currentReport.title}Report chart</h2>
       </div>
+
       <div className="chart-section">
         <ResponsiveContainer
           width="60%"
           height={250}
           className={chartType === "pie" ? "pie-chart " : "bar-line-chart"}
         >
-          {chartType == "bar" && (
+          {chartType === "bar" && (
             <BarChart
               data={[
                 {
@@ -278,23 +338,27 @@ export default function Report() {
                 name={currentReport.assignedLabel}
                 fill="#09325a"
               />
+
               <Bar
                 dataKey="available"
                 name={currentReport.availableLabel}
                 fill="#10865e"
               />
+
               <Bar
                 dataKey="repair"
                 name={currentReport.ReapairLabel}
                 fill="#710202"
               />
+
               <XAxis dataKey="name" />
               <YAxis />
               <CartesianGrid strokeDasharray="1 1" />
               <Tooltip />
             </BarChart>
           )}
-          {chartType == "line" && (
+
+          {chartType === "line" && (
             <LineChart
               data={[
                 {
@@ -322,23 +386,15 @@ export default function Report() {
                   strokeWidth: 3,
                 }}
               />
-              <Line
-                dataKey="value"
-                name={currentReport.avaliableLabel}
-                type="monotone"
-              />
-              <Line
-                dataKey="value"
-                name={currentReport.ReapairLabel}
-                type="monotone"
-              />
+
               <XAxis dataKey="name" />
               <YAxis width={40} />
               <CartesianGrid strokeDasharray="1 1" />
               <Tooltip />
             </LineChart>
           )}
-          {chartType == "pie" && (
+
+          {chartType === "pie" && (
             <PieChart>
               <Pie
                 data={[
@@ -372,8 +428,12 @@ export default function Report() {
                 verticalAlign="middle"
                 iconType="circle"
                 iconSize={20}
-                wrapperStyle={{ lineHeight: "50px", marginLeft: "250px" }}
+                wrapperStyle={{
+                  lineHeight: "50px",
+                  marginLeft: "250px",
+                }}
               />
+
               <Tooltip />
             </PieChart>
           )}

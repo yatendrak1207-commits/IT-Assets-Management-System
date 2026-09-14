@@ -1,12 +1,12 @@
 const express = require("express");
-const mongoose=require("mongoose");
+const mongoose = require("mongoose");
 const dns = require("dns");
-const cors=require("cors");
+const cors = require("cors");
 
 const assetRoutes = require("./Routes/assetRoutes");
-const repairRoutes=require("./Routes/repairRoutes");
-const supplierRoutes=require("./Routes/supplierRoutes");
-const complaintRoutes=require("./Routes/complaintRoutes");
+const repairRoutes = require("./Routes/repairRoutes");
+const supplierRoutes = require("./Routes/supplierRoutes");
+const complaintRoutes = require("./Routes/complaintRoutes");
 const adminRoutes = require("./Routes/adminRoutes");
 const employeeRoutes = require("./Routes/employeeRoutes");
 
@@ -14,41 +14,61 @@ const employeeRoutes = require("./Routes/employeeRoutes");
 dns.setServers(["8.8.8.8"]);
 
 require("dotenv").config();
-mongoose.connect(process.env.MONGO_URI)
-  .then(function(){
-    console.log("Mongo DB connected succesfully");
-  })
-  .catch(function(error){
-    console.log("MongoDB connection failed:", error);
-  });
 
-  
+
+mongoose.connect(process.env.MONGO_URI)
+    .then(function () {
+
+        console.log("Mongo DB connected succesfully");
+
+    })
+    .catch(function (error) {
+
+        console.log("MongoDB connection failed:", error);
+
+    });
+
 
 const app = express();
 
 const PORT = 5000;
 
+
 app.use(cors());
+
 app.use(express.json());
 
-// JSON data read karne ke liye
+
+// ================= ROUTES =================
+
 app.use("/api/assets", assetRoutes);
+
 app.use("/api/repairs", repairRoutes);
+
 app.use("/api/suppliers", supplierRoutes);
-app.use("/api/complaints",complaintRoutes);
+
+app.use("/api/complaints", complaintRoutes);
+
 app.use("/api/admins", adminRoutes);
+
 app.use("/api/employees", employeeRoutes);
 
 
+// ================= TEST ROUTE =================
 
-
-// Test route
 app.get("/", function (req, res) {
-  res.send("IT Assets Management Backend is running!");
+
+    res.send("IT Assets Management Backend is running!");
+
 });
 
 
-// Server start
+// ================= SERVER START =================
+
 app.listen(PORT, function () {
-  console.log(`Server running on http://localhost:${PORT}`);
+
+    console.log(
+        `Server running on http://localhost:${PORT}`
+    );
+
 });

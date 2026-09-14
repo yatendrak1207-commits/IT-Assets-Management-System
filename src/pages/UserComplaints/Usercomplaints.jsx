@@ -1,16 +1,120 @@
-import React from "react";
-import { complaints } from "../../data/data";
+import React, { useEffect, useState } from "react";
 import "./UserComplaints.css";
 import { BsFillPeopleFill } from "react-icons/bs";
 
 function UserComplaints() {
-  const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
+  const [complaints, setComplaints] = useState([]);
+  const [assets, setAssets] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const userId = loggedInUser?.employeeId;
+  const [selectedAsset, setSelectedAsset] = useState("");
+  const [complaintText, setComplaintText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const myComplaints = complaints.filter(function (item) {
-    return item?.employeeId === userId;
-  });
+  useEffect(function () {
+    async function fetchData() {
+      try {
+        const token = sessionStorage.getItem("token");
+
+        // My Repair Requests
+        const repairResponse = await fetch(
+          "http://localhost:5000/api/repairs/my",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        const repairData = await repairResponse.json();
+
+        if (!repairResponse.ok) {
+          throw new Error(
+            repairData.message || "Failed to fetch repair requests",
+          );
+        }
+
+        setComplaints(repairData);
+
+        // My Assets
+        const assetResponse = await fetch(
+          "http://localhost:5000/api/assets/my",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        const assetData = await assetResponse.json();
+
+        if (!assetResponse.ok) {
+          throw new Error(assetData.message || "Failed to fetch your assets");
+        }
+
+        setAssets(assetData);
+      } catch (error) {
+        console.log("Error fetching repair data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    if (!selectedAsset) {
+      alert("Please select an asset");
+      return;
+    }
+
+    if (!complaintText.trim()) {
+      alert("Please enter your complaint");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      const token = sessionStorage.getItem("token");
+
+      const response = await fetch("http://localhost:5000/api/repairs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          asset: selectedAsset,
+          complaint: complaintText,
+          complaintDate: new Date().toISOString().slice(0, 10),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create repair request");
+      }
+
+      setComplaints(function (previous) {
+        return [data, ...previous];
+      });
+
+      setSelectedAsset("");
+      setComplaintText("");
+
+      alert("Complaint submitted successfully");
+    } catch (error) {
+      console.log("Error creating repair request:", error);
+      alert(error.message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <div className="user-complaints">
@@ -21,14 +125,63 @@ function UserComplaints() {
         </h1>
       </div>
 
+      {/* Create Complaint */}
+      <div className="complaint-form-container">
+        <h2>Create Complaint</h2>
+
+        <form onSubmit={handleSubmit}>
+          <div className="complaint-form-group">
+            <label>Select Asset</label>
+
+            <select
+              value={selectedAsset}
+              onChange={function (event) {
+                setSelectedAsset(event.target.value);
+              }}
+            >
+              <option value="">Select Asset</option>
+
+              {assets.map(function (item) {
+                return (
+                  <option key={item._id} value={item._id}>
+                    {item.assetId} - {item.assetName}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
+          <div className="complaint-form-group">
+            <label>Complaint</label>
+
+            <textarea
+              value={complaintText}
+              onChange={function (event) {
+                setComplaintText(event.target.value);
+              }}
+              placeholder="Enter your complaint"
+              rows="4"
+            />
+          </div>
+
+          <button type="submit" disabled={submitting}>
+            {submitting ? "Submitting..." : "Submit Complaint"}
+          </button>
+        </form>
+      </div>
+
+      {/* My Complaints */}
+
       <div className="complaints-table-container">
-        {myComplaints.length === 0 ? (
+        {loading ? (
+          <p className="no-complaints">Loading complaints...</p>
+        ) : complaints.length === 0 ? (
           <p className="no-complaints">No complaints found.</p>
         ) : (
           <table className="complaints-table">
             <thead>
               <tr>
-                <th>Complaint ID</th>
+                <th>Repair ID</th>
                 <th>Complaint</th>
                 <th>Asset</th>
                 <th>Status</th>
@@ -37,14 +190,24 @@ function UserComplaints() {
             </thead>
 
             <tbody>
-              {myComplaints.map(function (item) {
+              {complaints.map(function (item) {
                 return (
-                  <tr key={item.id}>
-                    <td>{item.id}</td>
+                  <tr key={item._id}>
+                    <td>{item.repairId}</td>
+
                     <td>{item.complaint}</td>
-                    <td>{item.assetName}</td>
+
+                    <td>{item.asset ? item.asset.assetName : "-"}</td>
+
                     <td>{item.status}</td>
-                    <td>{item.complaintDate}</td>
+
+                    <td>
+                      {item.complaintDate
+                        ? new Date(item.complaintDate).toLocaleDateString(
+                            "en-GB",
+                          )
+                        : "-"}
+                    </td>
                   </tr>
                 );
               })}

@@ -36,33 +36,42 @@
    NAVBAR CENTER
 ========================= */
 
+
+
 .navbar-center {
     width: 40%;
-}
-
-.navbar-center h1 {
-    width: 100%;
-
-    padding: 10px 15px;
-
-    border-radius: 20px;
-    border: none;
-    outline: none;
-
-    font-size: 35px;
+    min-width: 0;
+    flex-shrink: 1;
 
     display: flex;
     align-items: center;
+    justify-content: center;
+}
+
+.navbar-center h1 {
+    width: max-content;
+    max-width: 100%;
+
+    padding: 10px 15px;
+
+    margin: 0;
+
+    font-size: clamp(24px, 2.2vw, 35px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     gap: 10px;
+
+    white-space: nowrap;
 
     box-sizing: border-box;
 }
 
-.navbar-center svg {
-    font-size: 55px;
-    flex-shrink: 0;
-    margin-right: 10px;
+.navbar-center .users-icon {
+    font-size: 50px;
+    color: #5FFFD4;
 }
 
 .navbar-center .users-icon {
@@ -80,7 +89,7 @@
     align-items: center;
     justify-content: center;
 
-    gap: 18px;
+    gap: 10px;
 }
 
 .navbar-right span {
@@ -263,7 +272,7 @@
 
     z-index: 10;
 
-   
+
 }
 
 
@@ -497,6 +506,7 @@
         align-self: flex-end;
     }
 }
+
 .navbar-datetime {
     display: flex;
     align-items: center;

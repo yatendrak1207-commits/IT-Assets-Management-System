@@ -1,15 +1,53 @@
-import React from "react";
-import { complaints } from "../../data/data";
+import React, { useEffect, useState } from "react";
 import "./UserAssets.css";
 import { LuMonitorSpeaker } from "react-icons/lu";
+
 function MyAssets() {
+  const [myAssets, setMyAssets] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
 
   const userId = loggedInUser?.employeeId;
 
-  const myAssets = complaints.filter(function (item) {
-    return item?.employeeId === userId;
-  });
+  useEffect(
+    function () {
+      async function fetchMyAssets() {
+        try {
+          const token = sessionStorage.getItem("token");
+
+          const response = await fetch("http://localhost:5000/api/assets", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.message || "Failed to fetch assets");
+          }
+
+          const assignedAssets = data.filter(function (item) {
+            return item?.assignedTo?.employeeId === userId;
+          });
+
+          setMyAssets(assignedAssets);
+        } catch (error) {
+          console.error("Error fetching my assets:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      if (userId) {
+        fetchMyAssets();
+      } else {
+        setLoading(false);
+      }
+    },
+    [userId],
+  );
 
   return (
     <div className="my-assets">
@@ -21,7 +59,9 @@ function MyAssets() {
       </div>
 
       <div className="my-assets-table-container">
-        {myAssets.length === 0 ? (
+        {loading ? (
+          <p className="no-assets">Loading assets...</p>
+        ) : myAssets.length === 0 ? (
           <p className="no-assets">No assets assigned.</p>
         ) : (
           <table className="my-assets-table">
@@ -37,7 +77,7 @@ function MyAssets() {
             <tbody>
               {myAssets.map(function (item) {
                 return (
-                  <tr key={item.assetId}>
+                  <tr key={item._id}>
                     <td>{item.assetId}</td>
                     <td>{item.assetName}</td>
                     <td>{item.category}</td>

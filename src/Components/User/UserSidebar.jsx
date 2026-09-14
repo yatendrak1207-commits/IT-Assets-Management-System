@@ -13,7 +13,7 @@ import { RiLogoutBoxRFill } from "react-icons/ri";
 import { MdNotificationsActive } from "react-icons/md";
 function UserSidebar({ setShowlogout }) {
   return (
-    <div className="sidebar">
+    <div className="user-sidebar">
       <h2>IT Assets</h2>
       <ul className="sidebar-menu">
         <li>

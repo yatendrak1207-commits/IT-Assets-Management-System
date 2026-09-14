@@ -1,7 +1,5 @@
 .report {
     padding: 32px;
-    height: 100vh;
-    overflow-y: auto;
     flex: 1;
     background: #f8fafc;
     box-sizing: border-box;

@@ -1,82 +1,112 @@
 import React from "react";
 
 import "./Repair.css";
+
 import { useState, useEffect } from "react";
+
 import { FaPlus } from "react-icons/fa";
+
 import { GiAutoRepair } from "react-icons/gi";
+
 import { MdManageSearch } from "react-icons/md";
 
 export default function Repair() {
   const [search, setsearch] = useState("");
+
   const [editingItem, setEditingItem] = useState(null);
+
   const [selecteditem, setSelectedItem] = useState(null);
+
   const [repair, setRepairs] = useState([]);
+
   const [assets, setAssets] = useState([]);
+
   const [employees, setEmployees] = useState([]);
 
+  const [showform, setShowform] = useState(false);
+
+  const [selectedAsset, setSelectedAsset] = useState("");
+
+  const [selectedEmployee, setSelectedEmployee] = useState("");
+
+  const [issue, setIssue] = useState("");
+
+  const [repairdate, setRepairdate] = useState("");
+
+  const [status, setStatus] = useState("Pending");
+
+  const token = sessionStorage.getItem("token");
+
   useEffect(function () {
-    fetch("http://localhost:5000/api/assets")
-      .then(function (r) {
-        if (!r.ok) {
-          throw new Error("Failed to fetch assets");
-        }
-
-        return r.json();
-      })
-      .then(function (data) {
-        setAssets(data);
-      })
-      .catch(function (e) {
-        console.log("Error fetching assets:", e);
-      });
-
-    fetch("http://localhost:5000/api/employees")
-      .then(function (r) {
-        if (!r.ok) {
-          throw new Error("Failed to fetch employees");
-        }
-
-        return r.json();
-      })
-      .then(function (data) {
-        setEmployees(data);
-      })
-      .catch(function (e) {
-        console.log("Error fetching employees:", e);
-      });
-
-    fetch("http://localhost:5000/api/repairs")
-      .then(function (response) {
-        if (!response.ok) {
-          throw new Error("Failed to fetch repairs");
-        }
-
-        return response.json();
-      })
-      .then(function (data) {
-        setRepairs(data);
-      })
-      .catch(function (error) {
-        console.log("Error fetching repair:", error);
-      });
+    fetchData();
   }, []);
 
-  const [showform, setShowform] = useState(false);
-  const [repairId, setRepairId] = useState("");
-  const [selectedAsset, setSelectedAsset] = useState("");
-  const [selectedEmployee, setSelectedEmployee] = useState("");
-  const [issue, setIssue] = useState("");
-  const [repairdate, setRepairdate] = useState("");
-  const [status, setStatus] = useState("Pending");
+  async function fetchData() {
+    try {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const assetResponse = await fetch("http://localhost:5000/api/assets", {
+        headers: headers,
+      });
+
+      const employeeResponse = await fetch(
+        "http://localhost:5000/api/employees",
+        {
+          headers: headers,
+        },
+      );
+
+      const repairResponse = await fetch("http://localhost:5000/api/repairs", {
+        headers: headers,
+      });
+
+      if (!assetResponse.ok) {
+        throw new Error("Failed to fetch assets");
+      }
+
+      if (!employeeResponse.ok) {
+        throw new Error("Failed to fetch employees");
+      }
+
+      if (!repairResponse.ok) {
+        throw new Error("Failed to fetch repairs");
+      }
+
+      const assetData = await assetResponse.json();
+
+      const employeeData = await employeeResponse.json();
+
+      const repairData = await repairResponse.json();
+
+      setAssets(assetData);
+
+      setEmployees(employeeData);
+
+      setRepairs(repairData);
+    } catch (error) {
+      console.log("Error fetching repair data:", error);
+    }
+  }
 
   const filteredRepair = repair.filter(function (item) {
     const assetName = item.asset ? item.asset.assetName : "";
+
     const employeeName = item.employee ? item.employee.employeeName : "";
+
+    const issueText = item.complaint || "";
+
+    const itemStatus = item.status || "";
+
+    const repairId = item.repairId || "";
 
     return (
       assetName.toLowerCase().includes(search.toLowerCase()) ||
       employeeName.toLowerCase().includes(search.toLowerCase()) ||
-      item.status.toLowerCase().includes(search.toLowerCase())
+      issueText.toLowerCase().includes(search.toLowerCase()) ||
+      itemStatus.toLowerCase().includes(search.toLowerCase()) ||
+      repairId.toLowerCase().includes(search.toLowerCase())
     );
   });
 
@@ -85,7 +115,12 @@ export default function Repair() {
       return text;
     }
 
-    const parts = text.split(new RegExp("(" + search + ")", "gi"));
+    const parts = String(text).split(
+      new RegExp(
+        "(" + search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")",
+        "gi",
+      ),
+    );
 
     return parts.map(function (part, index) {
       if (part.toLowerCase() === search.toLowerCase()) {
@@ -98,16 +133,37 @@ export default function Repair() {
 
   function resetForm() {
     setShowform(false);
+
     setEditingItem(null);
 
     setSelectedAsset("");
+
     setSelectedEmployee("");
+
     setIssue("");
+
     setRepairdate("");
+
     setStatus("Pending");
   }
 
-  function handleSaveRepair() {
+  function openAddForm() {
+    setEditingItem(null);
+
+    setSelectedAsset("");
+
+    setSelectedEmployee("");
+
+    setIssue("");
+
+    setRepairdate("");
+
+    setStatus("Pending");
+
+    setShowform(true);
+  }
+
+  async function handleSaveRepair() {
     if (
       !selectedAsset ||
       !selectedEmployee ||
@@ -116,90 +172,162 @@ export default function Repair() {
       !status
     ) {
       alert("Please fill all required fields");
+
       return;
     }
 
-    if (editingItem) {
-      fetch("http://localhost:5000/api/repairs/" + editingItem.id, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          asset: selectedAsset,
-          employee: selectedEmployee,
-          complaint: issue,
-          complaintDate: repairdate,
-          status: status,
-        }),
-      })
-        .then(function (response) {
-          if (!response.ok) {
-            return response.json().then(function (errorData) {
-              throw new Error(errorData.message);
-            });
-          }
+    try {
+      const headers = {
+        "Content-Type": "application/json",
 
-          return response.json();
-        })
-        .then(function (updatedRepair) {
-          setRepairs(function (currentRepairs) {
-            return currentRepairs.map(function (repairItem) {
-              if (repairItem.id === updatedRepair.id) {
-                return updatedRepair;
-              }
+        Authorization: `Bearer ${token}`,
+      };
 
-              return repairItem;
-            });
+      if (editingItem) {
+        const response = await fetch(
+          "http://localhost:5000/api/repairs/" + editingItem.id,
+          {
+            method: "PUT",
+            headers: headers,
+
+            body: JSON.stringify({
+              asset: selectedAsset,
+
+              employee: selectedEmployee,
+
+              complaint: issue,
+
+              complaintDate: repairdate,
+
+              status: status,
+            }),
+          },
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to update repair");
+        }
+
+        setRepairs(function (currentRepairs) {
+          return currentRepairs.map(function (item) {
+            if (item.id === data.id) {
+              return data;
+            }
+
+            return item;
           });
-
-          resetForm();
-        })
-        .catch(function (error) {
-          console.log("Error updating repair:", error);
-          alert(error.message);
         });
-    } else {
+
+        resetForm();
+
+        return;
+      }
+
       const newRepair = {
         asset: selectedAsset,
+
         employee: selectedEmployee,
+
         complaint: issue,
+
         complaintDate: repairdate,
+
         status: status,
       };
 
-      fetch("http://localhost:5000/api/repairs", {
+      const response = await fetch("http://localhost:5000/api/repairs", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+
+        headers: headers,
+
         body: JSON.stringify(newRepair),
-      })
-        .then(function (response) {
-          if (!response.ok) {
-            return response.json().then(function (errorData) {
-              throw new Error(errorData.message);
-            });
-          }
+      });
 
-          return response.json();
-        })
-        .then(function (createdRepair) {
-          setRepairs(function (currentRepairs) {
-            return [...currentRepairs, createdRepair];
-          });
+      const data = await response.json();
 
-          resetForm();
-        })
-        .catch(function (error) {
-          console.log("Error creating repair:", error);
-          alert(error.message);
-        });
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create repair");
+      }
+
+      setRepairs(function (currentRepairs) {
+        return [...currentRepairs, data];
+      });
+
+      resetForm();
+    } catch (error) {
+      console.log("Error saving repair:", error);
+
+      alert(error.message);
     }
+  }
+
+  async function handleDelete(item) {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this repair?",
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/repairs/" + item.id,
+        {
+          method: "DELETE",
+
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete repair");
+      }
+
+      setRepairs(function (currentRepairs) {
+        return currentRepairs.filter(function (repairItem) {
+          return repairItem.id !== item.id;
+        });
+      });
+
+      setSelectedItem(null);
+    } catch (error) {
+      console.log("Error deleting repair:", error);
+
+      alert(error.message);
+    }
+  }
+
+  function handleEdit(item) {
+    setEditingItem(item);
+
+    setSelectedAsset(item.asset ? item.asset._id : "");
+
+    setSelectedEmployee(item.employee ? item.employee._id : "");
+
+    setIssue(item.complaint || "");
+
+    setRepairdate(
+      item.complaintDate
+        ? new Date(item.complaintDate).toISOString().slice(0, 10)
+        : "",
+    );
+
+    setStatus(item.status || "Pending");
+
+    setShowform(true);
   }
 
   return (
     <div className="repair">
+      {/* ================= HEADER ================= */}
+
       <div className="repair-Header">
         <div className="repair-action">
           <h1>
@@ -221,18 +349,7 @@ export default function Repair() {
               />
             </div>
 
-            <button
-              onClick={function () {
-                setShowform(true);
-                setEditingItem(null);
-
-                setSelectedAsset("");
-                setSelectedEmployee("");
-                setIssue("");
-                setRepairdate("");
-                setStatus("Pending");
-              }}
-            >
+            <button onClick={openAddForm}>
               <FaPlus />
               Add Repair
             </button>
@@ -240,16 +357,24 @@ export default function Repair() {
         </div>
       </div>
 
+      {/* ================= TABLE ================= */}
+
       <div className="table-container">
         <table className="repair-tabel">
           <thead>
             <tr>
-              <th>Repair ID</th>
+              <th> Repair ID</th>
+
               <th>Assets Name</th>
+
               <th>Assigned to</th>
+
               <th>Issue</th>
-              <th>Repair Date</th>
+
+              <th>Date</th>
+
               <th>Status</th>
+
               <th>Action</th>
             </tr>
           </thead>
@@ -257,7 +382,7 @@ export default function Repair() {
           <tbody>
             {filteredRepair.map(function (item) {
               return (
-                <tr key={item.id}>
+                <tr key={item._id}>
                   <td>{item.repairId}</td>
 
                   <td>
@@ -270,7 +395,7 @@ export default function Repair() {
                     )}
                   </td>
 
-                  <td>{item.complaint}</td>
+                  <td>{item.complaint || "-"}</td>
 
                   <td>
                     {item.complaintDate
@@ -289,7 +414,7 @@ export default function Repair() {
                             : "Cancelled"
                     }
                   >
-                    {highlightText(item.status)}
+                    {highlightText(item.status || "")}
                   </td>
 
                   <td>
@@ -306,35 +431,7 @@ export default function Repair() {
                       <button
                         className="delete-btn"
                         onClick={function () {
-                          fetch(
-                            "http://localhost:5000/api/repairs/" + item.id,
-                            {
-                              method: "DELETE",
-                            },
-                          )
-                            .then(function (response) {
-                              if (!response.ok) {
-                                return response
-                                  .json()
-                                  .then(function (errorData) {
-                                    throw new Error(errorData.message);
-                                  });
-                              }
-
-                              return response.json();
-                            })
-                            .then(function () {
-                              setRepairs(function (currentRepairs) {
-                                return currentRepairs.filter(
-                                  function (repairItem) {
-                                    return repairItem.id !== item.id;
-                                  },
-                                );
-                              });
-                            })
-                            .catch(function (error) {
-                              console.log("Error deleting repair:", error);
-                            });
+                          handleDelete(item);
                         }}
                       >
                         Delete
@@ -343,27 +440,7 @@ export default function Repair() {
                       <button
                         className="update-btn"
                         onClick={function () {
-                          setEditingItem(item);
-
-                          setSelectedAsset(item.asset ? item.asset._id : "");
-
-                          setSelectedEmployee(
-                            item.employee ? item.employee._id : "",
-                          );
-
-                          setIssue(item.complaint);
-
-                          setRepairdate(
-                            item.complaintDate
-                              ? new Date(item.complaintDate)
-                                  .toISOString()
-                                  .slice(0, 10)
-                              : "",
-                          );
-
-                          setStatus(item.status);
-
-                          setShowform(true);
+                          handleEdit(item);
                         }}
                       >
                         Update
@@ -375,6 +452,8 @@ export default function Repair() {
             })}
           </tbody>
         </table>
+
+        {/* ================= VIEW ================= */}
 
         {selecteditem && (
           <div className="view-overlay">
@@ -391,7 +470,7 @@ export default function Repair() {
               <h2>Repair Details</h2>
 
               <p>
-                <strong>Repair ID:</strong> {selecteditem.repairId}
+                <strong>ID:</strong> {selecteditem.repairId}
               </p>
 
               <p>
@@ -407,11 +486,11 @@ export default function Repair() {
               </p>
 
               <p>
-                <strong>Issue:</strong> {selecteditem.complaint}
+                <strong>Issue:</strong> {selecteditem.complaint || "-"}
               </p>
 
               <p>
-                <strong>Repair Date:</strong>{" "}
+                <strong>Date:</strong>{" "}
                 {selecteditem.complaintDate
                   ? new Date(selecteditem.complaintDate).toLocaleDateString(
                       "en-GB",
@@ -420,7 +499,7 @@ export default function Repair() {
               </p>
 
               <p>
-                <strong>Repair Status:</strong> {selecteditem.status}
+                <strong>Status:</strong> {selecteditem.status || "-"}
               </p>
 
               <button
@@ -435,6 +514,8 @@ export default function Repair() {
         )}
       </div>
 
+      {/* ================= ADD / UPDATE FORM ================= */}
+
       {showform && (
         <div className="repair-overlay">
           <div className="repair-form">
@@ -447,7 +528,7 @@ export default function Repair() {
               ×
             </button>
 
-            <h2>{editingItem ? "Update details" : "Add Repair"}</h2>
+            <h2>{editingItem ? "Update Repair" : "Add Repair"}</h2>
 
             <div className="form-field">
               <label>Assets Name</label>
@@ -526,8 +607,11 @@ export default function Repair() {
                 }}
               >
                 <option value="Pending">Pending</option>
+
                 <option value="In Progress">In Progress</option>
+
                 <option value="Completed">Completed</option>
+
                 <option value="Cancelled">Cancelled</option>
               </select>
             </div>

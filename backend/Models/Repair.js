@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const repairSchema = new mongoose.Schema({
+
     id: Number,
 
     repairId: {
@@ -25,6 +26,7 @@ const repairSchema = new mongoose.Schema({
     complaintDate: Date,
 
     status: String
+
 });
 
 const Repair = mongoose.model("Repair", repairSchema);

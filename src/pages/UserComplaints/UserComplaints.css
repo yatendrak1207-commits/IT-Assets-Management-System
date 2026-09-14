@@ -1,4 +1,89 @@
 /* =========================================================
+   CREATE COMPLAINT
+========================================================= */
+
+.complaint-form-container {
+    width: 100%;
+    margin-bottom: 25px;
+    padding: 20px 25px;
+    box-sizing: border-box;
+
+    background-color: white;
+
+    border: 1px solid #dce9e5;
+    border-radius: 10px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.complaint-form-container h2 {
+    margin: 0 0 20px 0;
+    color: #155e52;
+    font-size: 23px;
+    font-weight: 600;
+}
+
+.complaint-form-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.complaint-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.complaint-form-group label {
+    color: #294050;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.complaint-form-group select,
+.complaint-form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    box-sizing: border-box;
+
+    background-color: #f7faf9;
+    color: #222;
+
+    border: 1px solid #d5e6e1;
+    border-radius: 7px;
+
+    outline: none;
+    font-family: inherit;
+    font-size: 15px;
+}
+
+.complaint-form-group select {
+    height: 42px;
+}
+
+.complaint-form-group textarea {
+    resize: vertical;
+}
+
+.complaint-form-container form>button {
+    width: fit-content;
+
+    padding: 10px 18px;
+
+    color: white;
+    background-color: #063b36;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+/* =========================================================
    MY COMPLAINTS MAIN SECTION
 ========================================================= */
 

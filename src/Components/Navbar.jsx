@@ -32,12 +32,20 @@ function Navbar() {
 
     return () => clearInterval(timer);
   }, []);
+
   useEffect(function () {
-    fetch("http://localhost:5000/api/admins/1")
+    const token = sessionStorage.getItem("token");
+
+    fetch("http://localhost:5000/api/admins/1", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then(function (response) {
         return response.json();
       })
       .then(function (data) {
+        console.log("ADMIN DATA", data);
         setAdminName(data.name);
       })
       .catch(function (error) {
@@ -86,10 +94,10 @@ function Navbar() {
           <FaUser className="nav-icon" />
 
           <span>Admin</span>
+
           <div className="divider"></div>
 
           {/* Current Date & Time */}
-
           <div className="navbar-datetime">
             <FaClock className="datetime-icon" />
 

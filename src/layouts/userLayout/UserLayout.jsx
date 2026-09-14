@@ -4,6 +4,7 @@ import "./UserLayout.css";
 import { Outlet } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 function UserLayout() {
   const [showlogout, setShowlogout] = useState(false);
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ function UserLayout() {
   return (
     <div className="user-shell">
       <UserNavbar />
+
       <div className="layout">
         <UserSidebar setShowlogout={setShowlogout} />
 
@@ -22,6 +24,7 @@ function UserLayout() {
               <div className="logout-box">
                 <div className="logout-text">
                   <h2>Confirm Log-Out</h2>
+
                   <p>Are you sure you want to Log-Out?</p>
                 </div>
 
@@ -38,8 +41,14 @@ function UserLayout() {
                   <button
                     className="logout-btn"
                     onClick={function () {
-                      localStorage.removeItem("loggedInUser");
+                      // Remove login token
+                      sessionStorage.removeItem("token");
+
+                      // Remove logged in user
+                      sessionStorage.removeItem("loggedInUser");
+
                       setShowlogout(false);
+
                       navigate("/login");
                     }}
                   >

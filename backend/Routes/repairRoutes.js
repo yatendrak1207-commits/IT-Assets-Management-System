@@ -1,277 +1,132 @@
 const express = require("express");
 const mongoose = require("mongoose");
+
 const router = express.Router();
 
 const Repair = require("../Models/Repair");
 const Asset = require("../Models/Asset");
 const Employee = require("../Models/Employee");
 
-// ================= GET =================
+const {
+    authMiddleware,
+    requireRole
+} = require("../middleware/authMiddleware");
 
-router.get("/", async function (req, res) {
 
-    try {
+// =====================================================
+// GET MY REPAIRS - EMPLOYEE
+// =====================================================
 
-        const repairs = await Repair.find()
-            .populate("asset")
-            .populate("employee");
+router.get(
+    "/my",
+    authMiddleware,
+    requireRole("user"),
+    async function (req, res) {
 
-        res.json(repairs);
+        try {
 
-    } catch (error) {
-
-        res.status(500).json({
-            message: "Failed to fetch repairs",
-            error: error
-        });
-
-    }
-
-});
-
-// ================= POST =================
-
-router.post("/", async function (req, res) {
-
-    try {
-
-        const {
-            asset,
-            employee,
-            complaint,
-            complaintDate,
-            status
-        } = req.body;
-
-        // Required fields
-
-        if (
-            !asset ||
-            !employee ||
-            !complaint ||
-            !complaintDate ||
-            !status
-        ) {
-
-            return res.status(400).json({
-                message: "All fields are required"
+            const employee = await Employee.findOne({
+                id: req.user.id
             });
 
-        }
+            if (!employee) {
 
-        
-        // ObjectId validation
+                return res.status(404).json({
+                    message: "Employee not found"
+                });
 
-        if (!mongoose.Types.ObjectId.isValid(asset)) {
+            }
 
-            return res.status(400).json({
-                message: "Invalid asset ID"
-            });
-
-        }
-
-        if (!mongoose.Types.ObjectId.isValid(employee)) {
-
-            return res.status(400).json({
-                message: "Invalid employee ID"
-            });
-
-        }
-
-        // Date validation
-
-        const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-
-        if (!datePattern.test(complaintDate)) {
-
-            return res.status(400).json({
-                message: "Date must be in YYYY-MM-DD format"
-            });
-
-        }
-
-        const date = new Date(complaintDate);
-
-        if (isNaN(date.getTime())) {
-
-            return res.status(400).json({
-                message: "Invalid complaint date"
-            });
-
-        }
-
-        // Status validation
-
-        const allowedStatus = [
-            "Pending",
-            "In Progress",
-            "Completed",
-            "Cancelled"
-        ];
-
-        if (!allowedStatus.includes(status)) {
-
-            return res.status(400).json({
-                message: "Invalid repair status"
-            });
-
-        }
-
-        // Check asset
-
-        const assetDoc = await Asset.findById(asset);
-
-        if (!assetDoc) {
-
-            return res.status(404).json({
-                message: "Asset not found"
-            });
-
-        }
-
-        // Check employee
-
-        const employeeDoc = await Employee.findById(employee);
-
-        if (!employeeDoc) {
-
-            return res.status(404).json({
-                message: "Employee not found"
-            });
-
-        }
-
-        const lastRepairById = await Repair.findOne().sort({ id: -1 });
-
-        let nextInternalId = 1;
-
-        if (lastRepairById && typeof lastRepairById.id === "number") {
-            nextInternalId = lastRepairById.id + 1;
-        }
-        // ================= AUTO REPAIR ID =================
-
-        const lastRepair = await Repair.findOne({
-            repairId: /^REP\d+$/
-        }).sort({
-            repairId: -1
-        });
-
-        let nextNumber = 1;
-
-        if (lastRepair) {
-
-            const lastNumber = Number(
-                lastRepair.repairId.replace("REP", "")
-            );
-
-            nextNumber = lastNumber + 1;
-
-        }
-
-        const repairId =
-            "REP" + String(nextNumber).padStart(3, "0");
-
-        // ================= CREATE REPAIR =================
-
-        const newRepair = new Repair({
-
-            id: nextInternalId,
-
-            repairId: repairId,
-
-            asset: asset,
-
-            employee: employee,
-
-            complaint: complaint,
-
-            complaintDate: date,
-
-            status: status
-
-        });
-
-        const repair = await newRepair.save();
-
-        // Reverse sync
-
-        const activeStatuses = [
-            "Pending",
-            "In Progress"
-        ];
-
-        if (activeStatuses.includes(status)) {
-
-            assetDoc.status = "Repair";
-
-        } else {
-
-            assetDoc.status =
-                assetDoc.assignedTo
-                    ? "Assigned"
-                    : "Available";
-
-        }
-
-        await assetDoc.save();
-
-        const populatedRepair =
-            await Repair.findById(repair._id)
+            const repairs = await Repair.find({
+                employee: employee._id
+            })
                 .populate("asset")
                 .populate("employee");
 
-        res.status(201).json(populatedRepair);
+            res.json(repairs);
 
-    } catch (error) {
+        } catch (error) {
 
-        res.status(500).json({
-            message: "Failed to create repair",
-            error: error
-        });
+            res.status(500).json({
+                message: "Failed to fetch your repair requests",
+                error: error
+            });
+
+        }
 
     }
+);
 
-});
 
-// ================= PUT =================
+// =====================================================
+// GET ALL REPAIRS - ADMIN
+// =====================================================
 
-router.put("/:id", async function (req, res) {
+router.get(
+    "/",
+    authMiddleware,
+    requireRole("admin"),
+    async function (req, res) {
 
-    try {
+        try {
 
-        const id = Number(req.params.id);
+            const repairs = await Repair.find()
+                .populate("asset")
+                .populate("employee");
 
-        if (isNaN(id)) {
+            res.json(repairs);
 
-            return res.status(400).json({
-                message: "Invalid repair ID"
+        } catch (error) {
+
+            res.status(500).json({
+                message: "Failed to fetch repairs",
+                error: error
             });
 
         }
 
-        const repair = await Repair.findOne({
-            id: id
-        });
+    }
+);
 
-        if (!repair) {
 
-            return res.status(404).json({
-                message: "Repair not found"
-            });
+// =====================================================
+// POST REPAIR
+// EMPLOYEE = CREATE FOR SELF
+// ADMIN = CREATE FOR SELECTED EMPLOYEE
+// =====================================================
 
-        }
+router.post(
+    "/",
+    authMiddleware,
+    async function (req, res) {
 
-        const {
-            asset,
-            employee,
-            complaint,
-            complaintDate,
-            status
-        } = req.body;
+        try {
 
-        // Asset
+            const {
+                asset,
+                employee,
+                complaint,
+                complaintDate,
+                status
+            } = req.body;
 
-        if (asset !== undefined) {
+
+            // ===============================
+            // BASIC VALIDATION
+            // ===============================
+
+            if (!asset || !complaint || !complaintDate) {
+
+                return res.status(400).json({
+                    message: "Asset, complaint and date are required"
+                });
+
+            }
+
+
+            // ===============================
+            // ASSET ID VALIDATION
+            // ===============================
 
             if (!mongoose.Types.ObjectId.isValid(asset)) {
 
@@ -281,55 +136,10 @@ router.put("/:id", async function (req, res) {
 
             }
 
-            const assetDoc = await Asset.findById(asset);
 
-            if (!assetDoc) {
-
-                return res.status(404).json({
-                    message: "Asset not found"
-                });
-
-            }
-
-            repair.asset = asset;
-
-        }
-
-        // Employee
-
-        if (employee !== undefined) {
-
-            if (!mongoose.Types.ObjectId.isValid(employee)) {
-
-                return res.status(400).json({
-                    message: "Invalid employee ID"
-                });
-
-            }
-
-            const employeeDoc = await Employee.findById(employee);
-
-            if (!employeeDoc) {
-
-                return res.status(404).json({
-                    message: "Employee not found"
-                });
-
-            }
-
-            repair.employee = employee;
-
-        }
-
-        // Complaint
-
-        if (complaint !== undefined) {
-            repair.complaint = complaint;
-        }
-
-        // Complaint date
-
-        if (complaintDate !== undefined) {
+            // ===============================
+            // DATE VALIDATION
+            // ===============================
 
             const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -351,127 +161,693 @@ router.put("/:id", async function (req, res) {
 
             }
 
-            repair.complaintDate = date;
 
-        }
+            // ===============================
+            // FIND ASSET
+            // ===============================
 
-        // Status
+            const assetDoc = await Asset.findById(asset);
 
-        if (status !== undefined) {
+            if (!assetDoc) {
 
-            const allowedStatus = [
-                "Pending",
-                "In Progress",
-                "Completed",
-                "Cancelled"
-            ];
-
-            if (!allowedStatus.includes(status)) {
-
-                return res.status(400).json({
-                    message: "Invalid repair status"
+                return res.status(404).json({
+                    message: "Asset not found"
                 });
 
             }
 
-            repair.status = status;
 
-        }
+            // ===============================
+            // FIND EMPLOYEE
+            // ===============================
 
-        // repairId intentionally NOT updated
+            let employeeDoc;
 
-        await repair.save();
 
-        // Reverse sync
+            if (req.user.role === "user") {
 
-        const activeStatuses = [
-            "Pending",
-            "In Progress"
-        ];
+                employeeDoc = await Employee.findOne({
+                    id: req.user.id
+                });
 
-        const assetForStatus =
-            await Asset.findById(repair.asset);
+                if (!employeeDoc) {
 
-        if (assetForStatus) {
+                    return res.status(404).json({
+                        message: "Employee not found"
+                    });
 
-            if (activeStatuses.includes(repair.status)) {
+                }
 
-                assetForStatus.status = "Repair";
+                // Employee can only complain
+                // about own assigned asset
+
+                if (
+                    !assetDoc.assignedTo ||
+                    assetDoc.assignedTo.toString() !==
+                    employeeDoc._id.toString()
+                ) {
+
+                    return res.status(403).json({
+                        message:
+                            "You can only create a repair request for your assigned asset"
+                    });
+
+                }
 
             } else {
 
-                assetForStatus.status =
-                    assetForStatus.assignedTo
+                // ===============================
+                // ADMIN
+                // ===============================
+
+                if (!employee) {
+
+                    return res.status(400).json({
+                        message:
+                            "Employee is required"
+                    });
+
+                }
+
+                if (
+                    !mongoose.Types.ObjectId.isValid(
+                        employee
+                    )
+                ) {
+
+                    return res.status(400).json({
+                        message:
+                            "Invalid employee ID"
+                    });
+
+                }
+
+                employeeDoc =
+                    await Employee.findById(
+                        employee
+                    );
+
+                if (!employeeDoc) {
+
+                    return res.status(404).json({
+                        message:
+                            "Employee not found"
+                    });
+
+                }
+
+            }
+
+
+            // ===============================
+            // STATUS
+            // ===============================
+
+            let finalStatus = "Pending";
+
+            if (req.user.role === "admin") {
+
+                const allowedStatus = [
+                    "Pending",
+                    "In Progress",
+                    "Completed",
+                    "Cancelled"
+                ];
+
+                if (
+                    status &&
+                    !allowedStatus.includes(status)
+                ) {
+
+                    return res.status(400).json({
+                        message:
+                            "Invalid repair status"
+                    });
+
+                }
+
+                if (status) {
+                    finalStatus = status;
+                }
+
+            }
+
+
+            // ===============================
+            // INTERNAL ID
+            // ===============================
+
+            const lastRepairById =
+                await Repair.findOne()
+                    .sort({ id: -1 });
+
+            let nextInternalId = 1;
+
+            if (
+                lastRepairById &&
+                typeof lastRepairById.id === "number"
+            ) {
+
+                nextInternalId =
+                    lastRepairById.id + 1;
+
+            }
+
+
+            // ===============================
+            // REPAIR ID
+            // ===============================
+
+            const lastRepair =
+                await Repair.findOne({
+                    repairId: /^REP\d+$/
+                }).sort({
+                    repairId: -1
+                });
+
+            let nextNumber = 1;
+
+            if (lastRepair) {
+
+                const lastNumber = Number(
+                    lastRepair.repairId.replace(
+                        "REP",
+                        ""
+                    )
+                );
+
+                nextNumber =
+                    lastNumber + 1;
+
+            }
+
+            const repairId =
+                "REP" +
+                String(nextNumber).padStart(3, "0");
+
+
+            // ===============================
+            // CREATE REPAIR
+            // ===============================
+
+            const newRepair = new Repair({
+
+                id: nextInternalId,
+
+                repairId: repairId,
+
+                asset: asset,
+
+                employee: employeeDoc._id,
+
+                complaint: complaint,
+
+                complaintDate: date,
+
+                status: finalStatus
+
+            });
+
+
+            const repair =
+                await newRepair.save();
+
+
+            // ===============================
+            // ASSET STATUS
+            // ===============================
+
+            const activeStatuses = [
+                "Pending",
+                "In Progress"
+            ];
+
+            if (
+                activeStatuses.includes(
+                    finalStatus
+                )
+            ) {
+
+                assetDoc.status = "Repair";
+
+            } else {
+
+                assetDoc.status =
+                    assetDoc.assignedTo
                         ? "Assigned"
                         : "Available";
 
             }
 
-            await assetForStatus.save();
+            await assetDoc.save();
 
-        }
 
-        const updatedRepair =
-            await Repair.findById(repair._id)
-                .populate("asset")
-                .populate("employee");
+            // ===============================
+            // POPULATE
+            // ===============================
 
-        res.json(updatedRepair);
+            const populatedRepair =
+                await Repair.findById(
+                    repair._id
+                )
+                    .populate("asset")
+                    .populate("employee");
 
-    } catch (error) {
 
-        res.status(500).json({
-            message: "Failed to update repair",
-            error: error
-        });
+            res.status(201).json(
+                populatedRepair
+            );
 
-    }
+        } catch (error) {
 
-});
+            console.log(
+                "Error creating repair:",
+                error
+            );
 
-// ================= DELETE =================
-
-router.delete("/:id", async function (req, res) {
-
-    try {
-
-        const id = Number(req.params.id);
-
-        if (isNaN(id)) {
-
-            return res.status(400).json({
-                message: "Invalid repair ID"
+            res.status(500).json({
+                message:
+                    "Failed to create repair",
+                error: error
             });
 
         }
 
-        const repair = await Repair.findOne({
-            id: id
-        });
+    }
+);
 
-        if (!repair) {
 
-            return res.status(404).json({
-                message: "Repair not found"
+// =====================================================
+// PUT REPAIR - ADMIN ONLY
+// =====================================================
+
+router.put(
+    "/:id",
+    authMiddleware,
+    requireRole("admin"),
+    async function (req, res) {
+
+        try {
+
+            const id =
+                Number(req.params.id);
+
+            if (isNaN(id)) {
+
+                return res.status(400).json({
+                    message:
+                        "Invalid repair ID"
+                });
+
+            }
+
+
+            const repair =
+                await Repair.findOne({
+                    id: id
+                });
+
+            if (!repair) {
+
+                return res.status(404).json({
+                    message:
+                        "Repair not found"
+                });
+
+            }
+
+
+            const {
+                asset,
+                employee,
+                complaint,
+                complaintDate,
+                status
+            } = req.body;
+
+
+            // ===============================
+            // OLD ASSET
+            // ===============================
+
+            const oldAsset =
+                await Asset.findById(
+                    repair.asset
+                );
+
+
+            // ===============================
+            // ASSET
+            // ===============================
+
+            if (asset !== undefined) {
+
+                if (
+                    !mongoose.Types.ObjectId.isValid(
+                        asset
+                    )
+                ) {
+
+                    return res.status(400).json({
+                        message:
+                            "Invalid asset ID"
+                    });
+
+                }
+
+                const assetDoc =
+                    await Asset.findById(asset);
+
+                if (!assetDoc) {
+
+                    return res.status(404).json({
+                        message:
+                            "Asset not found"
+                    });
+
+                }
+
+                repair.asset = asset;
+
+            }
+
+
+            // ===============================
+            // EMPLOYEE
+            // ===============================
+
+            if (employee !== undefined) {
+
+                if (
+                    !mongoose.Types.ObjectId.isValid(
+                        employee
+                    )
+                ) {
+
+                    return res.status(400).json({
+                        message:
+                            "Invalid employee ID"
+                    });
+
+                }
+
+                const employeeDoc =
+                    await Employee.findById(
+                        employee
+                    );
+
+                if (!employeeDoc) {
+
+                    return res.status(404).json({
+                        message:
+                            "Employee not found"
+                    });
+
+                }
+
+                repair.employee =
+                    employee;
+
+            }
+
+
+            // ===============================
+            // ISSUE
+            // ===============================
+
+            if (complaint !== undefined) {
+
+                if (!complaint.trim()) {
+
+                    return res.status(400).json({
+                        message:
+                            "Issue cannot be empty"
+                    });
+
+                }
+
+                repair.complaint =
+                    complaint;
+
+            }
+
+
+            // ===============================
+            // DATE
+            // ===============================
+
+            if (
+                complaintDate !==
+                undefined
+            ) {
+
+                const datePattern =
+                    /^\d{4}-\d{2}-\d{2}$/;
+
+                if (
+                    !datePattern.test(
+                        complaintDate
+                    )
+                ) {
+
+                    return res.status(400).json({
+                        message:
+                            "Date must be in YYYY-MM-DD format"
+                    });
+
+                }
+
+                const date =
+                    new Date(
+                        complaintDate
+                    );
+
+                if (
+                    isNaN(
+                        date.getTime()
+                    )
+                ) {
+
+                    return res.status(400).json({
+                        message:
+                            "Invalid complaint date"
+                    });
+
+                }
+
+                repair.complaintDate =
+                    date;
+
+            }
+
+
+            // ===============================
+            // STATUS
+            // ===============================
+
+            if (status !== undefined) {
+
+                const allowedStatus = [
+                    "Pending",
+                    "In Progress",
+                    "Completed",
+                    "Cancelled"
+                ];
+
+                if (
+                    !allowedStatus.includes(
+                        status
+                    )
+                ) {
+
+                    return res.status(400).json({
+                        message:
+                            "Invalid repair status"
+                    });
+
+                }
+
+                repair.status =
+                    status;
+
+            }
+
+
+            await repair.save();
+
+
+            // ===============================
+            // OLD ASSET STATUS
+            // ===============================
+
+            if (
+                oldAsset &&
+                oldAsset._id.toString() !==
+                repair.asset.toString()
+            ) {
+
+                oldAsset.status =
+                    oldAsset.assignedTo
+                        ? "Assigned"
+                        : "Available";
+
+                await oldAsset.save();
+
+            }
+
+
+            // ===============================
+            // CURRENT ASSET STATUS
+            // ===============================
+
+            const currentAsset =
+                await Asset.findById(
+                    repair.asset
+                );
+
+            if (currentAsset) {
+
+                if (
+                    repair.status ===
+                    "Pending" ||
+                    repair.status ===
+                    "In Progress"
+                ) {
+
+                    currentAsset.status =
+                        "Repair";
+
+                } else {
+
+                    currentAsset.status =
+                        currentAsset.assignedTo
+                            ? "Assigned"
+                            : "Available";
+
+                }
+
+                await currentAsset.save();
+
+            }
+
+
+            // ===============================
+            // RESPONSE
+            // ===============================
+
+            const updatedRepair =
+                await Repair.findById(
+                    repair._id
+                )
+                    .populate("asset")
+                    .populate("employee");
+
+
+            res.json(updatedRepair);
+
+        } catch (error) {
+
+            console.log(
+                "Error updating repair:",
+                error
+            );
+
+            res.status(500).json({
+                message:
+                    "Failed to update repair",
+                error: error
             });
 
         }
 
-        await repair.deleteOne();
+    }
+);
 
-        res.json({
-            message: "Repair deleted successfully"
-        });
 
-    } catch (error) {
+// =====================================================
+// DELETE REPAIR - ADMIN ONLY
+// =====================================================
 
-        res.status(500).json({
-            message: "Failed to delete repair",
-            error: error
-        });
+router.delete(
+    "/:id",
+    authMiddleware,
+    requireRole("admin"),
+    async function (req, res) {
+
+        try {
+
+            const id =
+                Number(req.params.id);
+
+            if (isNaN(id)) {
+
+                return res.status(400).json({
+                    message:
+                        "Invalid repair ID"
+                });
+
+            }
+
+
+            const repair =
+                await Repair.findOne({
+                    id: id
+                });
+
+            if (!repair) {
+
+                return res.status(404).json({
+                    message:
+                        "Repair not found"
+                });
+
+            }
+
+
+            // Restore asset status
+
+            const asset =
+                await Asset.findById(
+                    repair.asset
+                );
+
+            if (asset) {
+
+                asset.status =
+                    asset.assignedTo
+                        ? "Assigned"
+                        : "Available";
+
+                await asset.save();
+
+            }
+
+
+            await repair.deleteOne();
+
+
+            res.json({
+                message:
+                    "Repair deleted successfully"
+            });
+
+        } catch (error) {
+
+            console.log(
+                "Error deleting repair:",
+                error
+            );
+
+            res.status(500).json({
+                message:
+                    "Failed to delete repair",
+                error: error
+            });
+
+        }
 
     }
+);
 
-});
 
 module.exports = router;

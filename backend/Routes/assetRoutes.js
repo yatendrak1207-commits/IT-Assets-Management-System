@@ -3,6 +3,10 @@ const router = express.Router();
 
 const Asset = require("../Models/Asset");
 const Employee = require("../Models/Employee");
+const {
+    authMiddleware,
+    requireRole
+} = require("../middleware/authMiddleware");
 
 
 // ================= GET =================

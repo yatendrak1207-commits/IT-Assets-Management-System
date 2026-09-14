@@ -1,44 +1,27 @@
 import React from "react";
-
 import "./Employees.css";
-
 import { useState, useEffect } from "react";
-
 import { BsFillPeopleFill } from "react-icons/bs";
-
 import { MdManageSearch } from "react-icons/md";
-
 import { FaPlus } from "react-icons/fa";
-
 import PhoneInputModule from "react-phone-input-2";
-
 import "react-phone-input-2/lib/style.css";
-
 import { isValidPhoneNumber } from "libphonenumber-js";
 
 const PhoneInput = PhoneInputModule.default || PhoneInputModule;
 
 function Employees() {
   const [search, setSeacrh] = useState("");
-
   const [editingItem, setEditingItem] = useState(null);
-
   const [selecteditem, setSelectedItem] = useState(null);
-
   const [employee, setEmployee] = useState([]);
-
   const [assets, setAssets] = useState([]);
-
   const [showform, setShowform] = useState(false);
 
   const [empname, setempName] = useState("");
-
   const [department, setDepartment] = useState("");
-
   const [email, setEmail] = useState("");
-
   const [employeestatus, setemployeeStatus] = useState("");
-
   const [phoneno, setPhoneno] = useState("");
 
   const [phoneCountry, setPhoneCountry] = useState({
@@ -46,8 +29,22 @@ function Employees() {
     dialCode: "91",
   });
 
+  // ================= TOKEN =================
+
+  function getAuthHeaders() {
+    return {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+    };
+  }
+
+  // ================= GET EMPLOYEES + ASSETS =================
+
   useEffect(function () {
-    fetch("http://localhost:5000/api/employees")
+    fetch("http://localhost:5000/api/employees", {
+      method: "GET",
+      headers: getAuthHeaders(),
+    })
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Failed to fetch employees");
@@ -62,7 +59,10 @@ function Employees() {
         console.log("Error fetching employees:", error);
       });
 
-    fetch("http://localhost:5000/api/assets")
+    fetch("http://localhost:5000/api/assets", {
+      method: "GET",
+      headers: getAuthHeaders(),
+    })
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Failed to fetch assets");
@@ -78,11 +78,15 @@ function Employees() {
       });
   }, []);
 
+  // ================= ASSIGNED ASSETS =================
+
   function getAssignedAssets(employeeId) {
     return assets.filter(function (assetItem) {
       return assetItem.assignedTo && assetItem.assignedTo._id === employeeId;
     });
   }
+
+  // ================= SEARCH =================
 
   const filteredEmployee = employee.filter(function (item) {
     return (
@@ -91,6 +95,8 @@ function Employees() {
       String(item.department).toLowerCase().includes(search.toLowerCase())
     );
   });
+
+  // ================= HIGHLIGHT SEARCH =================
 
   function highlightText(text) {
     if (!search) {
@@ -108,6 +114,8 @@ function Employees() {
     });
   }
 
+  // ================= SAVE EMPLOYEE =================
+
   function handleSaveEmployee() {
     // ================= PHONE VALIDATION =================
 
@@ -118,32 +126,36 @@ function Employees() {
 
     let cleanPhoneNumber = phoneno.replace(/\s/g, "");
 
-    // Agar "+" missing hai (purana/legacy data), to current selected country ka dial code jod do
+    // Agar "+" missing hai
     if (!cleanPhoneNumber.startsWith("+")) {
       cleanPhoneNumber = "+" + phoneCountry.dialCode + cleanPhoneNumber;
     }
+
     if (!isValidPhoneNumber(cleanPhoneNumber)) {
       alert(
         "Please enter a valid phone number according to the selected country",
       );
+
       return;
     }
 
-    // ====================================================
+    // ================= UPDATE =================
 
     if (editingItem) {
       fetch("http://localhost:5000/api/employees/" + editingItem.id, {
         method: "PUT",
 
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
 
         body: JSON.stringify({
           employeeName: empname,
+
           department: department,
+
           email: email,
+
           phone: phoneno,
+
           employeestatus: employeestatus,
         }),
       })
@@ -156,7 +168,6 @@ function Employees() {
 
           return response.json();
         })
-
         .then(function (updatedEmployee) {
           setEmployee(function (currentEmployees) {
             return currentEmployees.map(function (employeeItem) {
@@ -177,28 +188,32 @@ function Employees() {
           setPhoneno("");
           setemployeeStatus("");
         })
-
         .catch(function (error) {
           console.log("Error updating employee:", error);
+
           alert(error.message);
         });
     } else {
+      // ================= CREATE =================
+
       const newEmployee = {
         id: Date.now(),
 
         employeeName: empname,
+
         department: department,
+
         email: email,
+
         phone: phoneno,
+
         employeestatus: employeestatus,
       };
 
       fetch("http://localhost:5000/api/employees", {
         method: "POST",
 
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
 
         body: JSON.stringify(newEmployee),
       })
@@ -211,7 +226,6 @@ function Employees() {
 
           return response.json();
         })
-
         .then(function (createdEmployee) {
           setEmployee(function (currentEmployees) {
             return [...currentEmployees, createdEmployee];
@@ -226,13 +240,15 @@ function Employees() {
           setPhoneno("");
           setemployeeStatus("");
         })
-
         .catch(function (error) {
           console.log("Error creating employee:", error);
+
           alert(error.message);
         });
     }
   }
+
+  // ================= JSX =================
 
   return (
     <div className="employees">
@@ -268,6 +284,8 @@ function Employees() {
           </div>
         </div>
       </div>
+
+      {/* ================= TABLE ================= */}
 
       <div className="table-container">
         <table className="employees-tabel">
@@ -311,6 +329,8 @@ function Employees() {
 
                   <td>
                     <div className="action-buttons">
+                      {/* VIEW */}
+
                       <button
                         className="view-btn"
                         onClick={function () {
@@ -320,6 +340,8 @@ function Employees() {
                         View
                       </button>
 
+                      {/* DELETE */}
+
                       <button
                         className="delete-btn"
                         onClick={function () {
@@ -327,6 +349,8 @@ function Employees() {
                             "http://localhost:5000/api/employees/" + item.id,
                             {
                               method: "DELETE",
+
+                              headers: getAuthHeaders(),
                             },
                           )
                             .then(function (response) {
@@ -340,7 +364,6 @@ function Employees() {
 
                               return response.json();
                             })
-
                             .then(function () {
                               setEmployee(function (currentEmployees) {
                                 return currentEmployees.filter(
@@ -358,7 +381,9 @@ function Employees() {
                                   ) {
                                     return {
                                       ...assetItem,
+
                                       assignedTo: null,
+
                                       status:
                                         assetItem.status === "Assigned"
                                           ? "Available"
@@ -370,14 +395,17 @@ function Employees() {
                                 });
                               });
                             })
-
                             .catch(function (error) {
                               console.log("Error deleting employee:", error);
+
+                              alert(error.message);
                             });
                         }}
                       >
                         Delete
                       </button>
+
+                      {/* UPDATE */}
 
                       <button
                         className="update-btn"
@@ -406,6 +434,8 @@ function Employees() {
             })}
           </tbody>
         </table>
+
+        {/* ================= VIEW ================= */}
 
         {selecteditem && (
           <div className="view-overlay">
@@ -468,6 +498,8 @@ function Employees() {
         )}
       </div>
 
+      {/* ================= ADD / UPDATE FORM ================= */}
+
       {showform && (
         <div className="employee-overlay">
           <div className="employee-form">
@@ -517,14 +549,23 @@ function Employees() {
                 </option>
 
                 <option value="it">IT</option>
+
                 <option value="hr">HR</option>
+
                 <option value="finance">Finance</option>
+
                 <option value="sales">Sales</option>
+
                 <option value="marketing">Marketing</option>
+
                 <option value="operation">Operations</option>
+
                 <option value="administration">Administration</option>
+
                 <option value="customer-support">Customer Support</option>
+
                 <option value="procurement">Procurement</option>
+
                 <option value="management">Management</option>
               </select>
             </div>
@@ -551,15 +592,18 @@ function Employees() {
                 onChange={function (phone, country) {
                   if (!phone) {
                     setPhoneno("");
+
                     return;
                   }
 
                   setPhoneCountry({
                     countryCode: country.countryCode,
+
                     dialCode: country.dialCode,
                   });
 
                   const dialCode = country.dialCode;
+
                   const localNumber = phone.substring(dialCode.length);
 
                   setPhoneno("+" + dialCode + " " + localNumber);

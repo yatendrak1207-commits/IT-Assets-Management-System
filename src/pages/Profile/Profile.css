@@ -7,11 +7,6 @@
     flex-direction: column;
     align-items: center;
 
-    min-height: 100vh;
-    max-height: 100vh;
-
-    overflow-y: auto;
-
     padding: 25px;
     box-sizing: border-box;
 

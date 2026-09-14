@@ -71,7 +71,7 @@ function UserSettings() {
     alert("Security settings saved successfully");
   }
 
-  function ChangePassword() {
+  async function ChangePassword() {
     if (currentpassword === "") {
       alert("Please enter your current password");
       return;
@@ -97,13 +97,42 @@ function UserSettings() {
       return;
     }
 
-    localStorage.setItem("userPassword", newpassword);
+    try {
+      const token = sessionStorage.getItem("token");
 
-    setCurrentpassword("");
-    setNewpassword("");
-    setConformpassword("");
+      const response = await fetch(
+        `http://localhost:5000/api/employees/change-password/${loggedInUser.id}`,
+        {
+          method: "PUT",
 
-    alert("Password changed successfully");
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+
+          body: JSON.stringify({
+            currentPassword: currentpassword,
+            newPassword: newpassword,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to change password");
+      }
+
+      setCurrentpassword("");
+      setNewpassword("");
+      setConformpassword("");
+      setChangepassword(false);
+
+      alert("Password changed successfully");
+    } catch (error) {
+      console.error("Error changing password:", error);
+      alert(error.message);
+    }
   }
 
   return (
