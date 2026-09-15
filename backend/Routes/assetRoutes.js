@@ -1,94 +1,81 @@
 const express = require("express");
+
 const router = express.Router();
 
 const Asset = require("../Models/Asset");
 const Employee = require("../Models/Employee");
+const Notification = require("../Models/Notification");
+
 const {
     authMiddleware,
     requireRole
 } = require("../middleware/authMiddleware");
 
 
-// ================= GET =================
-router.get("/", async function (req, res) {
+// ======================================================
+// HELPER - GET NEXT NOTIFICATION ID
+// ======================================================
 
-    try {
+async function getNextNotificationId() {
 
-        const assets = await Asset.find().populate("assignedTo");
+    const lastNotification = await Notification
+        .findOne()
+        .sort({ id: -1 });
 
-        res.json(assets);
+    return lastNotification
+        ? lastNotification.id + 1
+        : 1;
+}
 
-    } catch (error) {
 
-        res.status(500).json({
-            message: "Failed to fetch assets",
-            error: error
-        });
+// ======================================================
+// HELPER - CREATE NOTIFICATION
+// ======================================================
 
+async function createNotification({
+    employee,
+    type,
+    title,
+    message,
+    asset = null,
+    repair = null
+}) {
+
+    if (!employee) {
+        return;
     }
 
-});
+    const nextNotificationId = await getNextNotificationId();
+
+    await Notification.create({
+        id: nextNotificationId,
+        employee: employee,
+        type: type,
+        title: title,
+        message: message,
+        asset: asset,
+        repair: repair,
+        isRead: false
+    });
+}
 
 
-// ================= POST =================
-router.post("/", async function (req, res) {
+// ======================================================
+// GET MY ASSETS
+// Employee apne assigned assets dekhega
+// ======================================================
 
-    try {
+router.get(
+    "/my",
+    authMiddleware,
+    requireRole("user"),
+    async function (req, res) {
 
-        const {
-            id,
-            assetName,
-            category,
-            assignedTo,
-            status
-        } = req.body;
+        try {
 
-
-        // Required fields
-        if (
-            id === undefined ||
-            !assetName ||
-            !category ||
-            !status
-        ) {
-
-            return res.status(400).json({
-                message: "All required fields are required"
+            const employee = await Employee.findOne({
+                id: req.user.id
             });
-
-        }
-
-
-        // ID validation
-        if (typeof id !== "number") {
-
-            return res.status(400).json({
-                message: "ID must be a number"
-            });
-
-        }
-
-
-        // Status validation
-        const allowedStatus = [
-            "Available",
-            "Assigned",
-            "Repair"
-        ];
-
-        if (!allowedStatus.includes(status)) {
-
-            return res.status(400).json({
-                message: "Invalid asset status"
-            });
-
-        }
-
-
-        // Check employee
-        if (assignedTo) {
-
-            const employee = await Employee.findById(assignedTo);
 
             if (!employee) {
 
@@ -98,235 +85,566 @@ router.post("/", async function (req, res) {
 
             }
 
-        }
+            const assets = await Asset.find({
+                assignedTo: employee._id
+            }).populate(
+                "assignedTo",
+                "employeeName employeeId email department"
+            );
 
+            res.json(assets);
 
-        // Duplicate id
-        const existingId = await Asset.findOne({
-            id: id
-        });
+        } catch (error) {
 
-        if (existingId) {
+            console.log(error);
 
-            return res.status(409).json({
-                message: "ID already exists"
+            res.status(500).json({
+                message: "Failed to fetch my assets",
+                error: error.message
             });
-
         }
-
-
-        // ================= AUTO ASSET ID =================
-
-        const totalAssets = await Asset.countDocuments();
-
-        const nextNumber = totalAssets + 1;
-
-        const assetId = "AST" + String(nextNumber).padStart(3, "0");
-
-
-        // Create asset
-        const newAsset = new Asset({
-
-            id: id,
-
-            assetId: assetId,
-
-            assetName: assetName,
-
-            category: category,
-
-            assignedTo: assignedTo || null,
-
-            status: status
-
-        });
-
-
-        const asset = await newAsset.save();
-
-        const populatedAsset = await asset.populate("assignedTo");
-
-        res.status(201).json(populatedAsset);
-
-
-    } catch (error) {
-
-        res.status(500).json({
-            message: "Failed to create asset",
-            error: error
-        });
-
     }
-
-});
-
-
-// ================= PUT =================
-router.put("/:id", async function (req, res) {
-
-    try {
-
-        const id = Number(req.params.id);
+);
 
 
-        if (isNaN(id)) {
+// ======================================================
+// GET ALL ASSETS
+// Admin
+// ======================================================
 
-            return res.status(400).json({
-                message: "Invalid asset ID"
+router.get(
+    "/",
+    authMiddleware,
+    requireRole("admin"),
+    async function (req, res) {
+
+        try {
+
+            const assets = await Asset.find()
+                .populate(
+                    "assignedTo",
+                    "employeeName employeeId email department"
+                )
+                .sort({ id: 1 });
+
+            res.json(assets);
+
+        } catch (error) {
+
+            console.log(error);
+
+            res.status(500).json({
+                message: "Failed to fetch assets",
+                error: error.message
             });
-
         }
+    }
+);
 
 
-        const asset = await Asset.findOne({
-            id: id
-        });
+// ======================================================
+// CREATE ASSET
+// Admin
+// ======================================================
+
+router.post(
+    "/",
+    authMiddleware,
+    requireRole("admin"),
+    async function (req, res) {
+
+        try {
+
+            const {
+                id,
+                assetName,
+                category,
+                assignedTo,
+                status
+            } = req.body;
 
 
-        if (!asset) {
+            // -------------------------------
+            // VALIDATION
+            // -------------------------------
 
-            return res.status(404).json({
-                message: "Asset not found"
-            });
-
-        }
-
-
-        const {
-            assetName,
-            category,
-            assignedTo,
-            status
-        } = req.body;
-
-
-        // Check employee when assigning asset
-        if (assignedTo) {
-
-            const employee = await Employee.findById(assignedTo);
-
-            if (!employee) {
-
-                return res.status(404).json({
-                    message: "Employee not found"
-                });
-
-            }
-
-        }
-
-
-        // Update fields
-        if (assetName !== undefined) {
-
-            asset.assetName = assetName;
-
-        }
-
-
-        if (category !== undefined) {
-
-            asset.category = category;
-
-        }
-
-
-        if (assignedTo !== undefined) {
-
-            asset.assignedTo = assignedTo || null;
-
-        }
-
-
-        if (status !== undefined) {
-
-            const allowedStatus = [
-                "Available",
-                "Assigned",
-                "Repair"
-            ];
-
-            if (!allowedStatus.includes(status)) {
+            if (!assetName || !category) {
 
                 return res.status(400).json({
-                    message: "Invalid asset status"
+                    message: "Asset name and category are required"
                 });
 
             }
 
-            asset.status = status;
 
-        }
+            // -------------------------------
+            // CHECK EMPLOYEE
+            // -------------------------------
 
+            let employee = null;
 
-        const updatedAsset = await asset.save();
+            if (assignedTo) {
 
-        const populatedAsset = await updatedAsset.populate("assignedTo");
+                employee = await Employee.findById(assignedTo);
 
-        res.json(populatedAsset);
+                if (!employee) {
 
+                    return res.status(404).json({
+                        message: "Assigned employee not found"
+                    });
 
-    } catch (error) {
-
-        res.status(500).json({
-            message: "Failed to update asset",
-            error: error
-        });
-
-    }
-
-});
+                }
+            }
 
 
-// ================= DELETE =================
-router.delete("/:id", async function (req, res) {
+            // -------------------------------
+            // CHECK DUPLICATE ID
+            // -------------------------------
 
-    try {
+            if (id) {
 
-        const id = Number(req.params.id);
+                const existingAsset = await Asset.findOne({
+                    id: Number(id)
+                });
+
+                if (existingAsset) {
+
+                    return res.status(400).json({
+                        message: "Asset ID already exists"
+                    });
+
+                }
+            }
 
 
-        if (isNaN(id)) {
+            // -------------------------------
+            // GENERATE ID
+            // -------------------------------
 
-            return res.status(400).json({
-                message: "Invalid asset ID"
+            let assetNumber = Number(id);
+
+            if (!assetNumber) {
+
+                const lastAsset = await Asset
+                    .findOne()
+                    .sort({ id: -1 });
+
+                assetNumber = lastAsset
+                    ? lastAsset.id + 1
+                    : 1;
+            }
+
+
+            // -------------------------------
+            // GENERATE ASSET ID
+            // -------------------------------
+
+            const assetId = `AST${String(assetNumber).padStart(3, "0")}`;
+
+
+            // -------------------------------
+            // CREATE ASSET
+            // -------------------------------
+
+            const asset = new Asset({
+
+                id: assetNumber,
+
+                assetId: assetId,
+
+                assetName: assetName,
+
+                category: category,
+
+                assignedTo: assignedTo || null,
+
+                status: status || "Available"
             });
 
+
+            await asset.save();
+
+
+            // -------------------------------
+            // POPULATE
+            // -------------------------------
+
+            const updatedAsset = await Asset
+                .findById(asset._id)
+                .populate(
+                    "assignedTo",
+                    "employeeName employeeId email department"
+                );
+
+
+            // ==================================================
+            // NOTIFICATION
+            // NEW ASSET ASSIGNED
+            // ==================================================
+
+            if (employee) {
+
+                await createNotification({
+
+                    employee: employee._id,
+
+                    type: "Asset Assigned",
+
+                    title: "Asset Assigned",
+
+                    message:
+                        `The asset ${updatedAsset.assetName} has been assigned to you.`,
+
+                    asset: updatedAsset._id
+                });
+            }
+
+
+            // -------------------------------
+            // RESPONSE
+            // -------------------------------
+
+            res.status(201).json(updatedAsset);
+
+        } catch (error) {
+
+            console.log(error);
+
+            res.status(500).json({
+                message: "Failed to create asset",
+                error: error.message
+            });
         }
+    }
+);
 
 
-        const asset = await Asset.findOne({
-            id: id
-        });
+// ======================================================
+// UPDATE ASSET
+// Admin
+// ======================================================
+
+router.put(
+    "/:id",
+    authMiddleware,
+    requireRole("admin"),
+    async function (req, res) {
+
+        try {
+
+            const assetIdNumber = Number(req.params.id);
 
 
-        if (!asset) {
+            // -------------------------------
+            // FIND ASSET
+            // -------------------------------
 
-            return res.status(404).json({
-                message: "Asset not found"
+            const asset = await Asset.findOne({
+                id: assetIdNumber
             });
 
+            if (!asset) {
+
+                return res.status(404).json({
+                    message: "Asset not found"
+                });
+
+            }
+
+
+            // ==================================================
+            // OLD VALUES
+            // ==================================================
+
+            const oldAssignedTo = asset.assignedTo
+                ? String(asset.assignedTo)
+                : null;
+
+            const oldAssetName = asset.assetName;
+
+            const oldCategory = asset.category;
+
+            const oldStatus = asset.status;
+
+
+            // ==================================================
+            // NEW VALUES
+            // ==================================================
+
+            const {
+                assetName,
+                category,
+                assignedTo,
+                status
+            } = req.body;
+
+
+            const newAssignedTo = assignedTo
+                ? String(assignedTo)
+                : null;
+
+
+            // ==================================================
+            // CHECK EMPLOYEE
+            // ==================================================
+
+            let newEmployee = null;
+
+            if (newAssignedTo) {
+
+                newEmployee = await Employee.findById(
+                    newAssignedTo
+                );
+
+                if (!newEmployee) {
+
+                    return res.status(404).json({
+                        message: "Assigned employee not found"
+                    });
+
+                }
+            }
+
+
+            // ==================================================
+            // CHECK CHANGES
+            // ==================================================
+
+            const assignmentChanged =
+                oldAssignedTo !== newAssignedTo;
+
+
+            const nameChanged =
+                assetName !== undefined &&
+                assetName !== oldAssetName;
+
+
+            const categoryChanged =
+                category !== undefined &&
+                category !== oldCategory;
+
+
+            const statusChanged =
+                status !== undefined &&
+                status !== oldStatus;
+
+
+            const detailsChanged =
+                nameChanged ||
+                categoryChanged;
+
+
+            // ==================================================
+            // UPDATE ASSET
+            // ==================================================
+
+            if (assetName !== undefined) {
+                asset.assetName = assetName;
+            }
+
+            if (category !== undefined) {
+                asset.category = category;
+            }
+
+            if (assignedTo !== undefined) {
+                asset.assignedTo = assignedTo || null;
+            }
+
+            if (status !== undefined) {
+                asset.status = status;
+            }
+
+
+            await asset.save();
+
+
+            // ==================================================
+            // POPULATE UPDATED ASSET
+            // ==================================================
+
+            const updatedAsset = await Asset
+                .findById(asset._id)
+                .populate(
+                    "assignedTo",
+                    "employeeName employeeId email department"
+                );
+
+
+            // ==================================================
+            // 1. OLD EMPLOYEE - UNASSIGNED
+            // ==================================================
+
+            if (
+                assignmentChanged &&
+                oldAssignedTo
+            ) {
+
+                await createNotification({
+
+                    employee: oldAssignedTo,
+
+                    type: "Asset Unassigned",
+
+                    title: "Asset Unassigned",
+
+                    message:
+                        `The asset ${updatedAsset.assetName} has been unassigned from you.`,
+
+                    asset: updatedAsset._id
+                });
+            }
+
+
+            // ==================================================
+            // 2. NEW EMPLOYEE - ASSIGNED
+            // ==================================================
+
+            if (
+                assignmentChanged &&
+                newAssignedTo
+            ) {
+
+                await createNotification({
+
+                    employee: newAssignedTo,
+
+                    type: "Asset Assigned",
+
+                    title: "Asset Assigned",
+
+                    message:
+                        `The asset ${updatedAsset.assetName} has been assigned to you.`,
+
+                    asset: updatedAsset._id
+                });
+            }
+
+
+            // ==================================================
+            // 3. ASSET DETAILS UPDATED
+            // ==================================================
+
+            if (
+                detailsChanged &&
+                newAssignedTo
+            ) {
+
+                await createNotification({
+
+                    employee: newAssignedTo,
+
+                    type: "Asset Updated",
+
+                    title: "Asset Updated",
+
+                    message:
+                        `The details of your asset ${updatedAsset.assetName} have been updated.`,
+
+                    asset: updatedAsset._id
+                });
+            }
+
+
+            // ==================================================
+            // 4. ASSET STATUS UPDATED
+            // ==================================================
+
+            if (
+                statusChanged &&
+                newAssignedTo
+            ) {
+
+                await createNotification({
+
+                    employee: newAssignedTo,
+
+                    type: "Asset Status Updated",
+
+                    title: "Asset Status Updated",
+
+                    message:
+                        `The status of your asset ${updatedAsset.assetName} has been changed to ${updatedAsset.status}.`,
+
+                    asset: updatedAsset._id
+                });
+            }
+
+
+            // ==================================================
+            // RESPONSE
+            // ==================================================
+
+            res.json(updatedAsset);
+
+        } catch (error) {
+
+            console.log(error);
+
+            res.status(500).json({
+                message: "Failed to update asset",
+                error: error.message
+            });
         }
-
-
-        await asset.deleteOne();
-
-
-        res.json({
-            message: "Asset deleted successfully"
-        });
-
-
-    } catch (error) {
-
-        res.status(500).json({
-            message: "Failed to delete asset",
-            error: error
-        });
-
     }
+);
 
-});
+
+// ======================================================
+// DELETE ASSET
+// Admin
+// ======================================================
+
+router.delete(
+    "/:id",
+    authMiddleware,
+    requireRole("admin"),
+    async function (req, res) {
+
+        try {
+
+            const assetIdNumber = Number(req.params.id);
+
+            const asset = await Asset.findOne({
+                id: assetIdNumber
+            });
+
+            if (!asset) {
+
+                return res.status(404).json({
+                    message: "Asset not found"
+                });
+
+            }
+
+
+            // -------------------------------
+            // DELETE
+            // -------------------------------
+
+            await Asset.findOneAndDelete({
+                id: assetIdNumber
+            });
+
+
+            // -------------------------------
+            // RESPONSE
+            // -------------------------------
+
+            res.json({
+                message: "Asset deleted successfully"
+            });
+
+        } catch (error) {
+
+            console.log(error);
+
+            res.status(500).json({
+                message: "Failed to delete asset",
+                error: error.message
+            });
+        }
+    }
+);
 
 
 module.exports = router;

@@ -6,6 +6,7 @@ const router = express.Router();
 const Repair = require("../Models/Repair");
 const Asset = require("../Models/Asset");
 const Employee = require("../Models/Employee");
+const Notification = require("../Models/Notification");
 
 const {
     authMiddleware,
@@ -412,6 +413,34 @@ router.post(
                 )
                     .populate("asset")
                     .populate("employee");
+            
+            // ===============================
+            // CREATE NOTIFICATION
+            // ===============================
+
+            if (req.user.role === "user") {
+
+                const lastNotification =
+                    await Notification.findOne()
+                        .sort({ id: -1 });
+
+                const nextNotificationId =
+                    lastNotification
+                        ? lastNotification.id + 1
+                        : 1;
+
+                await Notification.create({
+                    id: nextNotificationId,
+                    employee: employeeDoc._id,
+                    type: "Repair Request Created",
+                    title: "Repair Request Created",
+                    message: `Your repair request for ${populatedRepair.asset?.assetName || "asset"} has been submitted.`,
+                    asset: populatedRepair.asset?._id || null,
+                    repair: populatedRepair._id,
+                    isRead: false
+                });
+
+            }
 
 
             res.status(201).json(
@@ -475,6 +504,8 @@ router.put(
                 });
 
             }
+
+            const oldStatus = repair.status;
 
 
             const {
@@ -675,6 +706,81 @@ router.put(
 
             await repair.save();
 
+            // ===============================
+                // CREATE STATUS NOTIFICATION
+                // ===============================
+
+                if (
+                    status !== undefined &&
+                    oldStatus !== repair.status
+                ) {
+
+                    const lastNotification =
+                        await Notification.findOne()
+                            .sort({ id: -1 });
+
+                    const nextNotificationId =
+                        lastNotification
+                            ? lastNotification.id + 1
+                            : 1;
+
+                    let notificationType =
+                        "Repair Status Updated";
+
+                    let notificationTitle =
+                        "Repair Status Updated";
+
+                    if (repair.status === "Completed") {
+
+                        notificationType =
+                            "Repair Completed";
+
+                        notificationTitle =
+                            "Repair Completed";
+
+                    }
+
+                    if (repair.status === "Cancelled") {
+
+                        notificationType =
+                            "Repair Cancelled";
+
+                        notificationTitle =
+                            "Repair Cancelled";
+
+                    }
+
+                    const assetForNotification =
+                        await Asset.findById(
+                            repair.asset
+                        );
+
+                    await Notification.create({
+
+                        id: nextNotificationId,
+
+                        employee:
+                            repair.employee,
+
+                        type:
+                            notificationType,
+
+                        title:
+                            notificationTitle,
+
+                        message:
+                            `Your repair request for ${assetForNotification?.assetName || "asset"} is now ${repair.status}.`,
+
+                        asset:
+                            repair.asset,
+
+                        repair:
+                            repair._id,
+
+                        isRead:
+                            false
+                    });
+                }
 
             // ===============================
             // OLD ASSET STATUS

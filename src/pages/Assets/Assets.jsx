@@ -18,7 +18,11 @@ function Assets() {
   const [status, setStatus] = useState("");
 
   useEffect(function () {
-    fetch("http://localhost:5000/api/assets")
+    fetch("http://localhost:5000/api/assets", {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+      },
+    })
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Failed to fetch assets");
@@ -33,7 +37,11 @@ function Assets() {
         console.log("Error fetching assets:", error);
       });
 
-    fetch("http://localhost:5000/api/employees")
+    fetch("http://localhost:5000/api/employees", {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+      },
+    })
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Failed to fetch employees");
@@ -50,24 +58,168 @@ function Assets() {
   }, []);
 
   const assetNamesByCategory = {
-    Laptop: ["Dell", "HP", "Lenovo", "Asus", "Acer", "Apple"],
-    Desktop: ["Dell", "HP", "Lenovo", "Asus", "Acer", "Apple"],
-    Monitor: ["Dell", "LG", "Samsung", "HP", "Acer", "BenQ"],
-    Keyboard: ["Logitech", "HP", "Dell", "Lenovo", "Microsoft"],
-    Mouse: ["Logitech", "HP", "Dell", "Lenovo", "Microsoft"],
-    Printer: ["HP", "Canon", "Epson", "Brother", "Xerox"],
-    Scanner: ["Canon", "Epson", "HP", "Brother"],
-    Projector: ["Epson", "BenQ", "Sony", "ViewSonic"],
-    Server: ["Dell", "HP", "Lenovo", "IBM"],
-    Router: ["Cisco", "TP-Link", "D-Link", "Netgear"],
-    Switch: ["Cisco", "TP-Link", "D-Link", "Netgear"],
-    UPS: ["APC", "Microtek", "Luminous", "Numeric"],
-    Mobile: ["Apple", "Samsung", "OnePlus", "Xiaomi", "Realme", "Vivo", "Oppo"],
-    Tablet: ["Apple", "Samsung", "Lenovo", "Xiaomi", "Microsoft"],
-    Headset: ["JBL", "Boat", "Sony", "Logitech", "HyperX"],
-    Webcam: ["Logitech", "HP", "Lenovo", "Microsoft"],
-    "External Hard Drive": ["Seagate", "Western Digital", "Toshiba", "Samsung"],
-    "Docking Station": ["Dell", "HP", "Lenovo", "Anker"],
+    Laptop: [
+      "Dell Inspiron 15",
+      "Dell Latitude 5420",
+      "HP Pavilion 15",
+      "HP ProBook 450",
+      "Lenovo ThinkPad E14",
+      "Lenovo IdeaPad 3",
+      "Asus VivoBook 15",
+      "Acer Aspire 5",
+      "MacBook Air M2",
+    ],
+
+    Desktop: [
+      "Dell OptiPlex 3090",
+      "Dell Vostro Desktop",
+      "HP ProDesk 400",
+      "HP EliteDesk 800",
+      "Lenovo ThinkCentre M70",
+      "Lenovo IdeaCentre 3",
+    ],
+
+    Monitor: [
+      "Dell P2422H",
+      "Dell S2421HN",
+      "LG 24MP400",
+      "Samsung LF24T350",
+      "HP M24f",
+      "Acer KA242Y",
+      "BenQ GW2480",
+    ],
+
+    Keyboard: [
+      "Logitech K120",
+      "Logitech K380",
+      "HP K1500",
+      "Dell KB216",
+      "Lenovo Preferred Pro II",
+      "Microsoft Wired Keyboard 600",
+    ],
+
+    Mouse: [
+      "Logitech M90",
+      "Logitech M185",
+      "HP M100",
+      "Dell MS116",
+      "Lenovo 300 USB Mouse",
+      "Microsoft Basic Optical Mouse",
+    ],
+
+    Printer: [
+      "HP LaserJet Pro M404",
+      "HP DeskJet 2720",
+      "Canon PIXMA G3010",
+      "Epson EcoTank L3250",
+      "Brother DCP-T520W",
+      "Xerox Phaser 3020",
+    ],
+
+    Scanner: [
+      "Canon LiDE 300",
+      "Canon LiDE 400",
+      "Epson V39",
+      "HP ScanJet Pro 2600",
+      "Brother ADS-1700W",
+    ],
+
+    Projector: [
+      "Epson EB-E01",
+      "Epson CO-FH02",
+      "BenQ MX560",
+      "Sony VPL-DX221",
+      "ViewSonic PA503W",
+    ],
+
+    Server: [
+      "Dell PowerEdge R250",
+      "Dell PowerEdge R350",
+      "HP ProLiant DL360",
+      "HP ProLiant DL380",
+      "Lenovo ThinkSystem SR250",
+      "IBM Power System S1022",
+    ],
+
+    Router: [
+      "Cisco RV340",
+      "TP-Link Archer C6",
+      "TP-Link Archer AX10",
+      "D-Link DIR-825",
+      "Netgear R6700",
+    ],
+
+    Switch: [
+      "Cisco CBS250",
+      "TP-Link TL-SG108",
+      "D-Link DGS-108",
+      "Netgear GS308",
+    ],
+
+    UPS: [
+      "APC Back-UPS 600VA",
+      "APC Back-UPS 1100VA",
+      "Microtek UPS Legend 650",
+      "Luminous Eco Volt 850",
+      "Numeric Digital 600",
+    ],
+
+    Mobile: [
+      "iPhone 15",
+      "iPhone 15 Pro",
+      "Samsung Galaxy S24",
+      "Samsung Galaxy A55",
+      "OnePlus 12",
+      "OnePlus Nord CE 4",
+      "Xiaomi Redmi Note 13",
+      "Realme 12 Pro",
+      "Vivo V30",
+      "Oppo Reno 11",
+    ],
+
+    Tablet: [
+      "iPad 10th Generation",
+      "iPad Air M2",
+      "Samsung Galaxy Tab S9",
+      "Samsung Galaxy Tab A9",
+      "Lenovo Tab P12",
+      "Xiaomi Pad 6",
+      "Microsoft Surface Go 4",
+    ],
+
+    Headset: [
+      "JBL Quantum 100",
+      "JBL Tune 510BT",
+      "boAt Rockerz 450",
+      "Sony WH-CH520",
+      "Logitech H390",
+      "HyperX Cloud Stinger 2",
+    ],
+
+    Webcam: [
+      "Logitech C270",
+      "Logitech C920",
+      "HP 320 FHD Webcam",
+      "Lenovo 300 FHD Webcam",
+      "Microsoft Modern Webcam",
+    ],
+
+    "External Hard Drive": [
+      "Seagate Expansion 1TB",
+      "Seagate Expansion 2TB",
+      "Western Digital Elements 1TB",
+      "Western Digital Elements 2TB",
+      "Toshiba Canvio Basics 1TB",
+      "Samsung T7 1TB",
+    ],
+
+    "Docking Station": [
+      "Dell WD19",
+      "Dell WD22TB4",
+      "HP USB-C Dock G5",
+      "Lenovo ThinkPad Universal Dock",
+      "Anker 575 USB-C Dock",
+    ],
   };
 
   const filtereddAssets = asset.filter(function (item) {
@@ -116,6 +268,7 @@ function Assets() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           assetName: assetname,

@@ -9,6 +9,7 @@ const supplierRoutes = require("./Routes/supplierRoutes");
 const complaintRoutes = require("./Routes/complaintRoutes");
 const adminRoutes = require("./Routes/adminRoutes");
 const employeeRoutes = require("./Routes/employeeRoutes");
+const notificationRoutes = require("./Routes/notificationRoutes");
 
 
 dns.setServers(["8.8.8.8"]);
@@ -52,6 +53,8 @@ app.use("/api/complaints", complaintRoutes);
 app.use("/api/admins", adminRoutes);
 
 app.use("/api/employees", employeeRoutes);
+
+app.use("/api/notifications", notificationRoutes);
 
 
 // ================= TEST ROUTE =================

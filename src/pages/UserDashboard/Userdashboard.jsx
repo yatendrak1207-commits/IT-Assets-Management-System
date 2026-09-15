@@ -9,9 +9,12 @@ function UserDashboard() {
   const [repairs, setRepairs] = useState([]);
 
   useEffect(function () {
+    const token = sessionStorage.getItem("token");
+    const headers = { Authorization: `Bearer ${token}` };
+
     // ================= GET ASSETS =================
 
-    fetch("http://localhost:5000/api/assets")
+    fetch("http://localhost:5000/api/assets", { headers })
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Failed to fetch assets");
@@ -28,7 +31,7 @@ function UserDashboard() {
 
     // ================= GET REPAIRS =================
 
-    fetch("http://localhost:5000/api/repairs")
+    fetch("http://localhost:5000/api/repairs", { headers })
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Failed to fetch repairs");
@@ -45,8 +48,6 @@ function UserDashboard() {
   }, []);
 
   // ================= MY ASSETS =================
-  // Asset.assignedTo = Employee ObjectId
-  // API me assignedTo populated hai
 
   const userAssets = assets.filter(function (item) {
     return (
@@ -57,8 +58,6 @@ function UserDashboard() {
   });
 
   // ================= MY REPAIRS =================
-  // Repair.employee = Employee ObjectId
-  // API me employee populated hai
 
   const userRepairs = repairs.filter(function (item) {
     return (
@@ -69,8 +68,6 @@ function UserDashboard() {
   });
 
   // ================= MY COMPLAINTS =================
-  // Complaint alag collection nahi hai.
-  // Repair ke andar complaint field hai.
 
   const userComplaints = userRepairs.filter(function (item) {
     return item.complaint;
@@ -94,31 +91,27 @@ function UserDashboard() {
 
         <div className="user-card">
           <h3>My Assets</h3>
-
           <p>{userAssets.length}</p>
         </div>
 
-        {/* COMPLAINTS */}
+        {/* MY COMPLAINTS */}
 
         <div className="user-card">
-          <h3>Complaints</h3>
-
-          <p>{userRepairs.length}</p>
+          <h3>My Complaints</h3>
+          <p>{userComplaints.length}</p>
         </div>
 
         {/* OPEN COMPLAINTS */}
 
         <div className="user-card">
           <h3>Open Complaints</h3>
-
-          <p>{userRepairs.length}</p>
+          <p>{openComplaints.length}</p>
         </div>
 
-        {/* REPAIR REQUESTS */}
+        {/* MY REPAIRS */}
 
         <div className="user-card">
-          <h3>Repair Requests</h3>
-
+          <h3>My Repairs</h3>
           <p>{userRepairs.length}</p>
         </div>
       </div>
@@ -144,11 +137,8 @@ function UserDashboard() {
                 return (
                   <tr key={item._id || index}>
                     <td>{item.repairId || "-"}</td>
-
                     <td>{item.asset?.assetName || "-"}</td>
-
                     <td>{item.complaint}</td>
-
                     <td>{item.status || "-"}</td>
                   </tr>
                 );

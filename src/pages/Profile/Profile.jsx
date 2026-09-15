@@ -28,7 +28,11 @@ function Profile() {
         return;
       }
 
-      fetch("http://localhost:5000/api/admins/" + adminId)
+      fetch("http://localhost:5000/api/admins/" + adminId, {
+        headers: {
+          Authorization: "Bearer " + sessionStorage.getItem("token"),
+        },
+      })
         .then(function (response) {
           if (!response.ok) {
             throw new Error("Failed to fetch admin profile");
@@ -60,6 +64,7 @@ function Profile() {
 
       headers: {
         "Content-Type": "application/json",
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
       },
 
       body: JSON.stringify({
@@ -94,7 +99,6 @@ function Profile() {
         alert("Server se connection nahi ho raha");
       });
   }
-
   return (
     <div className="Profile">
       <h2>

@@ -162,3 +162,52 @@
         font-size: 14px;
     }
 }
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.notification-header h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mark-all-btn {
+    border: none;
+    background: #063b36;
+    color: white;
+    padding: 9px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.mark-all-btn:hover {
+    opacity: 0.9;
+}
+
+.notification-card {
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.notification-card.unread {
+    border-left: 4px solid #063b36;
+}
+
+.notification-card.read {
+    opacity: 0.75;
+}
+
+.notification-card small {
+    display: block;
+    margin-top: 8px;
+    color: #777;
+}
+
+.no-notifications {
+    text-align: center;
+    padding: 30px;
+}

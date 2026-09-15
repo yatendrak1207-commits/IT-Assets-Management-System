@@ -5,77 +5,132 @@
 .dashboard {
     padding: 25px;
     flex: 1;
-
     background-color: #f8fafc;
-
     box-sizing: border-box;
     min-width: 0;
-
     color: #0f172a;
 }
 
 
-/* =========================================================
-   DASHBOARD HEADER
-========================================================= */
+/* DASHBOARD HEADER */
 
 .dashboard h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-
     gap: 10px;
-
     width: 100%;
     min-height: 80px;
-
     margin: 0 0 25px 0;
     padding: 15px 25px;
-
     box-sizing: border-box;
-
     background-color: #ffffff;
-
     border: 1px solid #e2e8f0;
     border-radius: 12px;
-
     box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
-
-    font-size: 35px;
+    font-size: 32px;
     font-weight: 600;
-
     color: #09325a;
-
-    text-decoration: none;
 }
 
-
-/* Dashboard Icon */
-
 .dashboard h1 svg {
-    font-size: 32px;
+    font-size: 30px;
     flex-shrink: 0;
 }
 
 
 /* =========================================================
-   CARD CONTAINER
+   4 MAIN CARDS
 ========================================================= */
 
 .card-container {
     display: grid;
-
     grid-template-columns: repeat(4, minmax(180px, 1fr));
-
     gap: 20px;
-
     width: 100%;
-
     margin-top: 10px;
-
     box-sizing: border-box;
-
     text-align: center;
+}
+
+
+/* =========================================================
+   MODAL / POPUP
+========================================================= */
+
+.dashboard-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.dashboard-modal-box {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 25px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.dashboard-modal-header h3 {
+    margin: 0;
+    color: #09325a;
+    font-size: 20px;
+}
+
+.dashboard-modal-close {
+    border: none;
+    background: #f1f5f9;
+    color: #334155;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.dashboard-modal-close:hover {
+    background: #e2e8f0;
+}
+
+.dashboard-modal-fields {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.dashboard-modal-field {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+}
+
+.dashboard-modal-field .field-label {
+    margin: 0 0 6px 0;
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.dashboard-modal-field .field-value {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #159f6f;
 }
 
 
@@ -85,26 +140,18 @@
 
 .dashboard>button {
     display: block;
-
     width: 130px;
     height: 45px;
-
     margin: 25px auto 0;
-
     border: none;
     border-radius: 8px;
-
     background-color: #159f6f;
     color: white;
-
     font-size: 16px;
     font-weight: 600;
-
     cursor: pointer;
-
     transition: 0.2s ease;
 }
-
 
 .dashboard>button:hover {
     background-color: #10865e;
@@ -117,7 +164,6 @@
 ========================================================= */
 
 @media (max-width: 1100px) {
-
     .dashboard {
         padding: 24px;
     }
@@ -127,26 +173,28 @@
     }
 }
 
-
 @media (max-width: 700px) {
-
     .dashboard {
         padding: 16px;
     }
 
     .dashboard h1 {
         min-height: 65px;
-        font-size: 28px;
+        font-size: 26px;
         padding: 12px;
     }
 
     .dashboard h1 svg {
-        font-size: 27px;
+        font-size: 24px;
     }
 
     .card-container {
         grid-template-columns: 1fr;
         gap: 15px;
+    }
+
+    .dashboard-modal-fields {
+        grid-template-columns: 1fr;
     }
 
     .dashboard>button {

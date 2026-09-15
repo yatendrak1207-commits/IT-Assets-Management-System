@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 
 const Employee = require("../Models/Employee");
 const Asset = require("../Models/Asset");
-
+const Notification = require("../Models/Notification");
 const {
     authMiddleware,
     requireRole
@@ -639,93 +639,91 @@ router.delete(
 
             const id = Number(req.params.id);
 
-
             if (isNaN(id)) {
-
                 return res.status(400).json({
                     message: "Invalid employee ID"
                 });
-
             }
 
-
-            const employee = await Employee.findOne({
-                id: id
-            });
-
+            const employee = await Employee.findOne({ id: id });
 
             if (!employee) {
-
                 return res.status(404).json({
                     message: "Employee not found"
                 });
-
             }
+
+            // 👈 NAYA — delete se pehle assigned assets nikal lo
+            const assignedAssets = await Asset.find({
+                assignedTo: employee._id
+            });
 
 
             // Unassign assets from this employee
-
             await Asset.updateMany(
-
                 {
                     assignedTo: employee._id,
                     status: "Assigned"
                 },
-
                 {
                     $set: {
                         assignedTo: null,
                         status: "Available"
                     }
                 }
-
             );
 
 
             // Repair assets
-
             await Asset.updateMany(
-
                 {
                     assignedTo: employee._id
                 },
-
                 {
                     $set: {
                         assignedTo: null
                     }
                 }
-
             );
+
+
+            // ================= NOTIFICATION ================= 👈 NAYA
+            let notificationCount = await Notification.countDocuments();
+
+            for (const assetItem of assignedAssets) {
+
+                notificationCount = notificationCount + 1;
+
+                await Notification.create({
+                    id: notificationCount,
+                    employee: employee._id,
+                    type: "Asset Unassigned",
+                    title: "Asset Unassigned",
+                    message: `The asset ${assetItem.assetName} has been unassigned from you.`,
+                    asset: assetItem._id,
+                    repair: null,
+                    isRead: false
+                });
+
+            }
 
 
             await employee.deleteOne();
 
 
             res.json({
-
-                message:
-                    "Employee deleted successfully"
-
+                message: "Employee deleted successfully"
             });
 
         } catch (error) {
-
             res.status(500).json({
-
-                message:
-                    "Failed to delete employee",
-
-                error:
-                    error
-
+                message: "Failed to delete employee",
+                error: error
             });
-
         }
 
     }
 );
-
 
 // ================= EMPLOYEE LOGIN =================
 // PUBLIC ROUTE

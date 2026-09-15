@@ -379,3 +379,50 @@
         min-width: 600px;
     }
 }
+/* =========================================================
+   ALL CHARTS IN ONE ROW
+========================================================= */
+
+.all-charts-layout {
+    display: grid;
+    grid-template-columns: 40% 1fr;
+    gap: 20px;
+    width: 100%;
+    align-items: stretch;
+}
+
+/* A - Left */
+.main-chart-column {
+    min-height: 700px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* A ka chart middle me */
+.main-chart-column .chart-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+/* B + C - Right */
+.right-charts {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.right-charts .chart-column {
+    flex: 1;
+}
+
+.chart-column {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.chart-section {
+    width: 100%;
+    height: 250px;
+}

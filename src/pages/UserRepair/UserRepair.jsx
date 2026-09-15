@@ -1,16 +1,39 @@
-import React from "react";
-import { complaints } from "../../data/data";
+import React, { useEffect, useState } from "react";
 import "./UserRepair.css";
 import { GiAutoRepair } from "react-icons/gi";
 
 function UserRepair() {
-  const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
+  const [myRepairs, setMyRepairs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const userId = loggedInUser.employeeId;
+  useEffect(function () {
+    const token = sessionStorage.getItem("token");
 
-  const myRepairs = complaints.filter(function (item) {
-    return item.employeeId === userId && item.repairId;
-  });
+    fetch("http://localhost:5000/api/repairs/my", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          if (!response.ok) {
+            throw new Error(data.message || "Failed to fetch repair requests");
+          }
+
+          return data;
+        });
+      })
+      .then(function (data) {
+        setMyRepairs(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(function (error) {
+        console.log("Error fetching repair requests:", error);
+        setError("Failed to load repair requests");
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div className="user-repair">
@@ -22,7 +45,11 @@ function UserRepair() {
       </div>
 
       <div className="repair-table-container">
-        {myRepairs.length === 0 ? (
+        {loading ? (
+          <p className="no-repairs">Loading...</p>
+        ) : error ? (
+          <p className="no-repairs">{error}</p>
+        ) : myRepairs.length === 0 ? (
           <p className="no-repairs">No repair requests found.</p>
         ) : (
           <table className="repair-table">
@@ -30,9 +57,9 @@ function UserRepair() {
               <tr>
                 <th>Repair ID</th>
                 <th>Asset</th>
-                <th>Repair Center</th>
+                <th>Issue</th>
+                <th>Date</th>
                 <th>Status</th>
-                <th>Estimated Cost</th>
               </tr>
             </thead>
 
@@ -41,10 +68,18 @@ function UserRepair() {
                 return (
                   <tr key={item.repairId}>
                     <td>{item.repairId}</td>
-                    <td>{item.assetName}</td>
-                    <td>{item.repairCenter}</td>
-                    <td>{item.repairStatus}</td>
-                    <td>{item.estimatedCost}</td>
+
+                    <td>{item.asset?.assetName || "N/A"}</td>
+
+                    <td>{item.complaint || "N/A"}</td>
+
+                    <td>
+                      {item.complaintDate
+                        ? new Date(item.complaintDate).toLocaleDateString()
+                        : "N/A"}
+                    </td>
+
+                    <td>{item.status || "N/A"}</td>
                   </tr>
                 );
               })}

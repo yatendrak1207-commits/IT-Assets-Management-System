@@ -20,6 +20,15 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+const PIE_COLORS = [
+  "#09325a",
+  "#10865e",
+  "#710202",
+  "#e6a90f",
+  "#7c3aed",
+  "#0891b2",
+];
+
 export default function Report() {
   const [reportFor, setReportFor] = useState("assets");
   const [chartType, setCharttype] = useState("bar");
@@ -192,7 +201,7 @@ export default function Report() {
   }).length;
 
   const totalAssetsSupplied = suppliers.reduce(function (total, item) {
-    return total + (item.assetsSupplied || 0);
+    return total + (Number(item.assetsSupplied) || 0);
   }, 0);
 
   const supplierReport = {
@@ -248,6 +257,90 @@ export default function Report() {
   } else if (reportFor === "repair") {
     currentReport = repairReport;
   }
+
+  //--------Assets by Category & Employees by Department (Day 5)------
+
+  function groupCount(list, keyFn) {
+    const map = {};
+
+    list.forEach(function (item) {
+      const key = keyFn(item) || "Unknown";
+      map[key] = (map[key] || 0) + 1;
+    });
+
+    return Object.keys(map).map(function (key) {
+      return { name: key, value: map[key] };
+    });
+  }
+
+  const assetsByCategory = groupCount(assets, function (item) {
+    return item.category;
+  });
+
+  const employeesByDepartment = groupCount(employees, function (item) {
+    return item.department;
+  });
+
+  //--------Reusable chart renderer (chartType follow karega) ------
+
+  function renderChart(data, barColor) {
+    if (chartType === "bar") {
+      return (
+        <BarChart data={data}>
+          <XAxis dataKey="name" interval={0} tick={{ fontSize: 12 }} />
+          <YAxis allowDecimals={false} />
+          <CartesianGrid strokeDasharray="1 1" />
+          <Tooltip />
+          <Bar dataKey="value" fill={barColor} />
+        </BarChart>
+      );
+    }
+
+    if (chartType === "line") {
+      return (
+        <LineChart data={data}>
+          <XAxis dataKey="name" interval={0} tick={{ fontSize: 12 }} />
+          <YAxis allowDecimals={false} width={40} />
+          <CartesianGrid strokeDasharray="1 1" />
+          <Tooltip />
+          <Line
+            dataKey="value"
+            type="monotone"
+            stroke={barColor}
+            strokeWidth={3}
+            dot={{ r: 4, fill: barColor, stroke: "#043927", strokeWidth: 2 }}
+          />
+        </LineChart>
+      );
+    }
+
+    return (
+      <PieChart>
+        <Pie
+          data={data}
+          dataKey="value"
+          nameKey="name"
+          cx="50%"
+          cy="50%"
+          outerRadius={80}
+        >
+          {data.map(function (entry, index) {
+            return (
+              <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+            );
+          })}
+        </Pie>
+        <Legend iconType="circle" iconSize={12} />
+        <Tooltip />
+      </PieChart>
+    );
+  }
+
+  const mainChartData = [
+    { name: currentReport.assignedLabel, value: currentReport.assigned },
+    { name: currentReport.availableLabel, value: currentReport.available },
+    { name: currentReport.ReapairLabel, value: currentReport.repair },
+  ];
 
   return (
     <div className="report">
@@ -311,133 +404,50 @@ export default function Report() {
         </select>
       </div>
 
-      <div className="chart-heading">
-        <h2>{currentReport.title}Report chart</h2>
-      </div>
+      {/* ================= ALL CHARTS IN ONE ROW (sabhi chartType follow karte hain) ================= */}
 
-      <div className="chart-section">
-        <ResponsiveContainer
-          width="60%"
-          height={250}
-          className={chartType === "pie" ? "pie-chart " : "bar-line-chart"}
-        >
-          {chartType === "bar" && (
-            <BarChart
-              data={[
-                {
-                  name: "Report",
-                  assigned: currentReport.assigned,
-                  available: currentReport.available,
-                  repair: currentReport.repair,
-                },
-              ]}
-              barCategoryGap={60}
-            >
-              <Bar
-                dataKey="assigned"
-                name={currentReport.assignedLabel}
-                fill="#09325a"
-              />
+      <div className="all-charts-layout">
+        {/* Main Report Chart - Left 50% */}
+        <div className="chart-column main-chart-column">
+          <div className="chart-heading">
+            <h2>{currentReport.title} Report chart</h2>
+          </div>
 
-              <Bar
-                dataKey="available"
-                name={currentReport.availableLabel}
-                fill="#10865e"
-              />
+          <div className="chart-section">
+            <ResponsiveContainer width="100%" height={250}>
+              {renderChart(mainChartData, "#09325a")}
+            </ResponsiveContainer>
+          </div>
+        </div>
 
-              <Bar
-                dataKey="repair"
-                name={currentReport.ReapairLabel}
-                fill="#710202"
-              />
+        {/* Right Side - 50% */}
+        <div className="right-charts">
+          {/* Assets by Category */}
+          <div className="chart-column">
+            <div className="chart-heading">
+              <h2>Assets by Category</h2>
+            </div>
 
-              <XAxis dataKey="name" />
-              <YAxis />
-              <CartesianGrid strokeDasharray="1 1" />
-              <Tooltip />
-            </BarChart>
-          )}
+            <div className="chart-section">
+              <ResponsiveContainer width="100%" height={250}>
+                {renderChart(assetsByCategory, "#10865e")}
+              </ResponsiveContainer>
+            </div>
+          </div>
 
-          {chartType === "line" && (
-            <LineChart
-              data={[
-                {
-                  name: currentReport.assignedLabel,
-                  value: currentReport.assigned,
-                },
-                {
-                  name: currentReport.availableLabel,
-                  value: currentReport.available,
-                },
-                {
-                  name: currentReport.ReapairLabel,
-                  value: currentReport.repair,
-                },
-              ]}
-            >
-              <Line
-                dataKey="value"
-                name={currentReport.assignedLabel}
-                type="monotone"
-                dot={{
-                  r: 4,
-                  fill: "#09325a",
-                  stroke: "#043927",
-                  strokeWidth: 3,
-                }}
-              />
+          {/* Employees by Department */}
+          <div className="chart-column">
+            <div className="chart-heading">
+              <h2>Employees by Department</h2>
+            </div>
 
-              <XAxis dataKey="name" />
-              <YAxis width={40} />
-              <CartesianGrid strokeDasharray="1 1" />
-              <Tooltip />
-            </LineChart>
-          )}
-
-          {chartType === "pie" && (
-            <PieChart>
-              <Pie
-                data={[
-                  {
-                    name: currentReport.assignedLabel,
-                    value: currentReport.assigned,
-                  },
-                  {
-                    name: currentReport.availableLabel,
-                    value: currentReport.available,
-                  },
-                  {
-                    name: currentReport.ReapairLabel,
-                    value: currentReport.repair,
-                  },
-                ]}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={110}
-              >
-                <Cell fill="#09325a" />
-                <Cell fill="#10865e" />
-                <Cell fill="#710202" />
-              </Pie>
-
-              <Legend
-                layout="vertical"
-                align="center"
-                verticalAlign="middle"
-                iconType="circle"
-                iconSize={20}
-                wrapperStyle={{
-                  lineHeight: "50px",
-                  marginLeft: "250px",
-                }}
-              />
-
-              <Tooltip />
-            </PieChart>
-          )}
-        </ResponsiveContainer>
+            <div className="chart-section">
+              <ResponsiveContainer width="100%" height={250}>
+                {renderChart(employeesByDepartment, "#710202")}
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

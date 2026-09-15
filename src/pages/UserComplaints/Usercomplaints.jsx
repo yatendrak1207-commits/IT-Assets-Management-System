@@ -36,15 +36,15 @@ function UserComplaints() {
 
         setComplaints(repairData);
 
-        // My Assets
-        const assetResponse = await fetch(
-          "http://localhost:5000/api/assets/my",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        // My Assets (same approach as My Assets page: fetch all, filter by employeeId)
+        const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
+        const userId = loggedInUser?.employeeId;
+
+        const assetResponse = await fetch("http://localhost:5000/api/assets", {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
 
         const assetData = await assetResponse.json();
 
@@ -52,7 +52,11 @@ function UserComplaints() {
           throw new Error(assetData.message || "Failed to fetch your assets");
         }
 
-        setAssets(assetData);
+        const assignedAssets = assetData.filter(function (item) {
+          return item?.assignedTo?.employeeId === userId;
+        });
+
+        setAssets(assignedAssets);
       } catch (error) {
         console.log("Error fetching repair data:", error);
       } finally {
@@ -144,7 +148,7 @@ function UserComplaints() {
               {assets.map(function (item) {
                 return (
                   <option key={item._id} value={item._id}>
-                    {item.assetId} - {item.assetName}
+                    {item.assetName}
                   </option>
                 );
               })}
