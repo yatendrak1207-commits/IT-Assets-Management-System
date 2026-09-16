@@ -1,10 +1,10 @@
-
 const express = require("express");
 const router = express.Router();
 
 const Complaint = require("../Models/Complain");
 const Asset = require("../Models/Asset");
 const Employee = require("../Models/Employee");
+const Notification = require("../Models/Notification");
 
 const {
   authMiddleware,
@@ -175,6 +175,21 @@ router.post(
 
 
         const savedComplaint = await newComplaint.save();
+
+
+        await Notification.create({
+          id: Date.now(),
+          employee: null,
+          type: "Complaint Created",
+          title: "New Asset Complaint",
+          message:
+            employeeDoc.employeeName +
+            " has submitted a complaint for " +
+            (assetDoc.assetName || "an asset"),
+          asset: assetDoc._id,
+          isRead: false
+        });
+
 
         const populated = await savedComplaint.populate([
           {

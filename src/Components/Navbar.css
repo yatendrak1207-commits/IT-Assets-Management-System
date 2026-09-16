@@ -69,15 +69,7 @@
     box-sizing: border-box;
 }
 
-.navbar-center .users-icon {
-    font-size: 50px;
-    color: #5FFFD4;
-}
 
-.navbar-center .users-icon {
-    font-size: 50px;
-    color: #5FFFD4;
-}
 
 
 /* =========================
@@ -110,10 +102,6 @@
     transition: 0.3s;
 }
 
-.nav-icon:hover {
-    transform: scale(1.3);
-    color: #5FFFD4;
-}
 
 
 /* =========================

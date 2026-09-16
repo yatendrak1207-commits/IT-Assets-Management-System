@@ -40,11 +40,14 @@ function UserComplaints() {
         const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
         const userId = loggedInUser?.employeeId;
 
-        const assetResponse = await fetch("http://localhost:5000/api/assets", {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const assetResponse = await fetch(
+          "http://localhost:5000/api/assets/my",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        });
+        );
 
         const assetData = await assetResponse.json();
 

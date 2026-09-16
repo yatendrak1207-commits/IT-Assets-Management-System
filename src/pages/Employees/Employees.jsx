@@ -23,6 +23,7 @@ function Employees() {
   const [email, setEmail] = useState("");
   const [employeestatus, setemployeeStatus] = useState("");
   const [phoneno, setPhoneno] = useState("");
+  const [password, setPassword] = useState("");
 
   const [phoneCountry, setPhoneCountry] = useState({
     countryCode: "in",
@@ -197,8 +198,6 @@ function Employees() {
       // ================= CREATE =================
 
       const newEmployee = {
-        id: Date.now(),
-
         employeeName: empname,
 
         department: department,
@@ -206,6 +205,8 @@ function Employees() {
         email: email,
 
         phone: phoneno,
+
+        password: password,
 
         employeestatus: employeestatus,
       };
@@ -239,6 +240,7 @@ function Employees() {
           setEmail("");
           setPhoneno("");
           setemployeeStatus("");
+          setPassword("");
         })
         .catch(function (error) {
           console.log("Error creating employee:", error);
@@ -422,6 +424,8 @@ function Employees() {
 
                           setemployeeStatus(item.employeestatus);
 
+                          setPassword("");
+
                           setShowform(true);
                         }}
                       >
@@ -582,6 +586,20 @@ function Employees() {
                 }}
               />
             </div>
+            {!editingItem && (
+              <div className="form-field">
+                <label>Initial Password</label>
+
+                <input
+                  type="password"
+                  placeholder="Enter initial password"
+                  value={password}
+                  onChange={function (x) {
+                    setPassword(x.target.value);
+                  }}
+                />
+              </div>
+            )}
 
             <div className="form-field">
               <label>Phone No.</label>
@@ -648,6 +666,7 @@ function Employees() {
                   setEmail("");
                   setPhoneno("");
                   setemployeeStatus("");
+                  setPassword("");
                 }}
               >
                 Cancel

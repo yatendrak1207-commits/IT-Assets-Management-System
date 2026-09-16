@@ -173,7 +173,13 @@ function Login() {
               Login
             </button>
 
-            <button type="button" className="signin-btn">
+            <button
+              type="button"
+              className="signin-btn"
+              onClick={function () {
+                navigate("/signup");
+              }}
+            >
               Sign-in
             </button>
           </div>

@@ -11,6 +11,74 @@ const {
 } = require("../middleware/authMiddleware");
 
 
+// GET ADMIN NOTIFICATIONS
+router.get(
+    "/admin",
+    authMiddleware,
+    requireRole("admin"),
+    async function (req, res) {
+
+        try {
+
+            const notifications = await Notification.find({
+                employee: null
+            })
+                .populate("asset")
+                .sort({ createdAt: -1 });
+
+            res.json(notifications);
+
+        } catch (error) {
+
+            res.status(500).json({
+                message: "Failed to fetch admin notifications",
+                error: error
+            });
+
+        }
+    }
+);
+
+// DELETE ONE NOTIFICATION - ADMIN
+router.delete(
+    "/admin/:id",
+    authMiddleware,
+    requireRole("admin"),
+    async function (req, res) {
+
+        try {
+
+            const notification = await Notification.findOne({
+                _id: req.params.id,
+                employee: null
+            });
+
+            if (!notification) {
+                return res.status(404).json({
+                    message: "Notification not found"
+                });
+            }
+
+            await Notification.deleteOne({
+                _id: req.params.id,
+                employee: null
+            });
+
+            res.json({
+                message: "Notification deleted successfully"
+            });
+
+        } catch (error) {
+
+            res.status(500).json({
+                message: "Failed to delete notification",
+                error: error
+            });
+
+        }
+    }
+);
+
 // GET MY NOTIFICATIONS
 router.get(
     "/my",
@@ -131,6 +199,57 @@ router.put(
 
             res.status(500).json({
                 message: "Failed to mark notification as read",
+                error: error
+            });
+
+        }
+    }
+);
+
+
+// DELETE ONE NOTIFICATION
+router.delete(
+    "/:id",
+    authMiddleware,
+    requireRole("user"),
+    async function (req, res) {
+
+        try {
+
+            const employee = await Employee.findOne({
+                id: req.user.id
+            });
+
+            if (!employee) {
+                return res.status(404).json({
+                    message: "Employee not found"
+                });
+            }
+
+            const notification = await Notification.findOne({
+                _id: req.params.id,
+                employee: employee._id
+            });
+
+            if (!notification) {
+                return res.status(404).json({
+                    message: "Notification not found"
+                });
+            }
+
+            await Notification.deleteOne({
+                _id: req.params.id,
+                employee: employee._id
+            });
+
+            res.json({
+                message: "Notification deleted successfully"
+            });
+
+        } catch (error) {
+
+            res.status(500).json({
+                message: "Failed to delete notification",
                 error: error
             });
 

@@ -38,7 +38,6 @@
     display: flex;
     align-items: center;
     gap: 10px;
-
 }
 
 .navbar-center input:focus {
@@ -50,7 +49,6 @@
     align-items: center;
     justify-content: center;
     gap: 18px;
-
 }
 
 .navbar-right span {
@@ -80,7 +78,39 @@
     background-color: white;
     margin: 0 15px;
 }
-.navbar-center .users-icon {
-    font-size: 50px;
-    color: aquamarine;
+
+.navbar-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.notification-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -9px;
+    right: -9px;
+
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+
+    background-color: red;
+    color: white;
+
+    border-radius: 50%;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

@@ -415,32 +415,42 @@ router.post(
                     .populate("employee");
             
             // ===============================
-            // CREATE NOTIFICATION
-            // ===============================
+// CREATE ADMIN NOTIFICATION
+// ===============================
 
-            if (req.user.role === "user") {
+if (req.user.role === "user") {
 
-                const lastNotification =
-                    await Notification.findOne()
-                        .sort({ id: -1 });
+    const lastNotification =
+        await Notification.findOne()
+            .sort({ id: -1 });
 
-                const nextNotificationId =
-                    lastNotification
-                        ? lastNotification.id + 1
-                        : 1;
+    const nextNotificationId =
+        lastNotification
+            ? lastNotification.id + 1
+            : 1;
 
-                await Notification.create({
-                    id: nextNotificationId,
-                    employee: employeeDoc._id,
-                    type: "Repair Request Created",
-                    title: "Repair Request Created",
-                    message: `Your repair request for ${populatedRepair.asset?.assetName || "asset"} has been submitted.`,
-                    asset: populatedRepair.asset?._id || null,
-                    repair: populatedRepair._id,
-                    isRead: false
-                });
+    await Notification.create({
+        id: nextNotificationId,
 
-            }
+        // null = Admin notification
+        employee: null,
+
+        type: "Complaint Created",
+
+        title: "New Asset Complaint",
+
+        message:
+            `${employeeDoc.employeeName} has submitted a complaint for ${populatedRepair.asset?.assetName || "asset"}.`,
+
+        asset:
+            populatedRepair.asset?._id || null,
+
+        repair:
+            populatedRepair._id,
+
+        isRead: false
+    });
+}
 
 
             res.status(201).json(

@@ -10,7 +10,7 @@ const notificationSchema = new mongoose.Schema(
         employee: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Employee",
-            required: true
+            default: null
         },
 
         type: {
@@ -24,6 +24,8 @@ const notificationSchema = new mongoose.Schema(
                 "Repair Status Updated",
                 "Repair Completed",
                 "Repair Cancelled",
+                "Complaint Created",
+                "Complaint Created",
                 "System Notification"
             ],
             required: true

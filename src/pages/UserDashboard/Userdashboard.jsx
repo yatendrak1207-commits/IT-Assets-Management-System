@@ -14,7 +14,7 @@ function UserDashboard() {
 
     // ================= GET ASSETS =================
 
-    fetch("http://localhost:5000/api/assets", { headers })
+    fetch("http://localhost:5000/api/assets/my", { headers })
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Failed to fetch assets");
@@ -31,7 +31,7 @@ function UserDashboard() {
 
     // ================= GET REPAIRS =================
 
-    fetch("http://localhost:5000/api/repairs", { headers })
+    fetch("http://localhost:5000/api/repairs/my", { headers })
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Failed to fetch repairs");

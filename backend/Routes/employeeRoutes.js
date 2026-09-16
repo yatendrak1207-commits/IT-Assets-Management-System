@@ -41,7 +41,252 @@ router.get(
     }
 );
 
+// ================= USER SIGNUP =================
+// PUBLIC USER REGISTRATION
 
+router.post(
+    "/register",
+    async function (req, res) {
+
+        try {
+
+            const {
+                email,
+                password,
+                employeeName,
+                department,
+                phone
+            } = req.body;
+
+
+            // Required fields
+
+            if (
+                !email ||
+                !password ||
+                !employeeName ||
+                !department ||
+                !phone
+            ) {
+
+                return res.status(400).json({
+                    message: "All fields are required"
+                });
+
+            }
+
+
+            // Email
+
+            const emailLower =
+                email.trim().toLowerCase();
+
+
+            // Password
+
+            if (password.length < 6) {
+
+                return res.status(400).json({
+                    message:
+                        "Password must be at least 6 characters"
+                });
+
+            }
+
+
+            // Phone validation
+
+            const fullPhoneNumber =
+                phone.replace(/\s/g, "");
+
+
+            if (!isValidPhoneNumber(fullPhoneNumber)) {
+
+                return res.status(400).json({
+                    message:
+                        "Invalid phone number"
+                });
+
+            }
+
+
+            // Check duplicate email
+
+            const existingEmployee =
+                await Employee.findOne({
+                    email: emailLower
+                });
+
+
+            if (existingEmployee) {
+
+                return res.status(409).json({
+                    message:
+                        "An account with this email already exists"
+                });
+
+            }
+
+
+            // ================= AUTO INTERNAL ID =================
+
+            const lastEmployeeById =
+                await Employee.findOne()
+                    .sort({ id: -1 });
+
+
+            let nextId = 1;
+
+
+            if (
+                lastEmployeeById &&
+                typeof lastEmployeeById.id === "number"
+            ) {
+
+                nextId =
+                    lastEmployeeById.id + 1;
+
+            }
+
+
+            // ================= AUTO EMPLOYEE ID =================
+
+            const lastEmployee =
+                await Employee.findOne({
+                    employeeId: /^EMP\d+$/
+                }).sort({
+                    employeeId: -1
+                });
+
+
+            let nextNumber = 1;
+
+
+            if (
+                lastEmployee &&
+                lastEmployee.employeeId
+            ) {
+
+                const lastNumber =
+                    Number(
+                        lastEmployee.employeeId.replace(
+                            "EMP",
+                            ""
+                        )
+                    );
+
+
+                nextNumber =
+                    lastNumber + 1;
+
+            }
+
+
+            const employeeId =
+                "EMP" +
+                String(nextNumber).padStart(3, "0");
+
+
+            // ================= PASSWORD HASH =================
+
+            const hashedPassword =
+                await bcrypt.hash(
+                    password,
+                    10
+                );
+
+
+            // ================= CREATE USER =================
+
+            const newEmployee =
+                new Employee({
+
+                    id: nextId,
+
+                    employeeId: employeeId,
+
+                    employeeName:
+                        employeeName.trim(),
+
+                    department:
+                        department.trim(),
+
+                    phone:
+                        phone.trim(),
+
+                    email:
+                        emailLower,
+
+                    password:
+                        hashedPassword,
+
+                    employeestatus:
+                        "Active"
+
+                });
+
+
+            const employee =
+                await newEmployee.save();
+
+
+            // Password return nahi karna
+
+            res.status(201).json({
+
+                message:
+                    "User account created successfully",
+
+                employee: {
+
+                    id:
+                        employee.id,
+
+                    employeeId:
+                        employee.employeeId,
+
+                    employeeName:
+                        employee.employeeName,
+
+                    department:
+                        employee.department,
+
+                    phone:
+                        employee.phone,
+
+                    email:
+                        employee.email,
+
+                    employeestatus:
+                        employee.employeestatus
+
+                }
+
+            });
+
+
+        } catch (error) {
+
+            console.log(
+                "USER REGISTER ERROR:",
+                error
+            );
+
+
+            res.status(500).json({
+
+                message:
+                    "Failed to create user account",
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
 // ================= GET SINGLE EMPLOYEE =================
 // ADMIN CAN ACCESS ANY EMPLOYEE
 // EMPLOYEE CAN ACCESS ONLY HIS OWN PROFILE
@@ -110,6 +355,7 @@ router.get(
 // ================= POST =================
 // ONLY ADMIN
 
+
 router.post(
     "/",
     authMiddleware,
@@ -119,7 +365,6 @@ router.post(
         try {
 
             const {
-                id,
                 employeeName,
                 department,
                 phone,
@@ -132,7 +377,6 @@ router.post(
             // Required fields
 
             if (
-                id === undefined ||
                 !employeeName ||
                 !department ||
                 !phone ||
@@ -143,17 +387,6 @@ router.post(
 
                 return res.status(400).json({
                     message: "All fields are required"
-                });
-
-            }
-
-
-            // Internal ID validation
-
-            if (typeof id !== "number") {
-
-                return res.status(400).json({
-                    message: "ID must be a number"
                 });
 
             }
@@ -174,26 +407,32 @@ router.post(
             }
 
 
-            // Duplicate internal ID
+            // ================= AUTO INTERNAL ID =================
 
-            const existingId = await Employee.findOne({
-                id: id
-            });
+            const lastEmployeeById =
+                await Employee.findOne()
+                    .sort({ id: -1 });
 
-            if (existingId) {
 
-                return res.status(409).json({
-                    message: "Internal ID already exists"
-                });
+            let nextId = 1;
+
+            if (
+                lastEmployeeById &&
+                typeof lastEmployeeById.id === "number"
+            ) {
+
+                nextId =
+                    lastEmployeeById.id + 1;
 
             }
 
 
-            // Duplicate email
+            // ================= DUPLICATE EMAIL =================
 
-            const existingEmail = await Employee.findOne({
-                email: email.toLowerCase()
-            });
+            const existingEmail =
+                await Employee.findOne({
+                    email: email.toLowerCase()
+                });
 
             if (existingEmail) {
 
@@ -207,55 +446,69 @@ router.post(
 
             // ================= AUTO EMPLOYEE ID =================
 
-            const lastEmployee = await Employee.findOne({
-                employeeId: /^EMP\d+$/
-            }).sort({
-                employeeId: -1
-            });
+            const lastEmployee =
+                await Employee.findOne({
+                    employeeId: /^EMP\d+$/
+                }).sort({
+                    employeeId: -1
+                });
 
 
             let nextNumber = 1;
 
             if (lastEmployee) {
 
-                const lastNumber = Number(
-                    lastEmployee.employeeId.replace("EMP", "")
-                );
+                const lastNumber =
+                    Number(
+                        lastEmployee.employeeId.replace(
+                            "EMP",
+                            ""
+                        )
+                    );
 
-                nextNumber = lastNumber + 1;
+                nextNumber =
+                    lastNumber + 1;
 
             }
 
 
             const employeeId =
-                "EMP" + String(nextNumber).padStart(3, "0");
+                "EMP" +
+                String(nextNumber).padStart(3, "0");
 
 
-            // ================= CREATE =================
+            // ================= PASSWORD HASH =================
 
             const hashedPassword =
-                await bcrypt.hash(password, 10);
+                await bcrypt.hash(
+                    password,
+                    10
+                );
 
 
-            const newEmployee = new Employee({
+            // ================= CREATE EMPLOYEE =================
 
-                id: id,
+            const newEmployee =
+                new Employee({
 
-                employeeId: employeeId,
+                    id: nextId,
 
-                employeeName: employeeName,
+                    employeeId: employeeId,
 
-                department: department,
+                    employeeName: employeeName,
 
-                phone: phone,
+                    department: department,
 
-                email: email.toLowerCase(),
+                    phone: phone,
 
-                password: hashedPassword,
+                    email: email.toLowerCase(),
 
-                employeestatus: employeestatus
+                    password: hashedPassword,
 
-            });
+                    employeestatus:
+                        employeestatus
+
+                });
 
 
             const employee =
@@ -268,15 +521,20 @@ router.post(
 
                 id: employee.id,
 
-                employeeId: employee.employeeId,
+                employeeId:
+                    employee.employeeId,
 
-                employeeName: employee.employeeName,
+                employeeName:
+                    employee.employeeName,
 
-                department: employee.department,
+                department:
+                    employee.department,
 
-                phone: employee.phone,
+                phone:
+                    employee.phone,
 
-                email: employee.email,
+                email:
+                    employee.email,
 
                 employeestatus:
                     employee.employeestatus
@@ -284,7 +542,10 @@ router.post(
             };
 
 
-            res.status(201).json(employeeResponse);
+            res.status(201).json(
+                employeeResponse
+            );
+
 
         } catch (error) {
 
@@ -306,7 +567,7 @@ router.post(
         }
 
     }
-);
+);;
 
 
 // ================= PUT =================
@@ -474,13 +735,16 @@ router.put(
 
         } catch (error) {
 
+            console.log("UPDATE EMPLOYEE ERROR:", error);
+
+
             res.status(500).json({
 
                 message:
                     "Failed to update employee",
 
                 error:
-                    error
+                    error.message
 
             });
 

@@ -122,7 +122,139 @@ router.post("/login", function (req, res) {
 
 });
 
+// ================= ADMIN SIGNUP =================
 
+router.post("/register", function (req, res) {
+
+    const {
+        name,
+        email,
+        phone,
+        department,
+        designation,
+        password,
+        adminKey
+    } = req.body;
+
+    if (
+        !name ||
+        !email ||
+        !phone ||
+        !department ||
+        !password ||
+        !adminKey
+    ) {
+        return res.status(400).json({
+            message: "All required fields are required"
+        });
+    }
+
+    if (adminKey !== process.env.ADMIN_SIGNUP_KEY) {
+        return res.status(403).json({
+            message: "Invalid Admin Secret Key"
+        });
+    }
+
+    Admin.findOne({
+        email: email.toLowerCase()
+    })
+        .then(function (existingAdmin) {
+
+            if (existingAdmin) {
+                return res.status(409).json({
+                    message: "Admin with this email already exists"
+                });
+            }
+
+            return Admin.findOne({
+                adminId: /^ADM\d+$/
+            }).sort({
+                adminId: -1
+            });
+
+        })
+        .then(function (lastAdmin) {
+
+            let nextNumber = 1;
+
+            if (lastAdmin && lastAdmin.adminId) {
+
+                const lastNumber = parseInt(
+                    lastAdmin.adminId.replace("ADM", ""),
+                    10
+                );
+
+                nextNumber = lastNumber + 1;
+            }
+
+            const adminId =
+                "ADM" + String(nextNumber).padStart(3, "0");
+
+            return bcrypt.hash(password, 10)
+                .then(function (hashedPassword) {
+
+                    const newAdmin = new Admin({
+
+                        id: Date.now(),
+
+                        adminId: adminId,
+
+                        name: name.trim(),
+
+                        email: email.toLowerCase(),
+
+                        phone: phone.trim(),
+
+                        department: department.trim(),
+
+                        designation: designation || "",
+
+                        password: hashedPassword,
+
+                        role: "admin",
+
+                        status: "Active"
+
+                    });
+
+                    return newAdmin.save();
+
+                });
+
+        })
+        .then(function (savedAdmin) {
+
+            res.status(201).json({
+
+                message: "Admin account created successfully",
+
+                admin: {
+                    id: savedAdmin.id,
+                    adminId: savedAdmin.adminId,
+                    name: savedAdmin.name,
+                    email: savedAdmin.email,
+                    phone: savedAdmin.phone,
+                    department: savedAdmin.department,
+                    designation: savedAdmin.designation,
+                    role: savedAdmin.role,
+                    status: savedAdmin.status
+                }
+
+            });
+
+        })
+        .catch(function (error) {
+
+            console.log("Admin signup error:", error);
+
+            res.status(500).json({
+                message: "Admin signup failed",
+                error: error
+            });
+
+        });
+
+});
 // =================================================
 // ALL ROUTES BELOW THIS LINE ARE PROTECTED
 // ONLY ADMIN CAN ACCESS

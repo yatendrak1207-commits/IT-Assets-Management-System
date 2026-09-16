@@ -1,8 +1,10 @@
 import "./UserNavbar.css";
 import { FaBell } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
-import { FaUsers } from "react-icons/fa";
+
+import { FaClock } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import logo from "../../assets/it-logoo.png";
 import React, { useEffect, useState } from "react";
 
 function UserNavbar() {
@@ -13,6 +15,15 @@ function UserNavbar() {
   const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
 
   const userName = loggedInUser?.employeeName || "User";
+  // Current date and time
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   // ==========================================
   // GET UNREAD NOTIFICATION COUNT
@@ -52,7 +63,7 @@ function UserNavbar() {
 
       <div className="navbar-center">
         <h1>
-          <FaUsers className="users-icon" />
+          <img src={logo} className="navbar-logo" />
           IT Assets Management System
         </h1>
       </div>
@@ -64,6 +75,7 @@ function UserNavbar() {
           <FaBell
             className="nav-icon"
             onClick={function () {
+              setNotificationCount(0);
               navigate("/user/notifications");
             }}
           />
@@ -91,6 +103,31 @@ function UserNavbar() {
         >
           User
         </span>
+        <div className="divider"></div>
+
+        {/* Current Date & Time */}
+        <div className="navbar-datetime">
+          <FaClock className="datetime-icon" />
+
+          <div className="datetime-text">
+            <div className="current-time">
+              {currentDateTime.toLocaleTimeString("en-IN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true,
+              })}
+            </div>
+
+            <div className="current-date">
+              {currentDateTime.toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

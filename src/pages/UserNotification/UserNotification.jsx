@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./UserNotification.css";
 import { MdNotificationsActive } from "react-icons/md";
+import { FaTimes } from "react-icons/fa";
 
 function UserNotifications() {
   const [notifications, setNotifications] = useState([]);
@@ -106,6 +107,34 @@ function UserNotifications() {
       console.log(error);
     }
   }
+  async function deleteNotification(notificationId) {
+    const token = sessionStorage.getItem("token");
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/notifications/${notificationId}`,
+        {
+          method: "DELETE",
+
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete notification");
+      }
+
+      setNotifications(function (oldNotifications) {
+        return oldNotifications.filter(function (item) {
+          return item._id !== notificationId;
+        });
+      });
+    } catch (error) {
+      console.log("Delete notification error:", error);
+    }
+  }
 
   return (
     <div className="user-notifications">
@@ -147,6 +176,16 @@ function UserNotifications() {
                   }
                 }}
               >
+                <button
+                  className="delete-notification-btn"
+                  onClick={function (event) {
+                    event.stopPropagation();
+                    deleteNotification(item._id);
+                  }}
+                >
+                  <FaTimes />
+                </button>
+
                 <h3>{item.title}</h3>
 
                 <p>{item.message}</p>

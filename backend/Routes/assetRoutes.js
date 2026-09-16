@@ -74,7 +74,7 @@ router.get(
         try {
 
             const employee = await Employee.findOne({
-                id: req.user.id
+                id: Number(req.user.id)
             });
 
             if (!employee) {
@@ -87,21 +87,26 @@ router.get(
 
             const assets = await Asset.find({
                 assignedTo: employee._id
-            }).populate(
-                "assignedTo",
-                "employeeName employeeId email department"
-            );
+            })
+                .populate(
+                    "assignedTo",
+                    "employeeName employeeId email department"
+                );
+
+            console.log("LOGGED IN EMPLOYEE:", employee.employeeId);
+            console.log("MY ASSETS:", assets);
 
             res.json(assets);
 
         } catch (error) {
 
-            console.log(error);
+            console.log("MY ASSETS ERROR:", error);
 
             res.status(500).json({
                 message: "Failed to fetch my assets",
                 error: error.message
             });
+
         }
     }
 );

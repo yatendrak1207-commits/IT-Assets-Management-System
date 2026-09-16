@@ -1,28 +1,15 @@
 import React, { useState, useEffect } from "react";
 import "./Navbar.css";
-import { FaBell, FaUser, FaUsers, FaClock } from "react-icons/fa";
+import { FaBell, FaUser, FaClock } from "react-icons/fa";
+import logo from "./../assets/it-logoo.png";
 
 function Navbar() {
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      text: "💻 New laptop (Dell XPS) has been added to the inventory.",
-    },
-    {
-      id: 2,
-      text: "⚠️ Warning: 3 keyboards are running low in stock.",
-    },
-    {
-      id: 3,
-      text: "🔧 Rahul Kumar has submitted a mouse replacement request.",
-    },
-  ]);
+  const [notifications, setNotifications] = useState([]);
 
-  const [hasNew, setHasNew] = useState(true);
+  const [hasNew, setHasNew] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [adminName, setAdminName] = useState("Admin");
 
-  // Current date and time
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
   useEffect(() => {
@@ -53,18 +40,75 @@ function Navbar() {
       });
   }, []);
 
+  useEffect(function () {
+    const token = sessionStorage.getItem("token");
+
+    function fetchAdminNotifications() {
+      fetch("http://localhost:5000/api/notifications/admin", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (data) {
+          console.log("ADMIN NOTIFICATIONS", data);
+
+          setNotifications(data);
+
+          if (data.length > 0) {
+            setHasNew(true);
+          } else {
+            setHasNew(false);
+          }
+        })
+        .catch(function (error) {
+          console.log("Failed to fetch admin notifications:", error);
+        });
+    }
+
+    // Fetch immediately on mount
+    fetchAdminNotifications();
+
+    // Then keep polling every 10 seconds so new complaints show up
+    // without the admin having to refresh the page
+    const intervalId = setInterval(fetchAdminNotifications, 10000);
+
+    return function () {
+      clearInterval(intervalId);
+    };
+  }, []);
+
   const handleBellClick = () => {
     setIsOpen(true);
     setHasNew(false);
   };
 
   const deleteNotification = (id) => {
-    const updatedList = notifications.filter((item) => item.id !== id);
-    setNotifications(updatedList);
+    const token = sessionStorage.getItem("token");
 
-    if (updatedList.length === 0) {
-      setIsOpen(false);
-    }
+    fetch(`http://localhost:5000/api/notifications/admin/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function () {
+        const updatedList = notifications.filter((item) => item._id !== id);
+
+        setNotifications(updatedList);
+
+        if (updatedList.length === 0) {
+          setIsOpen(false);
+        }
+      })
+      .catch(function (error) {
+        console.log("Failed to delete notification:", error);
+      });
   };
 
   return (
@@ -76,13 +120,12 @@ function Navbar() {
 
         <div className="navbar-center">
           <h1>
-            <FaUsers className="users-icon" />
+            <img src={logo} className="navbar-logo" />
             IT Assets Management System
           </h1>
         </div>
 
         <div className="navbar-right">
-          {/* Notification */}
           <div className="bell-container" onClick={handleBellClick}>
             <FaBell className="nav-icon" />
 
@@ -97,7 +140,6 @@ function Navbar() {
 
           <div className="divider"></div>
 
-          {/* Current Date & Time */}
           <div className="navbar-datetime">
             <FaClock className="datetime-icon" />
 
@@ -123,7 +165,6 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Notification Modal */}
       {isOpen && (
         <div className="modal-overlay">
           <div className="modal-box">
@@ -140,12 +181,12 @@ function Navbar() {
                 <p className="no-notif">No new notifications available.</p>
               ) : (
                 notifications.map((notif) => (
-                  <div key={notif.id} className="notif-item">
-                    <p className="notif-text">{notif.text}</p>
+                  <div key={notif._id} className="notif-item">
+                    <p className="notif-text">{notif.message}</p>
 
                     <button
                       className="read-delete-btn"
-                      onClick={() => deleteNotification(notif.id)}
+                      onClick={() => deleteNotification(notif._id)}
                     >
                       Dismiss
                     </button>

@@ -24,6 +24,7 @@ import UserProfile from "./pages/UserProfile/UserProfile";
 import Login from "./pages/LOGIN/Login";
 import UserSettings from "./pages/UserSetting/UserSetting";
 import ProtectedRoute from "./pages/LOGIN/ProtectedRoutes";
+import Signup from "./pages/LOGIN/Signup";
 
 function App() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "day");
@@ -42,6 +43,7 @@ function App() {
       <Routes>
         {/* Login */}
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
         {/* Admin */}
         <Route

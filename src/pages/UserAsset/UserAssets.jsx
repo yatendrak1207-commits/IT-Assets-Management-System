@@ -16,7 +16,7 @@ function MyAssets() {
         try {
           const token = sessionStorage.getItem("token");
 
-          const response = await fetch("http://localhost:5000/api/assets", {
+          const response = await fetch("http://localhost:5000/api/assets/my", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
