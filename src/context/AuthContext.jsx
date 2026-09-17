@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
@@ -44,6 +44,27 @@ export function AuthProvider({ children }) {
     setUser(null);
     localStorage.removeItem("user");
   };
+
+  useEffect(() => {
+    const minutes = Number(sessionStorage.getItem("autoLogoutMinutes"));
+    if (!minutes) return;
+
+    let timer = setTimeout(logout, minutes * 60 * 1000);
+
+    const resetTimer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(logout, minutes * 60 * 1000);
+    };
+
+    window.addEventListener("mousemove", resetTimer);
+    window.addEventListener("keydown", resetTimer);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("mousemove", resetTimer);
+      window.removeEventListener("keydown", resetTimer);
+    };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>

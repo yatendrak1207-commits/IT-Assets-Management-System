@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./UserSetting.css";
 import { IoSettings } from "react-icons/io5";
 
-function UserSettings() {
+function UserSettings({ theme, setTheme }) {
   const [openSection, setOpenSection] = useState(null);
 
   const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
@@ -21,10 +21,6 @@ function UserSettings() {
 
   const [assetNotification, setAssetNotification] = useState(
     localStorage.getItem("userAssetNotification") === "true",
-  );
-
-  const [theme, setTheme] = useState(
-    localStorage.getItem("userTheme") || "day",
   );
 
   const [items, setItems] = useState(
@@ -309,10 +305,11 @@ function UserSettings() {
               value={theme}
               onChange={function (item) {
                 setTheme(item.target.value);
+                localStorage.setItem("userTheme", item.target.value);
               }}
             >
               <option value="day">Day</option>
-              <option value="evening">Evening</option>
+
               <option value="night">Night</option>
             </select>
           </div>

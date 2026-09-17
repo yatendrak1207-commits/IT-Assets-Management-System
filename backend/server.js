@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dns = require("dns");
 const cors = require("cors");
+const path = require("path");
 
 const assetRoutes = require("./Routes/assetRoutes");
 const repairRoutes = require("./Routes/repairRoutes");
@@ -11,11 +12,9 @@ const adminRoutes = require("./Routes/adminRoutes");
 const employeeRoutes = require("./Routes/employeeRoutes");
 const notificationRoutes = require("./Routes/notificationRoutes");
 
-
 dns.setServers(["8.8.8.8"]);
 
 require("dotenv").config();
-
 
 mongoose.connect(process.env.MONGO_URI)
     .then(function () {
@@ -29,15 +28,23 @@ mongoose.connect(process.env.MONGO_URI)
 
     });
 
-
 const app = express();
 
 const PORT = 5000;
 
-
 app.use(cors());
 
 app.use(express.json());
+
+
+// ================= PROFILE IMAGE FOLDER =================
+
+app.use(
+    "/uploads",
+    express.static(
+        path.join(__dirname, "uploads")
+    )
+);
 
 
 // ================= ROUTES =================

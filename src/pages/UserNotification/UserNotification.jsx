@@ -7,35 +7,31 @@ function UserNotifications() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deleteNotificationItem, setDeleteNotificationItem] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(function () {
     const token = sessionStorage.getItem("token");
 
     fetch("http://localhost:5000/api/notifications/my", {
       cache: "no-store",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then(function (response) {
         return response.json().then(function (data) {
           if (!response.ok) {
             throw new Error(data.message || "Failed to fetch notifications");
           }
-
           return data;
         });
       })
       .then(function (data) {
         setNotifications(Array.isArray(data) ? data : []);
-
         setLoading(false);
       })
       .catch(function (error) {
         console.log("Error fetching notifications:", error);
-
         setError("Failed to load notifications");
-
         setLoading(false);
       });
   }, []);
@@ -48,10 +44,7 @@ function UserNotifications() {
         `http://localhost:5000/api/notifications/${notificationId}/read`,
         {
           method: "PUT",
-
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
 
@@ -62,12 +55,8 @@ function UserNotifications() {
       setNotifications(function (oldNotifications) {
         return oldNotifications.map(function (item) {
           if (item._id === notificationId) {
-            return {
-              ...item,
-              isRead: true,
-            };
+            return { ...item, isRead: true };
           }
-
           return item;
         });
       });
@@ -84,10 +73,7 @@ function UserNotifications() {
         "http://localhost:5000/api/notifications/read-all",
         {
           method: "PUT",
-
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
 
@@ -97,16 +83,14 @@ function UserNotifications() {
 
       setNotifications(function (oldNotifications) {
         return oldNotifications.map(function (item) {
-          return {
-            ...item,
-            isRead: true,
-          };
+          return { ...item, isRead: true };
         });
       });
     } catch (error) {
       console.log(error);
     }
   }
+
   async function deleteNotification(notificationId) {
     const token = sessionStorage.getItem("token");
 
@@ -115,10 +99,7 @@ function UserNotifications() {
         `http://localhost:5000/api/notifications/${notificationId}`,
         {
           method: "DELETE",
-
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         },
       );
 
@@ -131,8 +112,16 @@ function UserNotifications() {
           return item._id !== notificationId;
         });
       });
+
+      setDeleteNotificationItem(null);
+      setSuccessMessage("Notification deleted successfully");
+
+      setTimeout(function () {
+        setSuccessMessage("");
+      }, 2500);
     } catch (error) {
       console.log("Delete notification error:", error);
+      setDeleteNotificationItem(null);
     }
   }
 
@@ -180,14 +169,13 @@ function UserNotifications() {
                   className="delete-notification-btn"
                   onClick={function (event) {
                     event.stopPropagation();
-                    deleteNotification(item._id);
+                    setDeleteNotificationItem(item);
                   }}
                 >
                   <FaTimes />
                 </button>
 
                 <h3>{item.title}</h3>
-
                 <p>{item.message}</p>
 
                 <small>
@@ -200,6 +188,44 @@ function UserNotifications() {
           })
         )}
       </div>
+
+      {deleteNotificationItem && (
+        <div className="notification-delete-overlay">
+          <div className="notification-delete-confirm-box">
+            <h2>Confirm Delete</h2>
+            <p>Are you sure you want to delete this notification?</p>
+
+            <div className="notification-delete-confirm-buttons">
+              <button
+                className="notification-delete-cancel-btn"
+                onClick={function () {
+                  setDeleteNotificationItem(null);
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="notification-delete-confirm-btn"
+                onClick={function () {
+                  deleteNotification(deleteNotificationItem._id);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="notification-success-overlay">
+          <div className="notification-success-popup">
+            <div className="notification-success-icon">✓</div>
+            <p>{successMessage}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

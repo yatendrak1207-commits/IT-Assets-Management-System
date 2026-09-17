@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Navbar.css";
-import { FaBell, FaUser, FaClock } from "react-icons/fa";
+import { FaBell, FaUser, FaClock, FaTimes } from "react-icons/fa";
 import logo from "./../assets/it-logoo.png";
 
 function Navbar() {
@@ -187,8 +187,9 @@ function Navbar() {
                     <button
                       className="read-delete-btn"
                       onClick={() => deleteNotification(notif._id)}
+                      title="Delete notification"
                     >
-                      Dismiss
+                      <FaTimes />
                     </button>
                   </div>
                 ))

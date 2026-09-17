@@ -52,54 +52,100 @@ router.post("/login", function (req, res) {
             }
 
 
+            if (admin.lockUntil && admin.lockUntil > Date.now()) {
+
+                const minutesLeft = Math.ceil(
+                    (admin.lockUntil - Date.now()) / 60000
+                );
+
+                return res.status(403).json({
+                    message:
+                        "Account locked due to too many failed attempts. Try after "
+                        + minutesLeft + " min"
+                });
+
+            }
+
+
             return bcrypt.compare(password, admin.password)
                 .then(function (isPasswordCorrect) {
 
                     if (!isPasswordCorrect) {
 
-                        return res.status(401).json({
-                            message: "Password is incorrect"
+                        admin.failedLoginAttempts =
+                            (admin.failedLoginAttempts || 0) + 1;
+
+                        if (admin.failedLoginAttempts >= 5) {
+
+                            admin.lockUntil =
+                                Date.now() + 15 * 60 * 1000;
+
+                            admin.failedLoginAttempts = 0;
+
+                            return admin.save().then(function () {
+
+                                return res.status(403).json({
+                                    message:
+                                        "Too many failed attempts. Account locked for 15 minutes"
+                                });
+
+                            });
+
+                        }
+
+                        return admin.save().then(function () {
+
+                            return res.status(401).json({
+                                message: "Password is incorrect"
+                            });
+
                         });
 
                     }
 
 
-                    const token = jwt.sign(
-                        {
-                            id: admin.id,
-                            adminId: admin.adminId,
-                            role: admin.role
-                        },
-                        process.env.JWT_SECRET,
-                        {
-                            expiresIn: "1d"
-                        }
-                    );
+                    admin.failedLoginAttempts = 0;
+                    admin.lockUntil = null;
 
+                    return admin.save().then(function () {
 
-                    res.json({
+                        const token = jwt.sign(
+                            {
+                                id: admin.id,
+                                adminId: admin.adminId,
+                                role: admin.role
+                            },
+                            process.env.JWT_SECRET,
+                            {
+                                expiresIn: "1d"
+                            }
+                        );
 
-                        message: "Login successful",
+                        res.json({
 
-                        token: token,
+                            message: "Login successful",
 
-                        admin: {
+                            token: token,
 
-                            id: admin.id,
+                            admin: {
 
-                            adminId: admin.adminId,
+                                id: admin.id,
 
-                            name: admin.name,
+                                adminId: admin.adminId,
 
-                            email: admin.email,
+                                name: admin.name,
 
-                            phone: admin.phone,
+                                email: admin.email,
 
-                            role: admin.role,
+                                phone: admin.phone,
 
-                            status: admin.status
+                                role: admin.role,
 
-                        }
+                                status: admin.status
+
+                            }
+
+                        });
 
                     });
 
@@ -121,7 +167,6 @@ router.post("/login", function (req, res) {
         });
 
 });
-
 // ================= ADMIN SIGNUP =================
 
 router.post("/register", function (req, res) {
@@ -819,6 +864,79 @@ router.delete("/:id",
         });
 
 });
+// ================= CHANGE PASSWORD (verifies current password) =================
+
+router.put("/:id/change-password", function (req, res) {
+
+    const {
+        currentPassword,
+        newPassword
+    } = req.body;
+
+    if (!currentPassword || !newPassword) {
+
+        return res.status(400).json({
+            message: "Current password and new password are required"
+        });
+
+    }
+
+    Admin.findOne({
+        id: Number(req.params.id)
+    })
+        .then(function (admin) {
+
+            if (!admin) {
+
+                return res.status(404).json({
+                    message: "Admin not found"
+                });
+
+            }
+
+            return bcrypt.compare(currentPassword, admin.password)
+                .then(function (isMatch) {
+
+                    if (!isMatch) {
+
+                        return res.status(401).json({
+                            message: "Current password is incorrect"
+                        });
+
+                    }
+
+                    return bcrypt.hash(newPassword, 10)
+                        .then(function (hashedPassword) {
+
+                            admin.password = hashedPassword;
+
+                            return admin.save();
+
+                        })
+                        .then(function () {
+
+                            res.json({
+                                message: "Password changed successfully"
+                            });
+
+                        });
+
+                });
+
+        })
+        .catch(function (error) {
+
+            console.log("Change password error:", error);
+
+            res.status(500).json({
+                message: "Failed to change password",
+                error: error
+            });
+
+        });
+
+});
+
 
 
 module.exports = router;

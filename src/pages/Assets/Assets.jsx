@@ -10,6 +10,8 @@ function Assets() {
   const [selecteditem, setSelectedItem] = useState(null);
   const [asset, setAsset] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [deleteAsset, setDeleteAsset] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [showform, setShowform] = useState(false);
   const [assetname, setAssetname] = useState("");
@@ -298,6 +300,10 @@ function Assets() {
           });
 
           resetForm();
+          setSuccessMessage("Asset details successfully updated");
+          setTimeout(function () {
+            setSuccessMessage("");
+          }, 2500);
         })
         .catch(function (error) {
           console.log("Error updating asset:", error);
@@ -425,28 +431,7 @@ function Assets() {
                       <button
                         className="delete-btn"
                         onClick={function () {
-                          fetch("http://localhost:5000/api/assets/" + item.id, {
-                            method: "DELETE",
-                          })
-                            .then(function (response) {
-                              if (!response.ok) {
-                                throw new Error("Failed to delete asset");
-                              }
-
-                              return response.json();
-                            })
-                            .then(function () {
-                              setAsset(function (currentAssets) {
-                                return currentAssets.filter(
-                                  function (assetItem) {
-                                    return assetItem.id !== item.id;
-                                  },
-                                );
-                              });
-                            })
-                            .catch(function (error) {
-                              console.log("Error deleting asset:", error);
-                            });
+                          setDeleteAsset(item);
                         }}
                       >
                         Delete
@@ -661,6 +646,75 @@ function Assets() {
                 {editingItem ? "Update Details" : "Add Asset"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {deleteAsset && (
+        <div className="delete-overlay">
+          <div className="delete-confirm-box">
+            <h2>Confirm Delete</h2>
+            <p>
+              Are you sure you want to delete{" "}
+              <strong>{deleteAsset.assetName}</strong>?
+            </p>
+
+            <div className="delete-confirm-buttons">
+              <button
+                className="delete-cancel-btn"
+                onClick={function () {
+                  setDeleteAsset(null);
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="delete-confirm-btn"
+                onClick={function () {
+                  fetch("http://localhost:5000/api/assets/" + deleteAsset.id, {
+                    method: "DELETE",
+                  })
+                    .then(function (response) {
+                      if (!response.ok) {
+                        throw new Error("Failed to delete asset");
+                      }
+
+                      return response.json();
+                    })
+                    .then(function () {
+                      setAsset(function (currentAssets) {
+                        return currentAssets.filter(function (assetItem) {
+                          return assetItem.id !== deleteAsset.id;
+                        });
+                      });
+
+                      setDeleteAsset(null);
+                      setSuccessMessage("Asset deleted successfully");
+
+                      setTimeout(function () {
+                        setSuccessMessage("");
+                      }, 2500);
+                    })
+                    .catch(function (error) {
+                      console.log("Error deleting asset:", error);
+                      setDeleteAsset(null);
+                      alert(error.message);
+                    });
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="success-overlay">
+          <div className="success-popup">
+            <div className="success-icon">✓</div>
+            <p>{successMessage}</p>
           </div>
         </div>
       )}

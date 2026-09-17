@@ -34,6 +34,8 @@ export default function Repair() {
   const [repairdate, setRepairdate] = useState("");
 
   const [status, setStatus] = useState("Pending");
+  const [deleteRepair, setDeleteRepair] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const token = sessionStorage.getItem("token");
 
@@ -222,6 +224,11 @@ export default function Repair() {
 
         resetForm();
 
+        setSuccessMessage("Repair details successfully updated");
+        setTimeout(function () {
+          setSuccessMessage("");
+        }, 2500);
+
         return;
       }
 
@@ -264,14 +271,6 @@ export default function Repair() {
   }
 
   async function handleDelete(item) {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this repair?",
-    );
-
-    if (!confirmDelete) {
-      return;
-    }
-
     try {
       const response = await fetch(
         "http://localhost:5000/api/repairs/" + item.id,
@@ -297,9 +296,17 @@ export default function Repair() {
       });
 
       setSelectedItem(null);
+      setDeleteRepair(null);
+
+      setSuccessMessage("Repair deleted successfully");
+
+      setTimeout(function () {
+        setSuccessMessage("");
+      }, 2500);
     } catch (error) {
       console.log("Error deleting repair:", error);
 
+      setDeleteRepair(null);
       alert(error.message);
     }
   }
@@ -431,7 +438,7 @@ export default function Repair() {
                       <button
                         className="delete-btn"
                         onClick={function () {
-                          handleDelete(item);
+                          setDeleteRepair(item);
                         }}
                       >
                         Delete
@@ -630,6 +637,44 @@ export default function Repair() {
                 {editingItem ? "Update details" : "Add Repair"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {deleteRepair && (
+        <div className="delete-overlay">
+          <div className="delete-confirm-box">
+            <h2>Confirm Delete</h2>
+            <p>Are you sure you want to delete this repair?</p>
+
+            <div className="delete-confirm-buttons">
+              <button
+                className="delete-cancel-btn"
+                onClick={function () {
+                  setDeleteRepair(null);
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="delete-confirm-btn"
+                onClick={function () {
+                  handleDelete(deleteRepair);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="success-overlay">
+          <div className="success-popup">
+            <div className="success-icon">✓</div>
+            <p>{successMessage}</p>
           </div>
         </div>
       )}

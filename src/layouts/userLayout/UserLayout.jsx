@@ -5,12 +5,12 @@ import { Outlet } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function UserLayout() {
+function UserLayout({ activeTheme }) {
   const [showlogout, setShowlogout] = useState(false);
   const navigate = useNavigate();
 
   return (
-    <div className="user-shell">
+    <div className={`user-shell ${activeTheme}`}>
       <UserNavbar />
 
       <div className="layout">

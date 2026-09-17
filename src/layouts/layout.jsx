@@ -5,12 +5,12 @@ import { useState } from "react";
 import Navbar from "../Components/Navbar";
 import { useNavigate } from "react-router-dom";
 
-function Layout() {
+function Layout({ className }) {
   const [showlogout, setShowlogout] = useState(false);
   const navigate = useNavigate();
 
   return (
-    <div className="admin-shell">
+    <div className={`admin-shell ${className || ""}`}>
       <Navbar />
 
       <div className="layout">

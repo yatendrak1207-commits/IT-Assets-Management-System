@@ -17,6 +17,8 @@ function Employees() {
   const [employee, setEmployee] = useState([]);
   const [assets, setAssets] = useState([]);
   const [showform, setShowform] = useState(false);
+  const [deleteEmployee, setDeleteEmployee] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [empname, setempName] = useState("");
   const [department, setDepartment] = useState("");
@@ -188,6 +190,11 @@ function Employees() {
           setEmail("");
           setPhoneno("");
           setemployeeStatus("");
+          setSuccessMessage("Employee details successfully updated");
+
+          setTimeout(function () {
+            setSuccessMessage("");
+          }, 2500);
         })
         .catch(function (error) {
           console.log("Error updating employee:", error);
@@ -347,61 +354,7 @@ function Employees() {
                       <button
                         className="delete-btn"
                         onClick={function () {
-                          fetch(
-                            "http://localhost:5000/api/employees/" + item.id,
-                            {
-                              method: "DELETE",
-
-                              headers: getAuthHeaders(),
-                            },
-                          )
-                            .then(function (response) {
-                              if (!response.ok) {
-                                return response
-                                  .json()
-                                  .then(function (errorData) {
-                                    throw new Error(errorData.message);
-                                  });
-                              }
-
-                              return response.json();
-                            })
-                            .then(function () {
-                              setEmployee(function (currentEmployees) {
-                                return currentEmployees.filter(
-                                  function (employeeItem) {
-                                    return employeeItem.id !== item.id;
-                                  },
-                                );
-                              });
-
-                              setAssets(function (currentAssets) {
-                                return currentAssets.map(function (assetItem) {
-                                  if (
-                                    assetItem.assignedTo &&
-                                    assetItem.assignedTo._id === item._id
-                                  ) {
-                                    return {
-                                      ...assetItem,
-
-                                      assignedTo: null,
-
-                                      status:
-                                        assetItem.status === "Assigned"
-                                          ? "Available"
-                                          : assetItem.status,
-                                    };
-                                  }
-
-                                  return assetItem;
-                                });
-                              });
-                            })
-                            .catch(function (error) {
-                              console.log("Error deleting employee:", error);
-
-                              alert(error.message);
-                            });
+                          setDeleteEmployee(item);
                         }}
                       >
                         Delete
@@ -501,7 +454,107 @@ function Employees() {
           </div>
         )}
       </div>
+      {/* ================= DELETE CONFIRMATION ================= */}
 
+      {deleteEmployee && (
+        <div className="delete-overlay">
+          <div className="delete-confirm-box">
+            <h2>Confirm Delete</h2>
+
+            <p>
+              Are you sure you want to delete{" "}
+              <strong>{deleteEmployee.employeeName}</strong>?
+            </p>
+
+            <div className="delete-confirm-buttons">
+              <button
+                className="delete-cancel-btn"
+                onClick={function () {
+                  setDeleteEmployee(null);
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="delete-confirm-btn"
+                onClick={function () {
+                  fetch(
+                    "http://localhost:5000/api/employees/" + deleteEmployee.id,
+                    {
+                      method: "DELETE",
+                      headers: getAuthHeaders(),
+                    },
+                  )
+                    .then(function (response) {
+                      if (!response.ok) {
+                        return response.json().then(function (errorData) {
+                          throw new Error(errorData.message);
+                        });
+                      }
+
+                      return response.json();
+                    })
+                    .then(function () {
+                      setEmployee(function (currentEmployees) {
+                        return currentEmployees.filter(function (employeeItem) {
+                          return employeeItem.id !== deleteEmployee.id;
+                        });
+                      });
+
+                      setAssets(function (currentAssets) {
+                        return currentAssets.map(function (assetItem) {
+                          if (
+                            assetItem.assignedTo &&
+                            assetItem.assignedTo._id === deleteEmployee._id
+                          ) {
+                            return {
+                              ...assetItem,
+                              assignedTo: null,
+                              status:
+                                assetItem.status === "Assigned"
+                                  ? "Available"
+                                  : assetItem.status,
+                            };
+                          }
+
+                          return assetItem;
+                        });
+                      });
+
+                      setDeleteEmployee(null);
+
+                      setSuccessMessage("Employee deleted successfully");
+
+                      setTimeout(function () {
+                        setSuccessMessage("");
+                      }, 2500);
+                    })
+                    .catch(function (error) {
+                      console.log("Error deleting employee:", error);
+
+                      setDeleteEmployee(null);
+                      alert(error.message);
+                    });
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ================= SUCCESS POPUP ================= */}
+
+      {successMessage && (
+        <div className="success-overlay">
+          <div className="success-popup">
+            <div className="success-icon">✓</div>
+
+            <p>{successMessage}</p>
+          </div>
+        </div>
+      )}
       {/* ================= ADD / UPDATE FORM ================= */}
 
       {showform && (

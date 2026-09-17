@@ -636,3 +636,178 @@ body {
     color: #16d47d;
     transform: translateX(-3px);
 }
+/* =========================
+   PHONE INPUT
+========================= */
+
+.signup-step .react-tel-input {
+    width: 100%;
+}
+
+.signup-step .react-tel-input .form-control {
+    width: 100%;
+    height: 44px;
+    padding-left: 48px;
+
+    box-sizing: border-box;
+
+    background: transparent !important;
+    color: #b8f5d5 !important;
+
+    border: none !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.55) !important;
+
+    border-radius: 0 !important;
+
+    font-size: 17px;
+
+    box-shadow: none !important;
+}
+
+.signup-step .react-tel-input .form-control:focus {
+    outline: none !important;
+
+    border: none !important;
+    border-bottom: 2px solid #358de4 !important;
+
+    box-shadow: 0 4px 10px rgba(53, 141, 228, 0.1) !important;
+}
+
+/* =========================
+   COUNTRY BUTTON
+========================= */
+
+.signup-step .react-tel-input .flag-dropdown {
+    background: transparent !important;
+
+    border: none !important;
+
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+}
+
+.signup-step .react-tel-input .selected-flag {
+    height: 44px;
+
+    background: transparent !important;
+
+    border: none !important;
+
+    border-radius: 0 !important;
+}
+
+.signup-step .react-tel-input .selected-flag:hover,
+.signup-step .react-tel-input .selected-flag:focus {
+    background: transparent !important;
+}
+
+/* =========================
+   PHONE COUNTRY DROPDOWN
+========================= */
+
+.signup-step .react-tel-input .country-list {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+    backdrop-filter: blur(10px);
+}
+
+.signup-step .react-tel-input .country-list .search {
+    background: transparent !important;
+    position: static !important;
+}
+
+.signup-step .react-tel-input .country-list .search-box {
+    position: static !important;
+    background: transparent !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+    outline: none !important;
+}
+
+.signup-step .react-tel-input .country-list .country {
+    background: transparent !important;
+    color: #e7dede !important;
+}
+
+.signup-step .react-tel-input .country-list .country:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+/* =========================
+   DEPARTMENT DROPDOWN
+========================= */
+
+.input-group select {
+    width: 100%;
+    height: 44px;
+    padding: 0 5px;
+    box-sizing: border-box;
+    background: transparent !important;
+    color: #b8f5d5 !important;
+    border: none !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.55) !important;
+    font-size: 17px;
+    outline: none !important;
+    cursor: pointer;
+}
+
+.input-group select:focus {
+    outline: none !important;
+    border: none !important;
+    border-bottom: 2px solid #358de4 !important;
+    box-shadow: 0 4px 10px rgba(53, 141, 228, 0.1);
+}
+
+/* Department options */
+.input-group select option {
+    background: #35393e !important;
+    color: #ffffff !important;
+}
+
+/* Placeholder */
+.input-group select.placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+.field-error {
+    margin-top: 5px;
+    color: #ff5c5c;
+    font-size: 20px;
+    font-weight: 500;
+    animation: errorBlink 0.8s ease-in-out 2;
+}
+
+.input-error {
+    border-bottom: 2px solid #ff5c5c !important;
+    animation: errorBorderBlink 0.8s ease-in-out 2;
+}
+
+@keyframes errorBorderBlink {
+    0% {
+        border-bottom-color: #ff5c5c;
+    }
+
+    50% {
+        border-bottom-color: transparent;
+    }
+
+    100% {
+        border-bottom-color: #ff5c5c;
+    }
+}
+
+@keyframes errorBlink {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}

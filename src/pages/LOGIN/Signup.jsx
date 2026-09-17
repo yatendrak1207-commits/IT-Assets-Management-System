@@ -1,31 +1,62 @@
 import React, { useEffect, useRef, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
+
 import { FaArrowLeft, FaEye, FaEyeSlash, FaRedo } from "react-icons/fa";
+
+import PhoneInputModule from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+
+import { isValidPhoneNumber } from "libphonenumber-js";
+
 import "./Signup.css";
+
+const PhoneInput = PhoneInputModule.default || PhoneInputModule;
 
 function Signup() {
   const navigate = useNavigate();
+
   const canvasRef = useRef(null);
 
   const [accountType, setAccountType] = useState("");
+
   const [step, setStep] = useState(0);
 
   const [email, setEmail] = useState("");
+
   const [password, setPassword] = useState("");
 
   const [name, setName] = useState("");
+
   const [department, setDepartment] = useState("");
+
   const [phone, setPhone] = useState("");
 
   const [captcha, setCaptcha] = useState("");
+
   const [captchaInput, setCaptchaInput] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
+
+  const [errorField, setErrorField] = useState("");
+
+  const [errorMessage, setErrorMessage] = useState("");
+
   const [adminKey, setAdminKey] = useState("");
+
+  const [phoneCountry, setPhoneCountry] = useState({
+    countryCode: "in",
+    dialCode: "91",
+  });
+
+  // ================= CAPTCHA CHARACTERS =================
 
   const characters =
     "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*";
+
+  // ================= GENERATE CAPTCHA =================
 
   function generateCaptcha() {
     let newCaptcha = "";
@@ -35,8 +66,11 @@ function Signup() {
     }
 
     setCaptcha(newCaptcha);
+
     setCaptchaInput("");
   }
+
+  // ================= CAPTCHA CANVAS =================
 
   useEffect(
     function () {
@@ -57,11 +91,14 @@ function Signup() {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Background
+      // ================= BACKGROUND =================
+
       ctx.fillStyle = "#f4f7f7";
+
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Random background dots
+      // ================= RANDOM DOTS =================
+
       for (let i = 0; i < 35; i++) {
         ctx.beginPath();
 
@@ -74,10 +111,12 @@ function Signup() {
         );
 
         ctx.fillStyle = "rgba(13, 148, 136, 0.25)";
+
         ctx.fill();
       }
 
-      // Random lines
+      // ================= RANDOM LINES =================
+
       for (let i = 0; i < 6; i++) {
         ctx.beginPath();
 
@@ -86,20 +125,25 @@ function Signup() {
         ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
 
         ctx.strokeStyle = "rgba(30, 70, 70, 0.35)";
+
         ctx.lineWidth = 1.5;
+
         ctx.stroke();
       }
 
-      // CAPTCHA characters
+      // ================= CAPTCHA CHARACTERS =================
+
       for (let i = 0; i < captcha.length; i++) {
         ctx.save();
 
         const x = 35 + i * 55;
+
         const y = 60;
 
         const rotation = (Math.random() * 30 - 15) * (Math.PI / 180);
 
         ctx.translate(x, y);
+
         ctx.rotate(rotation);
 
         ctx.font = "bold " + (42 + Math.floor(Math.random() * 8)) + "px Arial";
@@ -111,158 +155,232 @@ function Signup() {
         ctx.restore();
       }
 
-      // Extra distortion line
+      // ================= DISTORTION LINE =================
+
       ctx.beginPath();
+
       ctx.moveTo(10, 70);
+
       ctx.bezierCurveTo(80, 20, 180, 100, 290, 30);
 
       ctx.strokeStyle = "rgba(13, 148, 136, 0.45)";
+
       ctx.lineWidth = 2;
+
       ctx.stroke();
     },
     [captcha, step],
   );
 
+  // ================= START SIGNUP =================
+
   function startSignup(type) {
     setAccountType(type);
+
     setStep(1);
   }
 
-  function handleNext() {
+  // ================= NEXT =================
+
+  async function handleNext() {
+    // ================= STEP 1 =================
+
     if (step === 1) {
       if (!email.trim()) {
-        alert("Please enter email");
+        setErrorField("email");
+        setErrorMessage("Please enter your email");
         return;
       }
 
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       if (!emailPattern.test(email.trim())) {
-        alert("Please enter a valid email address");
+        setErrorField("email");
+        setErrorMessage("Please enter a valid email address");
+
         return;
       }
 
       if (!password) {
-        alert("Please enter password");
+        setErrorField("password");
+        setErrorMessage("Please enter your password");
+
         return;
       }
 
       if (password.length < 6) {
-        alert("Password must be at least 6 characters");
+        setErrorField("password");
+        setErrorMessage("Password must be at least 6 characters");
+
         return;
       }
 
       setStep(2);
+
       return;
     }
 
+    // ================= STEP 2 =================
+
     if (step === 2) {
       if (!name.trim()) {
-        alert("Please enter your name");
+        setErrorField("name");
+        setErrorMessage("Please enter your name");
+
         return;
       }
 
       if (!department.trim()) {
-        alert("Please enter department");
+        setErrorField("department");
+        setErrorMessage("Please select your department");
+        return;
+
         return;
       }
 
       if (!phone.trim()) {
-        alert("Please enter phone number");
+        setErrorField("phone");
+        setErrorMessage("Please enter your phone number");
         return;
       }
 
+      // ================= PHONE VALIDATION =================
+
+      let cleanPhoneNumber = phone.replace(/\s/g, "");
+
+      if (!cleanPhoneNumber.startsWith("+")) {
+        cleanPhoneNumber = "+" + phoneCountry.dialCode + cleanPhoneNumber;
+      }
+
+      if (!isValidPhoneNumber(cleanPhoneNumber)) {
+        setErrorField("phone");
+        setErrorMessage("Please enter a valid phone number");
+
+        return;
+      }
+
+      // ================= CAPTCHA =================
+
       generateCaptcha();
+
       setStep(3);
+
+      return;
+    }
+    if (step === 3) {
+      if (!captchaInput.trim()) {
+        setErrorField("captcha");
+        setErrorMessage("Please enter the captcha");
+        return;
+      }
+
+      if (captchaInput.trim().toUpperCase() !== captcha.toUpperCase()) {
+        setErrorField("captcha");
+        setErrorMessage("Captcha is incorrect");
+        return;
+      }
+
+      if (accountType === "admin" && !adminKey.trim()) {
+        setErrorField("adminKey");
+        setErrorMessage("Please enter the admin key");
+        return;
+      }
+
+      setErrorField("");
+      setErrorMessage("");
+
+      setLoading(true);
+
+      try {
+        const registerUrl =
+          accountType === "admin"
+            ? "http://localhost:5000/api/admins/register"
+            : "http://localhost:5000/api/employees/register";
+
+        const response = await fetch(registerUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email.trim(),
+            password: password,
+            name: name.trim(),
+            department: department,
+            phone: phone,
+            ...(accountType === "admin" && {
+              adminKey: adminKey.trim(),
+            }),
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setErrorField("submit");
+          setErrorMessage(data.message || "Registration failed");
+          return;
+        }
+
+        alert("Account created successfully!");
+
+        navigate("/login");
+      } catch (error) {
+        setErrorField("submit");
+        setErrorMessage("Server error. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+
+      return;
     }
   }
 
+  // ================= BACK =================
+
   function handleBack() {
     if (step === 1) {
+      setEmail("");
+      setPassword("");
+      setShowPassword(false);
       setStep(0);
+
       return;
     }
 
     if (step === 2) {
+      setName("");
+      setDepartment("");
+      setPhone("");
       setStep(1);
+
       return;
     }
 
     if (step === 3) {
+      setCaptcha("");
+      setAdminKey("");
       setStep(2);
+
       return;
     }
   }
+
+  // ================= SUBMIT =================
 
   async function handleSubmit(event) {
     event.preventDefault();
 
-    if (!captchaInput.trim()) {
-      alert("Please enter CAPTCHA");
-      return;
-    }
-
-    if (captchaInput.trim().toUpperCase() !== captcha.toUpperCase()) {
-      alert("Invalid CAPTCHA");
-
-      generateCaptcha();
-
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const registerUrl =
-        accountType === "admin"
-          ? "http://localhost:5000/api/admins/register"
-          : "http://localhost:5000/api/employees/register";
-
-      const response = await fetch(registerUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(
-          accountType === "admin"
-            ? {
-                name: name.trim(),
-                email: email.trim(),
-                password: password,
-                department: department.trim(),
-                phone: phone.trim(),
-                adminKey: adminKey.trim(),
-              }
-            : {
-                email: email.trim(),
-                password: password,
-                employeeName: name.trim(),
-                department: department.trim(),
-                phone: phone.trim(),
-              },
-        ),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Signup failed");
-      }
-
-      alert("Account created successfully");
-
-      navigate("/login");
-    } catch (error) {
-      console.log("Signup error:", error);
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
+    handleNext();
   }
+
+  // ================= JSX =================
 
   return (
     <div className="signup-page">
       <div className="signup-box">
+        {/* ================= HEADER ================= */}
+
         <div className="signup-header">
           {step > 0 && (
             <button type="button" className="signup-back" onClick={handleBack}>
@@ -283,7 +401,7 @@ function Signup() {
           </p>
         </div>
 
-        {/* STEP 0 */}
+        {/* ================= STEP 0 ================= */}
 
         {step === 0 && (
           <div className="signup-step account-step">
@@ -321,11 +439,13 @@ function Signup() {
           </div>
         )}
 
-        {/* STEP 1 */}
+        {/* ================= STEP 1 ================= */}
 
         {step === 1 && (
           <div className="signup-step">
             <div className="step-number">Step 1 of 3</div>
+
+            {/* EMAIL */}
 
             <div className="input-group">
               <label>Email</label>
@@ -333,12 +453,21 @@ function Signup() {
               <input
                 type="email"
                 value={email}
+                className={errorField === "email" ? "input-error" : ""}
                 onChange={function (e) {
                   setEmail(e.target.value);
+                  setErrorField("");
+                  setErrorMessage("");
                 }}
                 placeholder="Enter email"
               />
+
+              {errorField === "email" && (
+                <div className="field-error">⚠ {errorMessage}</div>
+              )}
             </div>
+
+            {/* PASSWORD */}
 
             <div className="input-group">
               <label>Password</label>
@@ -347,11 +476,18 @@ function Signup() {
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
+                  className={errorField === "password" ? "input-error" : ""}
                   onChange={function (e) {
                     setPassword(e.target.value);
+                    setErrorField("");
+                    setErrorMessage("");
                   }}
                   placeholder="Enter password"
                 />
+
+                {errorField === "password" && (
+                  <div className="field-error">⚠ {errorMessage}</div>
+                )}
 
                 <button
                   type="button"
@@ -363,6 +499,9 @@ function Signup() {
                 </button>
               </div>
             </div>
+
+            {/* BACK */}
+
             <button
               type="button"
               className="signup-step-back"
@@ -370,6 +509,9 @@ function Signup() {
             >
               <FaArrowLeft /> Back
             </button>
+
+            {/* NEXT */}
+
             <button
               type="button"
               className="signup-next-btn"
@@ -380,11 +522,13 @@ function Signup() {
           </div>
         )}
 
-        {/* STEP 2 */}
+        {/* ================= STEP 2 ================= */}
 
         {step === 2 && (
           <div className="signup-step">
             <div className="step-number">Step 2 of 3</div>
+
+            {/* NAME */}
 
             <div className="input-group">
               <label>Name</label>
@@ -392,38 +536,107 @@ function Signup() {
               <input
                 type="text"
                 value={name}
+                className={errorField === "name" ? "input-error" : ""}
                 onChange={function (e) {
                   setName(e.target.value);
+                  setErrorField("");
+                  setErrorMessage("");
                 }}
                 placeholder="Enter your name"
               />
+
+              {errorField === "name" && (
+                <div className="field-error">⚠ {errorMessage}</div>
+              )}
             </div>
+
+            {/* DEPARTMENT */}
 
             <div className="input-group">
               <label>Department</label>
 
-              <input
-                type="text"
+              <select
+                className={
+                  errorField === "department"
+                    ? "input-error"
+                    : department === ""
+                      ? "placeholder"
+                      : ""
+                }
                 value={department}
                 onChange={function (e) {
                   setDepartment(e.target.value);
+                  setErrorField("");
+                  setErrorMessage("");
                 }}
-                placeholder="Enter department"
-              />
+              >
+                <option value="" disabled hidden>
+                  Department
+                </option>
+
+                <option value="it">IT</option>
+
+                <option value="hr">HR</option>
+
+                <option value="finance">Finance</option>
+
+                <option value="sales">Sales</option>
+
+                <option value="marketing">Marketing</option>
+
+                <option value="operation">Operations</option>
+
+                <option value="administration">Administration</option>
+
+                <option value="customer-support">Customer Support</option>
+
+                <option value="procurement">Procurement</option>
+
+                <option value="management">Management</option>
+              </select>
+              {errorField === "department" && (
+                <div className="field-error">⚠ {errorMessage}</div>
+              )}
             </div>
+
+            {/* PHONE */}
 
             <div className="input-group">
               <label>Phone</label>
 
-              <input
-                type="tel"
-                value={phone}
-                onChange={function (e) {
-                  setPhone(e.target.value);
+              <PhoneInput
+                country={"in"}
+                value={phone.replace(/\D/g, "")}
+                inputClass={errorField === "phone" ? "input-error" : ""}
+                onChange={function (phoneNumber, country) {
+                  if (!phoneNumber) {
+                    setPhone("");
+                    return;
+                  }
+
+                  setPhoneCountry({
+                    countryCode: country.countryCode,
+                    dialCode: country.dialCode,
+                  });
+
+                  const dialCode = country.dialCode;
+                  const localNumber = phoneNumber.substring(dialCode.length);
+
+                  setPhone("+" + dialCode + " " + localNumber);
+
+                  setErrorField("");
+                  setErrorMessage("");
                 }}
-                placeholder="Enter phone number"
+                enableSearch={true}
+                countryCodeEditable={false}
               />
+              {errorField === "phone" && (
+                <div className="field-error">⚠ {errorMessage}</div>
+              )}
             </div>
+
+            {/* BACK */}
+
             <button
               type="button"
               className="signup-step-back"
@@ -431,6 +644,9 @@ function Signup() {
             >
               <FaArrowLeft /> Back
             </button>
+
+            {/* NEXT */}
+
             <button
               type="button"
               className="signup-next-btn"
@@ -441,13 +657,15 @@ function Signup() {
           </div>
         )}
 
-        {/* STEP 3 */}
+        {/* ================= STEP 3 ================= */}
 
         {step === 3 && (
           <form className="signup-step" onSubmit={handleSubmit}>
             <div className="step-number">Step 3 of 3</div>
 
             <div className="captcha-area">
+              {/* CAPTCHA */}
+
               <div className="captcha-image-box">
                 <canvas ref={canvasRef} className="captcha-canvas" />
 
@@ -460,6 +678,9 @@ function Signup() {
                   <FaRedo />
                 </button>
               </div>
+
+              {/* ADMIN KEY */}
+
               {accountType === "admin" && (
                 <div className="input-group">
                   <label>Admin Key</label>
@@ -469,11 +690,19 @@ function Signup() {
                     value={adminKey}
                     onChange={function (e) {
                       setAdminKey(e.target.value);
+                      setErrorField("");
+                      setErrorMessage("");
                     }}
                     placeholder="Enter admin key"
                   />
+                  {errorField === "adminKey" && (
+                    <div className="field-error">⚠ {errorMessage}</div>
+                  )}
                 </div>
               )}
+
+              {/* CAPTCHA INPUT */}
+
               <label>Enter CAPTCHA</label>
 
               <input
@@ -481,11 +710,19 @@ function Signup() {
                 value={captchaInput}
                 onChange={function (e) {
                   setCaptchaInput(e.target.value);
+                  setErrorField("");
+                  setErrorMessage("");
                 }}
                 placeholder="Enter characters"
                 autoComplete="off"
               />
+              {errorField === "captcha" && (
+                <div className="field-error">⚠ {errorMessage}</div>
+              )}
             </div>
+
+            {/* BACK */}
+
             <button
               type="button"
               className="signup-step-back"
@@ -493,6 +730,11 @@ function Signup() {
             >
               <FaArrowLeft /> Back
             </button>
+
+            {/* SUBMIT */}
+            {errorField === "submit" && (
+              <div className="field-error submit-error">⚠ {errorMessage}</div>
+            )}
             <button
               type="submit"
               className="signup-submit-btn"

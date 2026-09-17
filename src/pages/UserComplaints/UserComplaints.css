@@ -83,6 +83,7 @@
     cursor: pointer;
 }
 
+
 /* =========================================================
    MY COMPLAINTS MAIN SECTION
 ========================================================= */
@@ -342,5 +343,82 @@
         padding: 11px 10px;
 
         font-size: 14px;
+    }
+}
+
+
+/* =========================================================
+   COMPLAINT SUCCESS POPUP
+========================================================= */
+
+.complaint-success-overlay {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgba(0, 0, 0, 0.25);
+
+    z-index: 3000;
+}
+
+.complaint-success-popup {
+    min-width: 350px;
+    max-width: 90%;
+
+    padding: 25px 35px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 15px;
+
+    background-color: white;
+
+    border-radius: 12px;
+
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+
+    animation: complaintSuccessPopupIn 0.25s ease;
+}
+
+.complaint-success-icon {
+    width: 35px;
+    height: 35px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #159f6f;
+    color: white;
+
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.complaint-success-popup p {
+    margin: 0;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    color: #159f6f;
+}
+
+@keyframes complaintSuccessPopupIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
     }
 }

@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import React, { useState } from "react";
 
 import "./App.css";
@@ -29,17 +29,13 @@ import Signup from "./pages/LOGIN/Signup";
 function App() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "day");
 
-  const location = useLocation();
-
-  /* Admin route par hi admin ka theme class lagao.
-     User routes par abhi ke liye "day" (default) rahega,
-     taaki admin ka theme user side par leak na ho.
-     User ka apna independent theme baad me isi condition me add karenge. */
-  const isAdminRoute = !location.pathname.startsWith("/user");
-  const activeTheme = isAdminRoute ? theme : "day";
+  /* User ka apna independent theme - admin ke theme se alag rehta hai. */
+  const [userTheme, setUserTheme] = useState(
+    localStorage.getItem("userTheme") || "day",
+  );
 
   return (
-    <div className={`app-shell ${activeTheme}`}>
+    <>
       <Routes>
         {/* Login */}
         <Route path="/login" element={<Login />} />
@@ -49,7 +45,7 @@ function App() {
         <Route
           element={
             <ProtectedRoute allowedRole="admin">
-              <Layout />
+              <Layout className={`app-shell ${theme}`} />
             </ProtectedRoute>
           }
         >
@@ -70,7 +66,7 @@ function App() {
         <Route
           element={
             <ProtectedRoute allowedRole="user">
-              <UserLayout />
+              <UserLayout theme={userTheme} />
             </ProtectedRoute>
           }
         >
@@ -80,13 +76,16 @@ function App() {
           <Route path="/user/repairs" element={<UserRepairs />} />
           <Route path="/user/notifications" element={<UserNotifications />} />
           <Route path="/user/profile" element={<UserProfile />} />
-          <Route path="/user/settings" element={<UserSettings />} />
+          <Route
+            path="/user/settings"
+            element={<UserSettings theme={userTheme} setTheme={setUserTheme} />}
+          />
         </Route>
 
         {/* Unknown URL */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </div>
+    </>
   );
 }
 

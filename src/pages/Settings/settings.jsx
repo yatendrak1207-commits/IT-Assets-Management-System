@@ -50,7 +50,11 @@ function Settings({ theme, setTheme }) {
         return;
       }
 
-      fetch("http://localhost:5000/api/admins/" + adminId + "/settings")
+      fetch("http://localhost:5000/api/admins/" + adminId + "/settings", {
+        headers: {
+          Authorization: "Bearer " + sessionStorage.getItem("token"),
+        },
+      })
         .then(function (response) {
           if (!response.ok) {
             throw new Error("Failed to fetch settings");
@@ -114,6 +118,11 @@ function Settings({ theme, setTheme }) {
             setTwofactor(settings.security.twofactor || false);
 
             setLogout(settings.security.logout || "Never");
+
+            sessionStorage.setItem(
+              "autoLogoutMinutes",
+              settings.security.logout || "Never",
+            );
           }
         })
         .catch(function (error) {
@@ -131,6 +140,7 @@ function Settings({ theme, setTheme }) {
 
       headers: {
         "Content-Type": "application/json",
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
       },
 
       body: JSON.stringify({
@@ -173,6 +183,7 @@ function Settings({ theme, setTheme }) {
 
       headers: {
         "Content-Type": "application/json",
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
       },
 
       body: JSON.stringify({
@@ -215,6 +226,7 @@ function Settings({ theme, setTheme }) {
 
       headers: {
         "Content-Type": "application/json",
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
       },
 
       body: JSON.stringify({
@@ -255,6 +267,7 @@ function Settings({ theme, setTheme }) {
 
       headers: {
         "Content-Type": "application/json",
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
       },
 
       body: JSON.stringify({
@@ -279,6 +292,7 @@ function Settings({ theme, setTheme }) {
         }
 
         alert("Security settings saved successfully");
+        sessionStorage.setItem("autoLogoutMinutes", logout);
       })
       .catch(function (error) {
         console.log("Security settings error:", error);
@@ -314,16 +328,42 @@ function Settings({ theme, setTheme }) {
       return;
     }
 
-    /*
-      Password API baad mein banayenge.
-      Abhi plaintext password localStorage mein save nahi karna hai.
-    */
+    fetch("http://localhost:5000/api/admins/" + adminId + "/change-password", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        currentPassword: currentpassword,
+        newPassword: newpassword,
+      }),
+    })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return {
+            ok: response.ok,
+            data: data,
+          };
+        });
+      })
+      .then(function (result) {
+        if (!result.ok) {
+          alert(result.data.message || "Failed to change password");
+          return;
+        }
 
-    alert("Password API abhi connect nahi ki gayi hai");
+        alert("Password changed successfully");
 
-    setCurrentpassword("");
-    setNewpassword("");
-    setConformpassword("");
+        setCurrentpassword("");
+        setNewpassword("");
+        setConformpassword("");
+        setChangepassword(false);
+      })
+      .catch(function (error) {
+        console.log("Change password error:", error);
+        alert("Server se connection nahi ho raha");
+      });
   }
 
   return (
@@ -567,7 +607,7 @@ function Settings({ theme, setTheme }) {
               }}
             >
               <option value="day">Day</option>
-              <option value="Night">Night</option>
+              <option value="night">Night</option>
             </select>
           </div>
 

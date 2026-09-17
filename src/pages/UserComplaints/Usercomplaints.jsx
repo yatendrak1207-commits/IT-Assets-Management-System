@@ -6,24 +6,19 @@ function UserComplaints() {
   const [complaints, setComplaints] = useState([]);
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [selectedAsset, setSelectedAsset] = useState("");
   const [complaintText, setComplaintText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(function () {
     async function fetchData() {
       try {
         const token = sessionStorage.getItem("token");
 
-        // My Repair Requests
         const repairResponse = await fetch(
           "http://localhost:5000/api/repairs/my",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
+          { headers: { Authorization: `Bearer ${token}` } },
         );
 
         const repairData = await repairResponse.json();
@@ -36,17 +31,12 @@ function UserComplaints() {
 
         setComplaints(repairData);
 
-        // My Assets (same approach as My Assets page: fetch all, filter by employeeId)
         const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
         const userId = loggedInUser?.employeeId;
 
         const assetResponse = await fetch(
           "http://localhost:5000/api/assets/my",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
+          { headers: { Authorization: `Bearer ${token}` } },
         );
 
         const assetData = await assetResponse.json();
@@ -114,7 +104,11 @@ function UserComplaints() {
       setSelectedAsset("");
       setComplaintText("");
 
-      alert("Complaint submitted successfully");
+      setSuccessMessage("Complaint sent successfully");
+
+      setTimeout(function () {
+        setSuccessMessage("");
+      }, 2500);
     } catch (error) {
       console.log("Error creating repair request:", error);
       alert(error.message);
@@ -132,7 +126,6 @@ function UserComplaints() {
         </h1>
       </div>
 
-      {/* Create Complaint */}
       <div className="complaint-form-container">
         <h2>Create Complaint</h2>
 
@@ -177,8 +170,6 @@ function UserComplaints() {
         </form>
       </div>
 
-      {/* My Complaints */}
-
       <div className="complaints-table-container">
         {loading ? (
           <p className="no-complaints">Loading complaints...</p>
@@ -201,13 +192,9 @@ function UserComplaints() {
                 return (
                   <tr key={item._id}>
                     <td>{item.repairId}</td>
-
                     <td>{item.complaint}</td>
-
                     <td>{item.asset ? item.asset.assetName : "-"}</td>
-
                     <td>{item.status}</td>
-
                     <td>
                       {item.complaintDate
                         ? new Date(item.complaintDate).toLocaleDateString(
@@ -222,6 +209,15 @@ function UserComplaints() {
           </table>
         )}
       </div>
+
+      {successMessage && (
+        <div className="complaint-success-overlay">
+          <div className="complaint-success-popup">
+            <div className="complaint-success-icon">✓</div>
+            <p>{successMessage}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

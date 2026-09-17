@@ -1,4 +1,3 @@
-
 const mongoose = require("mongoose");
 
 const adminSchema = new mongoose.Schema({
@@ -24,6 +23,11 @@ const adminSchema = new mongoose.Schema({
 
     password: String,
 
+    profilePhoto: {
+        type: String,
+        default: ""
+    },
+
     role: {
         type: String,
         default: "admin"
@@ -34,21 +38,35 @@ const adminSchema = new mongoose.Schema({
         default: "Active"
     },
 
+    failedLoginAttempts: {
+        type: Number,
+        default: 0
+    },
+
+    lockUntil: {
+        type: Date,
+        default: null
+    },
+
     // ================= ADMIN SETTINGS =================
+
     settings: {
         general: {
             company: {
                 type: String,
                 default: "IT Assets World"
             },
+
             companyEmail: {
                 type: String,
                 default: "info@itassetsworld.com"
             },
+
             companyno: {
                 type: String,
                 default: "+91 9310483219"
             },
+
             companyAddress: {
                 type: String,
                 default: "A-19, Ground Floor, FIEE Complex, Suite No-1041, Okhla Industrial Area Phase-2, New Delhi – 110020"
@@ -60,18 +78,22 @@ const adminSchema = new mongoose.Schema({
                 type: Boolean,
                 default: false
             },
+
             complaintNotification: {
                 type: Boolean,
                 default: false
             },
+
             repairNotification: {
                 type: Boolean,
                 default: false
             },
+
             assetNotification: {
                 type: Boolean,
                 default: false
             },
+
             lowStockAlert: {
                 type: Boolean,
                 default: false
@@ -83,10 +105,12 @@ const adminSchema = new mongoose.Schema({
                 type: String,
                 default: "day"
             },
+
             items: {
                 type: String,
                 default: "one"
             },
+
             dateFormat: {
                 type: String,
                 default: "days"
@@ -98,6 +122,7 @@ const adminSchema = new mongoose.Schema({
                 type: Boolean,
                 default: false
             },
+
             logout: {
                 type: String,
                 default: "Never"
@@ -109,4 +134,3 @@ const adminSchema = new mongoose.Schema({
 const Admin = mongoose.model("Admin", adminSchema);
 
 module.exports = Admin;
-

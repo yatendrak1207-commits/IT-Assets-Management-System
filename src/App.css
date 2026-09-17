@@ -9,262 +9,46 @@ body,
     flex-direction: column;
     height: 100vh;
     overflow: hidden;
-
-}
-
-/* ================= THEME ================= */
-
-.app-shell {
-
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* DAY - Default */
+
+/* =========================================================
+   NIGHT MODE WARM FILTER
+   Phone Night Mode jaisi halka warm/orange layer
+   ========================================================= */
+
+.app-shell.night {
+    background-color: #18232B;
+    color: #F1F1F1;
+}
+
+.app-shell.night::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 170, 70, 0.18);
+    pointer-events: none;
+    z-index: 999999;
+}
+
+
+/* =========================================================
+   DAY / EVENING / NIGHT THEME
+   ========================================================= */
+
+/* DAY */
 .app-shell.day {
     background-color: #f5f7fa;
     color: #222;
 }
 
-/* NIGHT - Main background + Primary text */
-.app-shell.night {
-    background-color: #080F17;
-    color: #F5F7F8;
-}
 
-/* EVENING - Main background + Primary text */
-.app-shell.evening {
-    background-color: #EEF3F3;
-    color: #143B59;
-}
-
-
-/* ================= COMMON ELEMENTS ================= */
-
-.app-shell.night .page-content,
-.app-shell.night .content {
-    background-color: #080F17;
-    color: #F5F7F8;
-}
-
-.app-shell.evening .page-content,
-.app-shell.evening .content {
-    background-color: #EEF3F3;
-    color: #143B59;
-}
-
-
-/* Cards */
-.app-shell.night .card,
-.app-shell.night .dashboard-card {
-    background-color: #101C26;
-    color: #F5F7F8;
-    border-color: #203746;
-}
-
-.app-shell.evening .card,
-.app-shell.evening .dashboard-card {
-    background-color: #FAFCFB;
-    color: #143B59;
-    border-color: #D4E1DF;
-}
-
-/* ================= ADMIN THEME ================= */
-
-.app-shell.night .admin-shell,
-.app-shell.night .admin-shell .layout,
-.app-shell.night .admin-shell .main-content {
-    background-color: #080F17;
-    color: #F5F7F8;
-}
-
-.app-shell.evening .admin-shell,
-.app-shell.evening .admin-shell .layout,
-.app-shell.evening .admin-shell .main-content {
-    background-color: #EEF3F3;
-    color: #143B59;
-}
-
-
-/* ================= ADMIN PAGE CONTENT (har page ka apna root div) ================= */
-/* Har admin page (Dashboard, Assets, Employees, ...) ke root div me apna
-   hardcoded light background hai jo .main-content ke seedha andar hota hai.
-   Ye rule us seedhe child div ka background/colour theme ke hisaab se override
-   kar deta hai, bina har page ki CSS file alag se chhue. */
-
-.app-shell.night .admin-shell .main-content>div {
-    background-color: #080F17 !important;
-    color: #F5F7F8 !important;
-}
-
-.app-shell.evening .admin-shell .main-content>div {
-    background-color: #EEF3F3 !important;
-    color: #143B59 !important;
-}
-
-/* ================= CARDS (Card component class is ".Card", capital C) ================= */
-
-.app-shell.night .Card {
-    background-color: #101C26 !important;
-    border-color: #203746 !important;
-    color: #F5F7F8 !important;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25) !important;
-}
-
-.app-shell.night .Card h3 {
-    color: #B8C4C8 !important;
-}
-
-.app-shell.night .Card h2 {
-    color: #5FFFD4 !important;
-}
-
-.app-shell.evening .Card {
-    background-color: #FAFCFB !important;
-    border-color: #D4E1DF !important;
-    color: #143B59 !important;
-}
-
-.app-shell.evening .Card h3 {
-    color: #5E6B74 !important;
-}
-
-.app-shell.evening .Card h2 {
-    color: #29DFAF !important;
-}
-
-/* ================= TABLES ================= */
-
-.app-shell.night .admin-shell table,
-.app-shell.night .admin-shell td {
-    background-color: #101C26 !important;
-    color: #F5F7F8 !important;
-    border-color: #203746 !important;
-}
-
-.app-shell.night .admin-shell th {
-    background-color: #0E1B25 !important;
-    color: #F5F7F8 !important;
-    border-color: #203746 !important;
-}
-
-.app-shell.evening .admin-shell table,
-.app-shell.evening .admin-shell td {
-    background-color: #FAFCFB !important;
-    color: #143B59 !important;
-    border-color: #D4E1DF !important;
-}
-
-.app-shell.evening .admin-shell th {
-    background-color: #E2F2EE !important;
-    color: #143B59 !important;
-    border-color: #D4E1DF !important;
-}
-
-/* ================= NAVBAR & SIDEBAR (admin - Header/sidebar) ================= */
-
-.app-shell.night .admin-shell .navbar {
-    background-color: #063B36 !important;
-    color: #F5F7F8 !important;
-    border-color: #203746 !important;
-}
-
-.app-shell.night .admin-shell .sidebar {
-    background-color: #052F2B !important;
-    color: #F5F7F8 !important;
-    border-color: #203746 !important;
-}
-
-.app-shell.evening .admin-shell .navbar,
-.app-shell.evening .admin-shell .sidebar {
-    background-color: #123F3A !important;
-    color: #ffffff !important;
-    border-color: #D4E1DF !important;
-}
-
-/* Active sidebar menu item */
-.app-shell.night .admin-shell .sidebar-item.active {
-    background-color: #0D9F7A !important;
-    color: #F5F7F8 !important;
-}
-
-.app-shell.night .admin-shell .sidebar-item:hover {
-    background-color: #119B78 !important;
-    color: #F5F7F8 !important;
-}
-
-.app-shell.evening .admin-shell .sidebar-item.active {
-    background-color: #0F9B73 !important;
-    color: #ffffff !important;
-}
-
-/* Highlight icons/text (e.g. nav icons) */
-.app-shell.night .admin-shell .nav-icon,
-.app-shell.night .admin-shell .users-icon,
-.app-shell.night .admin-shell svg {
-    color: #5FFFD4 !important;
-}
-
-/* Inputs / selects / dropdowns (settings forms etc.) */
-.app-shell.night .admin-shell select,
-.app-shell.night .admin-shell input {
-    background-color: #0E1B25 !important;
-    color: #F5F7F8 !important;
-    border: 1px solid #294050 !important;
-}
-
-.app-shell.evening .admin-shell .nav-icon,
-.app-shell.evening .admin-shell .users-icon {
-    color: #29DFAF !important;
-}
-
-/* ================= FINISHING TOUCH (rounded, shadow, underline) ================= */
-
-.app-shell.night .Card,
-.app-shell.night .admin-shell table,
-.app-shell.night .admin-shell .navbar select,
-.app-shell.night .admin-shell select {
-    border-radius: 14px !important;
-}
-
-.app-shell.night .admin-shell .sidebar-item {
-    border-radius: 10px !important;
-    margin: 4px 8px !important;
-}
-
-.app-shell.night .admin-shell .sidebar-item.active {
-    border-radius: 10px !important;
-    box-shadow: 0 4px 12px rgba(13, 159, 122, 0.35) !important;
-}
-
-.app-shell.night .admin-shell h1,
-.app-shell.night .admin-shell h2 {
-    text-decoration: underline;
-    text-decoration-color: #5FFFD4;
-    text-underline-offset: 6px;
-}
-
-.app-shell.night .admin-shell .settings-section-header,
-.app-shell.night .admin-shell .Report-header,
-.app-shell.night .admin-shell .report-header {
-    background-color: #063B36 !important;
-    color: #F5F7F8 !important;
-    border-radius: 14px !important;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
-}
-
-
-/* ================= USER THEME ================= */
-
-.app-shell.night .user-shell,
-.app-shell.night .user-shell .layout,
-.app-shell.night .user-shell .main-content {
-    background-color: #121212;
-    color: white;
-}
-
-.app-shell.evening .user-shell,
-.app-shell.evening .user-shell .layout,
-.app-shell.evening .user-shell .main-content {
-    background-color: #fff4e6;
-    color: #333;
+.user-shell.night::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 170, 70, 0.18);
+    pointer-events: none;
+    z-index: 999999;
 }

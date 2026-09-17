@@ -26,6 +26,11 @@ const employeeSchema = new mongoose.Schema({
         select: true
     },
 
+    profilePhoto: {
+        type: String,
+        default: ""
+    },
+
     employeestatus: String
 
 });

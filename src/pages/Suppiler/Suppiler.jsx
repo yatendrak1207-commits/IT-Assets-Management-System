@@ -25,6 +25,8 @@ function Suppiler() {
   const [companyAddress, setCompanyAddress] = useState("");
   const [assetsSupplied, setAssetsSupplied] = useState("");
   const [supplierStatus, setSupplierStatus] = useState("");
+  const [deleteSupplier, setDeleteSupplier] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(function () {
     fetch("http://localhost:5000/api/suppliers")
@@ -127,6 +129,11 @@ function Suppiler() {
           setCompanyAddress("");
           setAssetsSupplied("");
           setSupplierStatus("");
+
+          setSuccessMessage("Supplier details successfully updated");
+          setTimeout(function () {
+            setSuccessMessage("");
+          }, 2500);
         })
         .catch(function (error) {
           console.log("Error updating supplier:", error);
@@ -273,35 +280,7 @@ function Suppiler() {
                       <button
                         className="delete-btn"
                         onClick={function () {
-                          fetch(
-                            "http://localhost:5000/api/suppliers/" + item.id,
-                            {
-                              method: "DELETE",
-                            },
-                          )
-                            .then(function (response) {
-                              if (!response.ok) {
-                                return response
-                                  .json()
-                                  .then(function (errorData) {
-                                    throw new Error(errorData.message);
-                                  });
-                              }
-
-                              return response.json();
-                            })
-                            .then(function () {
-                              setsupplier(function (currentSuppliers) {
-                                return currentSuppliers.filter(
-                                  function (supplierItem) {
-                                    return supplierItem.id !== item.id;
-                                  },
-                                );
-                              });
-                            })
-                            .catch(function (error) {
-                              console.log("Error deleting supplier:", error);
-                            });
+                          setDeleteSupplier(item);
                         }}
                       >
                         Delete
@@ -544,6 +523,80 @@ function Suppiler() {
                 {editingItem ? "Update Supplier" : "Save Supplier"}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {deleteSupplier && (
+        <div className="delete-overlay">
+          <div className="delete-confirm-box">
+            <h2>Confirm Delete</h2>
+            <p>
+              Are you sure you want to delete{" "}
+              <strong>{deleteSupplier.supplierName}</strong>?
+            </p>
+
+            <div className="delete-confirm-buttons">
+              <button
+                className="delete-cancel-btn"
+                onClick={function () {
+                  setDeleteSupplier(null);
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="delete-confirm-btn"
+                onClick={function () {
+                  fetch(
+                    "http://localhost:5000/api/suppliers/" + deleteSupplier.id,
+                    {
+                      method: "DELETE",
+                    },
+                  )
+                    .then(function (response) {
+                      if (!response.ok) {
+                        return response.json().then(function (errorData) {
+                          throw new Error(errorData.message);
+                        });
+                      }
+
+                      return response.json();
+                    })
+                    .then(function () {
+                      setsupplier(function (currentSuppliers) {
+                        return currentSuppliers.filter(function (supplierItem) {
+                          return supplierItem.id !== deleteSupplier.id;
+                        });
+                      });
+
+                      setDeleteSupplier(null);
+                      setSuccessMessage("Supplier deleted successfully");
+
+                      setTimeout(function () {
+                        setSuccessMessage("");
+                      }, 2500);
+                    })
+                    .catch(function (error) {
+                      console.log("Error deleting supplier:", error);
+                      setDeleteSupplier(null);
+                      alert(error.message);
+                    });
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="success-overlay">
+          <div className="success-popup">
+            <div className="success-icon">✓</div>
+            <p>{successMessage}</p>
           </div>
         </div>
       )}
