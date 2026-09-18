@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Profile.css";
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaCamera } from "react-icons/fa";
 
 function Profile() {
   const [editmode, setEditmode] = useState(false);
@@ -14,11 +14,19 @@ function Profile() {
   const [role, setRole] = useState("");
   const [status, setStatus] = useState("");
 
+  const [profilePhoto, setProfilePhoto] = useState("");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
   const loggedInUser = JSON.parse(
     sessionStorage.getItem("loggedInUser") || "{}",
   );
 
   const adminId = loggedInUser.id;
+  console.log("loggedInUser:", loggedInUser);
+  console.log("adminId:", adminId);
+  console.log("token:", sessionStorage.getItem("token"));
+
+  const API_URL = "http://localhost:5000";
 
   // ================= GET ADMIN PROFILE =================
 
@@ -41,6 +49,16 @@ function Profile() {
           return response.json();
         })
         .then(function (admin) {
+          console.log("ADMIN PROFILE RESPONSE:", admin);
+          console.log(
+            "SETTING NAME TO:",
+            admin.name,
+            "PHONE:",
+            admin.phone,
+            "DEPT:",
+            admin.department,
+          );
+
           setName(admin.name || "");
           setEmail(admin.email || "");
           setPhone(admin.phone || "");
@@ -48,6 +66,8 @@ function Profile() {
           setDesignation(admin.designation || "");
           setRole(admin.role || "");
           setStatus(admin.status || "");
+
+          setProfilePhoto(admin.profilePhoto || "");
         })
         .catch(function (error) {
           console.log("Profile fetch error:", error);
@@ -55,6 +75,80 @@ function Profile() {
     },
     [adminId],
   );
+
+  // ================= UPLOAD PHOTO =================
+
+  function uploadPhoto(event) {
+    const file = event.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file");
+
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image size should be less than 5 MB");
+
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("profilePhoto", file);
+
+    setUploadingPhoto(true);
+
+    fetch(`${API_URL}/api/admins/${adminId}/profile-photo`, {
+      method: "POST",
+
+      headers: {
+        Authorization: "Bearer " + sessionStorage.getItem("token"),
+      },
+
+      body: formData,
+    })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return {
+            ok: response.ok,
+            data: data,
+          };
+        });
+      })
+      .then(function (result) {
+        if (!result.ok) {
+          alert(result.data.message || "Failed to upload photo");
+
+          return;
+        }
+
+        const photoPath = result.data.profilePhoto;
+
+        setProfilePhoto(photoPath);
+
+        const updatedUser = {
+          ...loggedInUser,
+          profilePhoto: photoPath,
+        };
+
+        sessionStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+
+        alert("Profile photo updated successfully");
+      })
+      .catch(function (error) {
+        console.log("Photo upload error:", error);
+
+        alert("Server se connection nahi ho raha");
+      })
+      .finally(function () {
+        setUploadingPhoto(false);
+      });
+  }
 
   // ================= SAVE PROFILE =================
 
@@ -64,14 +158,19 @@ function Profile() {
 
       headers: {
         "Content-Type": "application/json",
+
         Authorization: "Bearer " + sessionStorage.getItem("token"),
       },
 
       body: JSON.stringify({
         name: name,
+
         email: email,
+
         phone: phone,
+
         department: department,
+
         designation: designation,
       }),
     })
@@ -86,10 +185,25 @@ function Profile() {
       .then(function (result) {
         if (!result.ok) {
           alert(result.data.message || "Failed to update profile");
+
           return;
         }
 
         setEditmode(false);
+
+        const updatedUser = {
+          ...loggedInUser,
+
+          name: result.data.name,
+
+          email: result.data.email,
+
+          phone: result.data.phone,
+
+          profilePhoto: result.data.profilePhoto || profilePhoto,
+        };
+
+        sessionStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
 
         alert("Profile updated successfully");
       })
@@ -99,6 +213,7 @@ function Profile() {
         alert("Server se connection nahi ho raha");
       });
   }
+
   return (
     <div className="Profile">
       <h2>
@@ -107,13 +222,41 @@ function Profile() {
       </h2>
 
       <div className="profile-header">
-        <div className="profile-photo">
-          <img src="./slk.jpg" alt="owner" />
+        {/* ================= PROFILE PHOTO ================= */}
+
+        <div className="profile-photo-container">
+          <label className="profile-photo" title="Upload profile photo">
+            {profilePhoto ? (
+              <img
+                src={API_URL + profilePhoto + "?t=" + Date.now()}
+                alt="Profile"
+              />
+            ) : (
+              <img src="./slk.jpg" alt="Profile" />
+            )}
+
+            <div className="photo-upload-icon">
+              <FaCamera />
+            </div>
+
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/webp"
+              onChange={uploadPhoto}
+              disabled={uploadingPhoto}
+            />
+          </label>
+
+          {uploadingPhoto && (
+            <small className="photo-uploading">Uploading...</small>
+          )}
         </div>
 
         <div className="profile-header-info">
           <label>{name}</label>
+
           <label>{designation}</label>
+
           <label>{email}</label>
         </div>
       </div>
@@ -208,26 +351,31 @@ function Profile() {
 
           <label>
             <h2>Username :</h2>
+
             <span>{email}</span>
           </label>
 
           <label>
             <h2>Role :</h2>
+
             <span>{role}</span>
           </label>
 
           <label>
             <h2>Account created :</h2>
+
             <span>17 Aug 2026</span>
           </label>
 
           <label>
             <h2>Last login :</h2>
+
             <span>Today</span>
           </label>
 
           <label>
             <h2>Status :</h2>
+
             <span>{status}</span>
           </label>
         </div>

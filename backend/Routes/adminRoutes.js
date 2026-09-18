@@ -3,6 +3,83 @@ const router = express.Router();
 const Admin = require("../Models/Admin");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
+// ================= PROFILE PHOTO UPLOAD =================
+
+const profileUploadPath = path.join(
+    __dirname,
+    "../uploads/profile"
+);
+
+if (!fs.existsSync(profileUploadPath)) {
+    fs.mkdirSync(profileUploadPath, {
+        recursive: true
+    });
+}
+
+const profileStorage = multer.diskStorage({
+
+    destination: function (req, file, cb) {
+
+        cb(null, profileUploadPath);
+
+    },
+
+    filename: function (req, file, cb) {
+
+        const extension =
+            path.extname(file.originalname).toLowerCase();
+
+        const uniqueName =
+            "admin-" +
+            req.params.id +
+            "-" +
+            Date.now() +
+            extension;
+
+        cb(null, uniqueName);
+
+    }
+
+});
+
+const profileUpload = multer({
+
+    storage: profileStorage,
+
+    limits: {
+        fileSize: 5 * 1024 * 1024
+    },
+
+    fileFilter: function (req, file, cb) {
+
+        const allowedTypes = [
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+            "image/webp"
+        ];
+
+        if (allowedTypes.includes(file.mimetype)) {
+
+            cb(null, true);
+
+        } else {
+
+            cb(
+                new Error(
+                    "Only JPG, JPEG, PNG and WEBP images are allowed"
+                )
+            );
+
+        }
+
+    }
+
+});
 
 const {
     authMiddleware,
@@ -141,7 +218,9 @@ router.post("/login", function (req, res) {
 
                                 role: admin.role,
 
-                                status: admin.status
+                                status: admin.status,
+
+                                profilePhoto: admin.profilePhoto || ""
 
                             }
 
@@ -547,7 +626,8 @@ router.put("/:id",
         department,
         designation,
         role,
-        status
+        status,
+        profilePhoto
     } = req.body;
 
 
@@ -580,6 +660,8 @@ router.put("/:id",
             admin.role = role;
 
             admin.status = status;
+
+            admin.profilePhoto=profilePhoto;
 
 
             if (password) {
@@ -626,7 +708,9 @@ router.put("/:id",
 
                 role: updatedAdmin.role,
 
-                status: updatedAdmin.status
+                status: updatedAdmin.status,
+
+                profilePhoto: updatedAdmin.profilePhoto || ""
 
             });
 
@@ -647,6 +731,105 @@ router.put("/:id",
 
 });
 
+// ================= UPLOAD ADMIN PROFILE PHOTO =================
+
+router.post(
+    "/:id/profile-photo",
+    authMiddleware,
+    requireRole("admin"),
+    profileUpload.single("profilePhoto"),
+    async function (req, res) {
+
+        try {
+
+            const id = Number(req.params.id);
+
+            if (isNaN(id)) {
+
+                return res.status(400).json({
+                    message: "Invalid admin ID"
+                });
+
+            }
+
+            if (!req.file) {
+
+                return res.status(400).json({
+                    message: "Please select an image"
+                });
+
+            }
+
+            const admin = await Admin.findOne({
+                id: id
+            });
+
+            if (!admin) {
+
+                return res.status(404).json({
+                    message: "Admin not found"
+                });
+
+            }
+
+            // Delete old photo if it exists
+
+            if (admin.profilePhoto) {
+
+                const oldPhotoPath =
+                    path.join(
+                        __dirname,
+                        "..",
+                        admin.profilePhoto
+                    );
+
+                if (fs.existsSync(oldPhotoPath)) {
+
+                    fs.unlinkSync(oldPhotoPath);
+
+                }
+
+            }
+
+            const photoPath =
+                "/uploads/profile/" +
+                req.file.filename;
+
+            admin.profilePhoto = photoPath;
+
+            await admin.save();
+
+            res.json({
+
+                message:
+                    "Profile photo uploaded successfully",
+
+                profilePhoto:
+                    photoPath
+
+            });
+
+        } catch (error) {
+
+            console.log(
+                "Admin profile photo upload error:",
+                error
+            );
+
+            res.status(500).json({
+
+                message:
+                    "Failed to upload profile photo",
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
 
 // ================= GET ADMIN SETTINGS =================
 

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "./UserProfile.css";
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaCamera } from "react-icons/fa";
 
 function UserProfile() {
-  const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
+  const loggedInUser = JSON.parse(
+    sessionStorage.getItem("loggedInUser") || "{}",
+  );
 
   const [userData, setUserData] = useState(null);
 
@@ -13,6 +15,13 @@ function UserProfile() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [department, setDepartment] = useState("");
+
+  const [profilePhoto, setProfilePhoto] = useState("");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  const API_URL = "http://localhost:5000";
+
+  // ================= GET PROFILE =================
 
   useEffect(function () {
     async function fetchProfile() {
@@ -37,9 +46,14 @@ function UserProfile() {
         setUserData(data);
 
         setName(data.employeeName || "");
+
         setEmail(data.email || "");
+
         setPhone(data.phone || "");
+
         setDepartment(data.department || "");
+
+        setProfilePhoto(data.profilePhoto || "");
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
@@ -49,6 +63,90 @@ function UserProfile() {
       fetchProfile();
     }
   }, []);
+
+  // ================= UPLOAD PHOTO =================
+
+  function uploadPhoto(event) {
+    const file = event.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file");
+
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image size should be less than 5 MB");
+
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("profilePhoto", file);
+
+    setUploadingPhoto(true);
+
+    fetch(`${API_URL}/api/employees/${loggedInUser.id}/profile-photo`, {
+      method: "POST",
+
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+      },
+
+      body: formData,
+    })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return {
+            ok: response.ok,
+            data: data,
+          };
+        });
+      })
+      .then(function (result) {
+        if (!result.ok) {
+          alert(result.data.message || "Failed to upload photo");
+
+          return;
+        }
+
+        const photoPath = result.data.profilePhoto;
+
+        setProfilePhoto(photoPath);
+
+        const updatedUser = {
+          ...loggedInUser,
+
+          profilePhoto: photoPath,
+        };
+
+        sessionStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+
+        setUserData(function (previous) {
+          return {
+            ...previous,
+            profilePhoto: photoPath,
+          };
+        });
+
+        alert("Profile photo updated successfully");
+      })
+      .catch(function (error) {
+        console.error("Photo upload error:", error);
+
+        alert("Server se connection nahi ho raha");
+      })
+      .finally(function () {
+        setUploadingPhoto(false);
+      });
+  }
+
+  // ================= SAVE DETAILS =================
 
   async function saveDetails() {
     try {
@@ -61,13 +159,17 @@ function UserProfile() {
 
           headers: {
             "Content-Type": "application/json",
+
             Authorization: `Bearer ${token}`,
           },
 
           body: JSON.stringify({
             employeeName: name,
+
             email: email,
+
             phone: phone,
+
             department: department,
           }),
         },
@@ -83,17 +185,27 @@ function UserProfile() {
 
       const updatedUser = {
         ...loggedInUser,
+
         employeeName: data.employeeName,
+
         email: data.email,
+
         phone: data.phone,
+
         department: data.department,
+
+        profilePhoto: data.profilePhoto || profilePhoto,
       };
 
       sessionStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
 
       setEditmode(false);
+
+      alert("Profile updated successfully");
     } catch (error) {
       console.error("Error updating profile:", error);
+
+      alert(error.message || "Failed to update profile");
     }
   }
 
@@ -112,11 +224,37 @@ function UserProfile() {
         PROFILE
       </h2>
 
-      {/* Profile Header */}
+      {/* ================= PROFILE HEADER ================= */}
 
       <div className="profile-header">
-        <div className="profile-photo">
-          <FaUser />
+        {/* PROFILE PHOTO */}
+
+        <div className="profile-photo-container">
+          <label className="profile-photo" title="Upload profile photo">
+            {profilePhoto ? (
+              <img
+                src={API_URL + profilePhoto + "?t=" + Date.now()}
+                alt="Profile"
+              />
+            ) : (
+              <FaUser />
+            )}
+
+            <div className="photo-upload-icon">
+              <FaCamera />
+            </div>
+
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/webp"
+              onChange={uploadPhoto}
+              disabled={uploadingPhoto}
+            />
+          </label>
+
+          {uploadingPhoto && (
+            <small className="photo-uploading">Uploading...</small>
+          )}
         </div>
 
         <div className="profile-header-info">
@@ -128,10 +266,10 @@ function UserProfile() {
         </div>
       </div>
 
-      {/* Profile Details */}
+      {/* ================= PROFILE DETAILS ================= */}
 
       <div className="profile-detail">
-        {/* Personal Information */}
+        {/* PERSONAL INFORMATION */}
 
         <div className="personal-info">
           <h1>Personal Information</h1>
@@ -207,7 +345,7 @@ function UserProfile() {
           </div>
         </div>
 
-        {/* Account Information */}
+        {/* ACCOUNT INFORMATION */}
 
         <div className="account-info">
           <h1>Account Information</h1>
@@ -238,7 +376,7 @@ function UserProfile() {
         </div>
       </div>
 
-      {/* Edit / Save Button */}
+      {/* ================= EDIT / SAVE ================= */}
 
       <button
         className={editmode ? "save-mode" : "edit-mode"}

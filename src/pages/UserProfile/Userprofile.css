@@ -78,7 +78,26 @@
    PROFILE PHOTO
 ========================================================= */
 
+/* =========================================================
+   PROFILE PHOTO CONTAINER
+========================================================= */
+
+.profile-photo-container {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* =========================================================
+   PROFILE PHOTO
+========================================================= */
+
 .profile-photo {
+    position: relative;
+
     display: flex;
     justify-content: center;
     align-items: center;
@@ -93,11 +112,27 @@
     background-color: #e3f5ef;
 
     border: 2px solid #159f6f;
+
     border-radius: 50%;
 
     overflow: hidden;
+
+    cursor: pointer;
+
+    color: #159f6f;
+
+    font-size: 40px;
+
+    transition: 0.2s;
 }
 
+
+.profile-photo:hover {
+    transform: scale(1.03);
+}
+
+
+/* IMAGE */
 
 .profile-photo img {
     width: 100%;
@@ -106,6 +141,84 @@
     object-fit: cover;
 }
 
+
+/* HIDDEN INPUT */
+
+.profile-photo input[type="file"] {
+    display: none;
+}
+
+
+/* CAMERA ICON */
+
+.photo-upload-icon {
+    position: absolute;
+
+    right: 1px;
+    bottom: 1px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 32px;
+    height: 32px;
+
+    background-color: #159f6f;
+
+    color: white;
+
+    border: 3px solid white;
+
+    border-radius: 50%;
+
+    font-size: 14px;
+
+    transition: 0.2s;
+}
+
+
+.profile-photo:hover .photo-upload-icon {
+    background-color: #10865e;
+}
+
+
+/* UPLOADING */
+
+.photo-uploading {
+    margin-top: 7px;
+
+    color: #159f6f;
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   MOBILE PHOTO
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .profile-photo {
+        width: 75px;
+        height: 75px;
+
+        margin-right: 15px;
+
+        font-size: 28px;
+    }
+
+    .photo-upload-icon {
+        width: 28px;
+        height: 28px;
+
+        font-size: 12px;
+    }
+
+}
 
 /* =========================================================
    PROFILE HEADER INFORMATION

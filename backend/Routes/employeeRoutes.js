@@ -3,6 +3,82 @@ const router = express.Router();
 const { isValidPhoneNumber } = require("libphonenumber-js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+// ================= PROFILE PHOTO UPLOAD =================
+
+const profileUploadPath = path.join(
+    __dirname,
+    "../uploads/profile"
+);
+
+if (!fs.existsSync(profileUploadPath)) {
+    fs.mkdirSync(profileUploadPath, {
+        recursive: true
+    });
+}
+
+const profileStorage = multer.diskStorage({
+
+    destination: function (req, file, cb) {
+
+        cb(null, profileUploadPath);
+
+    },
+
+    filename: function (req, file, cb) {
+
+        const extension =
+            path.extname(file.originalname).toLowerCase();
+
+        const uniqueName =
+            "employee-" +
+            req.params.id +
+            "-" +
+            Date.now() +
+            extension;
+
+        cb(null, uniqueName);
+
+    }
+
+});
+
+const profileUpload = multer({
+
+    storage: profileStorage,
+
+    limits: {
+        fileSize: 5 * 1024 * 1024
+    },
+
+    fileFilter: function (req, file, cb) {
+
+        const allowedTypes = [
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+            "image/webp"
+        ];
+
+        if (allowedTypes.includes(file.mimetype)) {
+
+            cb(null, true);
+
+        } else {
+
+            cb(
+                new Error(
+                    "Only JPG, JPEG, PNG and WEBP images are allowed"
+                )
+            );
+
+        }
+
+    }
+
+});
 
 const Employee = require("../Models/Employee");
 const Asset = require("../Models/Asset");
@@ -258,7 +334,8 @@ router.post(
                         employee.email,
 
                     employeestatus:
-                        employee.employeestatus
+                        employee.employeestatus,
+                    profilePhoto: employee.profilePhoto || ""
 
                 }
 
@@ -537,7 +614,8 @@ router.post(
                     employee.email,
 
                 employeestatus:
-                    employee.employeestatus
+                    employee.employeestatus,
+                profilePhoto: employee.profilePhoto || ""
 
             };
 
@@ -726,7 +804,10 @@ router.put(
                     updatedEmployee.email,
 
                 employeestatus:
-                    updatedEmployee.employeestatus
+                    updatedEmployee.employeestatus,
+
+                profilePhoto:
+                    updatedEmployee.profilePhoto || ""
 
             };
 
@@ -752,7 +833,100 @@ router.put(
 
     }
 );
+// ================= UPLOAD EMPLOYEE PROFILE PHOTO =================
 
+router.post(
+    "/:id/profile-photo",
+    authMiddleware,
+    profileUpload.single("profilePhoto"),
+    async function (req, res) {
+
+        try {
+
+            const id = Number(req.params.id);
+
+            if (isNaN(id)) {
+                return res.status(400).json({
+                    message: "Invalid employee ID"
+                });
+            }
+
+            // User can upload only his own profile photo
+            if (
+                req.user.role === "user" &&
+                Number(req.user.id) !== id
+            ) {
+                return res.status(403).json({
+                    message: "Access denied"
+                });
+            }
+
+            if (
+                req.user.role !== "user" &&
+                req.user.role !== "admin"
+            ) {
+                return res.status(403).json({
+                    message: "Access denied"
+                });
+            }
+
+            if (!req.file) {
+                return res.status(400).json({
+                    message: "Please select an image"
+                });
+            }
+
+            const employee = await Employee.findOne({
+                id: id
+            });
+
+            if (!employee) {
+                return res.status(404).json({
+                    message: "Employee not found"
+                });
+            }
+
+            // Delete old photo if it exists
+            if (employee.profilePhoto) {
+
+                const oldPhotoPath = path.join(
+                    __dirname,
+                    "..",
+                    employee.profilePhoto
+                );
+
+                if (fs.existsSync(oldPhotoPath)) {
+                    fs.unlinkSync(oldPhotoPath);
+                }
+            }
+
+            const photoPath =
+                "/uploads/profile/" +
+                req.file.filename;
+
+            employee.profilePhoto = photoPath;
+
+            await employee.save();
+
+            res.json({
+                message: "Profile photo uploaded successfully",
+                profilePhoto: photoPath
+            });
+
+        } catch (error) {
+
+            console.log(
+                "Employee profile photo upload error:",
+                error
+            );
+
+            res.status(500).json({
+                message: "Failed to upload profile photo",
+                error: error.message
+            });
+        }
+    }
+);
 
 // ================= CHANGE PASSWORD =================
 // EMPLOYEE CAN CHANGE ONLY HIS OWN PASSWORD
@@ -1167,7 +1341,8 @@ router.post(
                     role: "user",
 
                     status:
-                        employee.employeestatus
+                        employee.employeestatus,
+                    profilePhoto: employee.profilePhoto || ""
 
                 }
 
