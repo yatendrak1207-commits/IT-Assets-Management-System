@@ -11,10 +11,53 @@ function UserNavbar() {
   const navigate = useNavigate();
 
   const [notificationCount, setNotificationCount] = useState(0);
+  const [profilePhoto, setProfilePhoto] = useState("");
 
   const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
 
-  const userName = loggedInUser?.employeeName || "User";
+  const [userName, setUserName] = useState("User");
+
+  useEffect(function () {
+    const token = sessionStorage.getItem("token");
+
+    const loggedInUserData = JSON.parse(
+      sessionStorage.getItem("loggedInUser") || "{}",
+    );
+
+    console.log("LOGGED IN USER:", loggedInUserData);
+    console.log("EMPLOYEE ID:", loggedInUserData.id);
+
+    if (!token || !loggedInUserData.id) {
+      console.log("Token or Employee ID missing");
+      return;
+    }
+
+    fetch("http://localhost:5000/api/employees/" + loggedInUserData.id, {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    })
+      .then(function (response) {
+        console.log("EMPLOYEE RESPONSE STATUS:", response.status);
+
+        if (!response.ok) {
+          throw new Error("Employee data fetch failed");
+        }
+
+        return response.json();
+      })
+      .then(function (data) {
+        console.log("EMPLOYEE DATA NAVBAR:", data);
+        console.log("EMPLOYEE NAME:", data.employeeName);
+        console.log("PROFILE PHOTO:", data.profilePhoto);
+
+        setUserName(data.employeeName || "User");
+        setProfilePhoto(data.profilePhoto || "");
+      })
+      .catch(function (error) {
+        console.log("Failed to fetch user profile:", error);
+      });
+  }, []);
   // Current date and time
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   useEffect(() => {
@@ -58,7 +101,18 @@ function UserNavbar() {
   return (
     <div className="navbar">
       <div className="navbar-left">
-        <h2>👤 Hello, {userName}</h2>
+        <h2 className="hello-user">
+          {profilePhoto ? (
+            <img
+              src={"http://localhost:5000" + profilePhoto + "?t=" + Date.now()}
+              className="hello-profile-photo"
+              alt="User"
+            />
+          ) : (
+            <FaUser className="hello-user-icon" />
+          )}
+          Hello, {userName}
+        </h2>
       </div>
 
       <div className="navbar-center">

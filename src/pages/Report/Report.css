@@ -226,6 +226,11 @@
     justify-content: center;
 
     overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.chart-section::-webkit-scrollbar {
+    display: none;
 }
 
 

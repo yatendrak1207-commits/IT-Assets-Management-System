@@ -410,18 +410,14 @@ export default function Repair() {
                       : ""}
                   </td>
 
-                  <td
-                    className={
-                      item.status === "Pending"
-                        ? "Open"
-                        : item.status === "In Progress"
-                          ? "Progress"
-                          : item.status === "Completed"
-                            ? "Resolved"
-                            : "Cancelled"
-                    }
-                  >
-                    {highlightText(item.status || "")}
+                  <td>
+                    <span
+                      className={`status-badge ${item.status
+                        ?.toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                    >
+                      {highlightText(item.status || "")}
+                    </span>
                   </td>
 
                   <td>

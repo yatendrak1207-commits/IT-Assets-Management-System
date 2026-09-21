@@ -43,6 +43,7 @@
     flex-direction: column;
 overflow-y: auto;
     overflow-x: hidden;
+    background-color: #f7faf9;
 
     scrollbar-width: none;
     -ms-overflow-style: none;

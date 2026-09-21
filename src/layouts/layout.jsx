@@ -47,6 +47,9 @@ function Layout({ className }) {
                       // Remove logged in user
                       sessionStorage.removeItem("loggedInUser");
 
+                      //restart uptime
+                      sessionStorage.removeItem("loginTime");
+
                       setShowlogout(false);
 
                       navigate("/login");

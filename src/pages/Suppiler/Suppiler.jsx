@@ -231,6 +231,7 @@ function Suppiler() {
               <th>Supplier Name</th>
               <th>Company</th>
               <th>Contact No.</th>
+              <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -246,6 +247,16 @@ function Suppiler() {
                   <td>{highlightText(item.companyName)}</td>
 
                   <td>{item.companyContactNumber}</td>
+
+                  <td>
+                    <span
+                      className={`status-badge ${item.supplierStatus
+                        ?.toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                    >
+                      {item.supplierStatus || "-"}
+                    </span>
+                  </td>
 
                   <td>
                     <div className="action-buttons">
@@ -333,8 +344,56 @@ function Suppiler() {
               </p>
 
               <p>
-                <strong>Assets Supplied :</strong> {selecteditem.assetsSupplied}
+                <strong>Assets Supplied:</strong> {selecteditem.assetsSupplied}
               </p>
+
+              {/* =================================================
+                  ACTUAL CONNECTED ASSETS
+              ================================================= */}
+
+              <div className="connected-assets-section">
+                <div className="connected-assets-heading">
+                  <strong>Connected Assets:</strong>
+
+                  <span className="connected-assets-count">
+                    {selecteditem.suppliedAssetsCount || 0}
+                  </span>
+                </div>
+
+                {selecteditem.suppliedAssets &&
+                selecteditem.suppliedAssets.length > 0 ? (
+                  <div className="connected-assets-list">
+                    {selecteditem.suppliedAssets.map(function (asset) {
+                      return (
+                        <div
+                          className="connected-asset-item"
+                          key={asset._id || asset.id}
+                        >
+                          <div className="connected-asset-info">
+                            <strong>{asset.assetId}</strong>
+
+                            <span>{asset.assetName}</span>
+
+                            <small>{asset.category}</small>
+                          </div>
+
+                          <span
+                            className={`status-badge ${asset.status
+                              ?.toLowerCase()
+                              .replace(/\s+/g, "-")}`}
+                          >
+                            {asset.status || "-"}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="no-connected-assets">
+                    No assets connected with this supplier
+                  </div>
+                )}
+              </div>
 
               <p>
                 <strong>Supplier Status:</strong> {selecteditem.supplierStatus}
@@ -493,6 +552,7 @@ function Suppiler() {
                 <option value="" disabled>
                   Select Status
                 </option>
+
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
                 <option value="On-hold">On Hold</option>
@@ -531,6 +591,7 @@ function Suppiler() {
         <div className="delete-overlay">
           <div className="delete-confirm-box">
             <h2>Confirm Delete</h2>
+
             <p>
               Are you sure you want to delete{" "}
               <strong>{deleteSupplier.supplierName}</strong>?
@@ -580,6 +641,7 @@ function Suppiler() {
                     })
                     .catch(function (error) {
                       console.log("Error deleting supplier:", error);
+
                       setDeleteSupplier(null);
                       alert(error.message);
                     });

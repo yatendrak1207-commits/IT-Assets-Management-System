@@ -64,6 +64,8 @@ function Login() {
             }),
           );
 
+          sessionStorage.setItem("loginTime", Date.now().toString());
+
           navigate("/");
 
           return;
@@ -107,6 +109,8 @@ function Login() {
                 role: "user",
               }),
             );
+
+            sessionStorage.setItem("loginTime", Date.now().toString());
 
             navigate("/user");
           });

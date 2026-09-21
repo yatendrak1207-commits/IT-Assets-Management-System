@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./UserSetting.css";
 import { IoSettings } from "react-icons/io5";
 
@@ -6,6 +6,7 @@ function UserSettings({ theme, setTheme }) {
   const [openSection, setOpenSection] = useState(null);
 
   const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
+  console.log("Logged In User:", loggedInUser);
 
   const [emailNotification, setEmailNotification] = useState(
     localStorage.getItem("userEmailNotification") === "true",
@@ -163,7 +164,7 @@ function UserSettings({ theme, setTheme }) {
         <div className="user-settings-content">
           <div className="user-settings-item">
             <label>Name</label>
-            <span>{loggedInUser?.employeeName || "User"}</span>
+            <span>{loggedInUser?.name || "User"}</span>
           </div>
 
           <div className="user-settings-item">
@@ -283,7 +284,7 @@ function UserSettings({ theme, setTheme }) {
       {/* =================================================
           DISPLAY SETTINGS
       ================================================= */}
-
+      {/*
       <div
         className="user-settings-section-header"
         onClick={function () {
@@ -351,7 +352,7 @@ function UserSettings({ theme, setTheme }) {
           </div>
         </div>
       )}
-
+*/}
       {/* =================================================
           SECURITY SETTINGS
       ================================================= */}

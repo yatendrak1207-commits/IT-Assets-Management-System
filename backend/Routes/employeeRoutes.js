@@ -927,7 +927,91 @@ router.post(
         }
     }
 );
+// ================= REMOVE EMPLOYEE PROFILE PHOTO =================
 
+router.delete(
+    "/:id/profile-photo",
+    authMiddleware,
+    async function (req, res) {
+
+        try {
+
+            const id = Number(req.params.id);
+
+            if (isNaN(id)) {
+                return res.status(400).json({
+                    message: "Invalid employee ID"
+                });
+            }
+
+            // User can remove only his own profile photo
+            if (
+                req.user.role === "user" &&
+                Number(req.user.id) !== id
+            ) {
+                return res.status(403).json({
+                    message: "Access denied"
+                });
+            }
+
+            // Only user or admin can access
+            if (
+                req.user.role !== "user" &&
+                req.user.role !== "admin"
+            ) {
+                return res.status(403).json({
+                    message: "Access denied"
+                });
+            }
+
+            const employee = await Employee.findOne({
+                id: id
+            });
+
+            if (!employee) {
+                return res.status(404).json({
+                    message: "Employee not found"
+                });
+            }
+
+            // Delete photo file from uploads folder
+            if (employee.profilePhoto) {
+
+                const photoPath = path.join(
+                    __dirname,
+                    "..",
+                    employee.profilePhoto
+                );
+
+                if (fs.existsSync(photoPath)) {
+                    fs.unlinkSync(photoPath);
+                }
+            }
+
+            // Remove photo path from database
+            employee.profilePhoto = "";
+
+            await employee.save();
+
+            res.json({
+                message: "Profile photo removed successfully",
+                profilePhoto: ""
+            });
+
+        } catch (error) {
+
+            console.log(
+                "Employee profile photo remove error:",
+                error
+            );
+
+            res.status(500).json({
+                message: "Failed to remove profile photo",
+                error: error.message
+            });
+        }
+    }
+);
 // ================= CHANGE PASSWORD =================
 // EMPLOYEE CAN CHANGE ONLY HIS OWN PASSWORD
 // ADMIN CAN ACCESS THIS ROUTE

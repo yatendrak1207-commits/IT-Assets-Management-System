@@ -831,6 +831,72 @@ router.post(
     }
 );
 
+// ================= REMOVE ADMIN PROFILE PHOTO =================
+
+router.delete(
+    "/:id/profile-photo",
+    authMiddleware,
+    requireRole("admin"),
+    async function (req, res) {
+
+        try {
+
+            const id = Number(req.params.id);
+
+            if (isNaN(id)) {
+                return res.status(400).json({
+                    message: "Invalid admin ID"
+                });
+            }
+
+            const admin = await Admin.findOne({
+                id: id
+            });
+
+            if (!admin) {
+                return res.status(404).json({
+                    message: "Admin not found"
+                });
+            }
+
+            // Delete photo file from uploads folder
+            if (admin.profilePhoto) {
+
+                const photoPath = path.join(
+                    __dirname,
+                    "..",
+                    admin.profilePhoto
+                );
+
+                if (fs.existsSync(photoPath)) {
+                    fs.unlinkSync(photoPath);
+                }
+            }
+
+            // Remove photo path from database
+            admin.profilePhoto = "";
+
+            await admin.save();
+
+            res.json({
+                message: "Profile photo removed successfully",
+                profilePhoto: ""
+            });
+
+        } catch (error) {
+
+            console.log(
+                "Admin profile photo remove error:",
+                error
+            );
+
+            res.status(500).json({
+                message: "Failed to remove profile photo",
+                error: error.message
+            });
+        }
+    }
+);
 // ================= GET ADMIN SETTINGS =================
 
 router.get("/:id/settings", function (req, res) {

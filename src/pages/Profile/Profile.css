@@ -528,3 +528,141 @@
         font-size: 15px;
     }
 }
+/* ============================= */
+/* PROFILE PHOTO MODAL */
+/* ============================= */
+
+.photo-menu-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(15, 23, 42, 0.48);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    z-index: 9999;
+}
+
+/* Modal */
+.photo-menu {
+    width: 390px;
+    max-width: calc(100vw - 40px);
+
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 30px;
+
+    box-shadow:
+        0 25px 60px rgba(0, 0, 0, 0.20),
+        0 8px 20px rgba(0, 0, 0, 0.08);
+
+    animation: photoModalOpen 0.2s ease-out;
+}
+
+@keyframes photoModalOpen {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Heading */
+.photo-menu h3 {
+    margin: 0 0 26px;
+
+    text-align: center;
+
+    font-size: 21px;
+    font-weight: 700;
+
+    color: #12344d;
+}
+
+/* All buttons */
+.photo-menu button {
+    width: 100%;
+    height: 48px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
+}
+
+/* Upload */
+.photo-menu button:first-of-type {
+    background: #0d9488;
+    border: 1px solid #0d9488;
+    color: #ffffff;
+
+    box-shadow: 0 4px 10px rgba(13, 148, 136, 0.20);
+}
+
+.photo-menu button:first-of-type:hover {
+    background: #0f766e;
+    border-color: #0f766e;
+
+    box-shadow: 0 6px 14px rgba(13, 148, 136, 0.25);
+}
+
+/* Remove */
+.photo-menu button:nth-of-type(2) {
+    margin-top: 12px;
+
+    background: #ffffff;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+}
+
+.photo-menu button:nth-of-type(2):hover {
+    background: #fef2f2;
+    border-color: #fca5a5;
+}
+
+/* Cancel */
+.photo-menu button:last-of-type {
+    margin-top: 12px;
+
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    color: #e11d48;
+}
+
+.photo-menu button:last-of-type:hover {
+    background: #ffe4e6;
+    border-color: #fda4af;
+    color: #be123c;
+}
+
+/* Icons */
+.photo-menu button svg {
+    font-size: 16px;
+}
+
+/* Click effect */
+.photo-menu button:active {
+    transform: scale(0.98);
+}

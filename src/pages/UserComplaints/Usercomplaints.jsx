@@ -194,7 +194,15 @@ function UserComplaints() {
                     <td>{item.repairId}</td>
                     <td>{item.complaint}</td>
                     <td>{item.asset ? item.asset.assetName : "-"}</td>
-                    <td>{item.status}</td>
+                    <td>
+                      <span
+                        className={`status-badge ${item.status
+                          ?.toLowerCase()
+                          .replace(/\s+/g, "-")}`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
                     <td>
                       {item.complaintDate
                         ? new Date(item.complaintDate).toLocaleDateString(

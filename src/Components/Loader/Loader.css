@@ -1,0 +1,56 @@
+/* ================= PAGE LOADER ================= */
+
+.page-loader {
+    min-height: 250px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 10px;
+
+    color: #09325a;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.loader-spinner {
+    width: 24px;
+    height: 24px;
+
+    border: 3px solid #dbe5e3;
+    border-top: 3px solid #159f6f;
+
+    border-radius: 50%;
+
+    animation: loader-spin 0.7s linear infinite;
+}
+
+
+/* ================= BUTTON LOADER ================= */
+
+.button-loader-content {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.button-spinner {
+    width: 15px;
+    height: 15px;
+
+    border: 2px solid rgba(255, 255, 255, 0.45);
+    border-top: 2px solid white;
+
+    border-radius: 50%;
+
+    animation: loader-spin 0.7s linear infinite;
+}
+
+
+@keyframes loader-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

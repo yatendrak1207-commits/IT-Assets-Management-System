@@ -3,3 +3,147 @@
     margin: 0;
     padding: 0;
 }
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px !important;
+    min-width: 80px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 15px !important;
+    font-weight: 600;
+    white-space: nowrap;
+    background-color: transparent !important;
+}
+
+.status-badge::before {
+    content: "";
+    width: 12px;
+    height: 12px;
+
+    flex-shrink: 0;
+
+    margin-right: 8px;
+
+    border-radius: 50%;
+    display: inline-block;
+    
+}
+
+/* Active */
+.status-badge.active {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-badge.active::before {
+    background: #15803d;
+}
+
+/* Available */
+.status-badge.available {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-badge.available::before {
+    background: #15803d;
+}
+
+/* Inactive */
+.status-badge.inactive {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.status-badge.inactive::before {
+    background: #dc2626;
+}
+
+/* Pending */
+.status-badge.pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status-badge.pending::before {
+    background: #b45309;
+}
+
+/* In Progress */
+.status-badge.in-progress {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.status-badge.in-progress::before {
+    background: #2563eb;
+}
+
+/* Assigned */
+.status-badge.assigned {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.status-badge.assigned::before {
+    background: #2563eb;
+}
+
+/* Completed */
+.status-badge.completed {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-badge.completed::before {
+    background: #15803d;
+}
+
+/* Resolved */
+.status-badge.resolved {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-badge.resolved::before {
+    background: #15803d;
+}
+
+/* Cancelled */
+.status-badge.cancelled {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.status-badge.cancelled::before {
+    background: #dc2626;
+}
+
+/* On Hold */
+.status-badge.on-hold {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status-badge.on-hold::before {
+    background: #b45309;
+}
+
+/* Blacklisted */
+.status-badge.blacklisted {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.status-badge.blacklisted::before {
+    background: #374151;
+}
+.status-badge.repair{
+    background-color: rgb(188, 245, 188);
+    color: #15803d;
+}
+.status-badge.repair::before{
+    background-color: #15803d;
+}

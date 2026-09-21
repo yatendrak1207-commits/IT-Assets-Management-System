@@ -529,3 +529,43 @@
 
     transform: scale(1.10);
 }
+/* =========================
+   NAVBAR PROFILE
+========================= */
+
+.navbar-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.navbar-profile-photo {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #5FFFD4;
+    display: block;
+}
+
+.navbar-profile:hover .navbar-profile-photo {
+    transform: scale(1.05);
+}.hello-admin {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+}
+
+.hello-admin-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.hello-admin-icon {
+    font-size: 24px;
+}

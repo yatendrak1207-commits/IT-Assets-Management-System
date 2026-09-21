@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./UserProfile.css";
-import { FaUser, FaCamera } from "react-icons/fa";
+import { FaUser, FaCamera, FaTrash } from "react-icons/fa";
 
 function UserProfile() {
   const loggedInUser = JSON.parse(
@@ -18,6 +18,8 @@ function UserProfile() {
 
   const [profilePhoto, setProfilePhoto] = useState("");
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [showPhotoMenu, setShowPhotoMenu] = useState(false);
+  const photoInputRef = useRef(null);
 
   const API_URL = "http://localhost:5000";
 
@@ -63,7 +65,18 @@ function UserProfile() {
       fetchProfile();
     }
   }, []);
+  function handlePhotoClick() {
+    if (profilePhoto) {
+      setShowPhotoMenu(true);
+    } else {
+      photoInputRef.current.click();
+    }
+  }
 
+  function openFileUpload() {
+    setShowPhotoMenu(false);
+    photoInputRef.current.click();
+  }
   // ================= UPLOAD PHOTO =================
 
   function uploadPhoto(event) {
@@ -145,7 +158,58 @@ function UserProfile() {
         setUploadingPhoto(false);
       });
   }
+  // ================= REMOVE PHOTO =================
 
+  function removeProfilePhoto() {
+    const token = sessionStorage.getItem("token");
+
+    fetch(`${API_URL}/api/employees/${loggedInUser.id}/profile-photo`, {
+      method: "DELETE",
+
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return {
+            ok: response.ok,
+            data: data,
+          };
+        });
+      })
+      .then(function (result) {
+        if (!result.ok) {
+          alert(result.data.message || "Failed to remove photo");
+          return;
+        }
+
+        setProfilePhoto("");
+
+        const updatedUser = {
+          ...loggedInUser,
+          profilePhoto: "",
+        };
+
+        sessionStorage.setItem("loggedInUser", JSON.stringify(updatedUser));
+
+        setUserData(function (previous) {
+          return {
+            ...previous,
+            profilePhoto: "",
+          };
+        });
+
+        setShowPhotoMenu(false);
+
+        alert("Profile photo removed successfully");
+      })
+      .catch(function (error) {
+        console.error("Photo remove error:", error);
+
+        alert("Server se connection nahi ho raha");
+      });
+  }
   // ================= SAVE DETAILS =================
 
   async function saveDetails() {
@@ -230,30 +294,64 @@ function UserProfile() {
         {/* PROFILE PHOTO */}
 
         <div className="profile-photo-container">
-          <label className="profile-photo" title="Upload profile photo">
+          <div
+            className="profile-photo"
+            onClick={handlePhotoClick}
+            title={
+              profilePhoto ? "Profile photo options" : "Upload profile photo"
+            }
+          >
             {profilePhoto ? (
               <img
                 src={API_URL + profilePhoto + "?t=" + Date.now()}
                 alt="Profile"
               />
             ) : (
-              <FaUser />
+              <img src="/removee.jpg" alt="Profile" />
             )}
 
             <div className="photo-upload-icon">
               <FaCamera />
             </div>
+          </div>
 
-            <input
-              type="file"
-              accept="image/png,image/jpeg,image/jpg,image/webp"
-              onChange={uploadPhoto}
-              disabled={uploadingPhoto}
-            />
-          </label>
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/jpg,image/webp"
+            onChange={uploadPhoto}
+            disabled={uploadingPhoto}
+            style={{ display: "none" }}
+          />
 
           {uploadingPhoto && (
             <small className="photo-uploading">Uploading...</small>
+          )}
+
+          {showPhotoMenu && (
+            <div className="photo-menu-overlay">
+              <div className="photo-menu">
+                <h3>Profile Photo</h3>
+
+                <button onClick={openFileUpload}>
+                  <FaCamera />
+                  Upload Profile Photo
+                </button>
+
+                <button onClick={removeProfilePhoto}>
+                  <FaTrash />
+                  Remove Profile Photo
+                </button>
+
+                <button
+                  onClick={function () {
+                    setShowPhotoMenu(false);
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           )}
         </div>
 

@@ -81,7 +81,15 @@ function MyAssets() {
                     <td>{item.assetId}</td>
                     <td>{item.assetName}</td>
                     <td>{item.category}</td>
-                    <td>{item.status}</td>
+                    <td>
+                      <span
+                        className={`status-badge ${item.status
+                          ?.toLowerCase()
+                          .replace(/\s+/g, "-")}`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
                   </tr>
                 );
               })}

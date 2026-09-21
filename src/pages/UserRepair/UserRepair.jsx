@@ -79,7 +79,15 @@ function UserRepair() {
                         : "N/A"}
                     </td>
 
-                    <td>{item.status || "N/A"}</td>
+                    <td>
+                      <span
+                        className={`status-badge ${item.status
+                          ?.toLowerCase()
+                          .replace(/\s+/g, "-")}`}
+                      >
+                        {item.status || "N/A"}
+                      </span>
+                    </td>
                   </tr>
                 );
               })}

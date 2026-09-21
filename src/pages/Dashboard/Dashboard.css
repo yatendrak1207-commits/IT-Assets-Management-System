@@ -110,6 +110,11 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
 }
+.dashboard-modal-field:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    width: 100%;
+    box-sizing: border-box;
+}
 
 .dashboard-modal-field {
     background: #f8fafc;

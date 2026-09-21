@@ -23,7 +23,7 @@ function Settings({ theme, setTheme }) {
   const [lowStockAlert, setLowStockAlert] = useState(false);
 
   const [items, setItems] = useState("one");
-  const [Date, setDate] = useState("days");
+  const [dateFormat, setDate] = useState("days");
 
   const [currentpassword, setCurrentpassword] = useState("");
   const [newpassword, setNewpassword] = useState("");
@@ -31,6 +31,7 @@ function Settings({ theme, setTheme }) {
 
   const [twofactor, setTwofactor] = useState(false);
   const [logout, setLogout] = useState("Never");
+  const [uptime, setUptime] = useState("00:00:00");
 
   const [changepassword, setChangepassword] = useState(false);
 
@@ -41,6 +42,42 @@ function Settings({ theme, setTheme }) {
   );
 
   const adminId = loggedInUser.id;
+
+  /*---------------------Up-time----------------------*/
+  useEffect(function () {
+    const loginTime = sessionStorage.getItem("loginTime");
+
+    if (!loginTime) {
+      setUptime("00:00:00");
+      return;
+    }
+
+    function updateUptime() {
+      const difference = Date.now() - Number(loginTime);
+
+      const totalSeconds = Math.floor(difference / 1000);
+
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      setUptime(
+        String(hours).padStart(2, "0") +
+          ":" +
+          String(minutes).padStart(2, "0") +
+          ":" +
+          String(seconds).padStart(2, "0"),
+      );
+    }
+
+    updateUptime();
+
+    const timer = setInterval(updateUptime, 1000);
+
+    return function () {
+      clearInterval(timer);
+    };
+  }, []);
 
   /*------------------ GET SETTINGS ----------------*/
 
@@ -233,7 +270,7 @@ function Settings({ theme, setTheme }) {
         display: {
           theme: theme,
           items: items,
-          dateFormat: Date,
+          dateFormat: dateFormat,
         },
       }),
     })
@@ -611,7 +648,7 @@ function Settings({ theme, setTheme }) {
             </select>
           </div>
 
-          <div className="settings-item">
+          {/* <div className="settings-item">
             <label>Items per page</label>
 
             <select
@@ -632,7 +669,7 @@ function Settings({ theme, setTheme }) {
             <label>Date Format</label>
 
             <select
-              value={Date}
+              value={dateFormat}
               onChange={function (item) {
                 setDate(item.target.value);
               }}
@@ -645,7 +682,7 @@ function Settings({ theme, setTheme }) {
 
           <div className="save-button">
             <button onClick={saveDisplaySettings}>Save Changes</button>
-          </div>
+          </div>*/}
         </div>
       )}
 
@@ -816,7 +853,7 @@ function Settings({ theme, setTheme }) {
 
           <div className="settings-item">
             <label>System Uptime</label>
-            <span>5 hours 32 minutes</span>
+            <span>{uptime}</span>
           </div>
         </div>
       )}

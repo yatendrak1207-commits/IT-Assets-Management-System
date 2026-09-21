@@ -9,6 +9,7 @@ function Navbar() {
   const [hasNew, setHasNew] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [adminName, setAdminName] = useState("Admin");
+  const [profilePhoto, setProfilePhoto] = useState("");
 
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
@@ -23,17 +24,37 @@ function Navbar() {
   useEffect(function () {
     const token = sessionStorage.getItem("token");
 
-    fetch("http://localhost:5000/api/admins/1", {
+    const loggedInUser = JSON.parse(
+      sessionStorage.getItem("loggedInUser") || "{}",
+    );
+
+    const adminId = loggedInUser.id;
+
+    console.log("LOGGED IN ADMIN:", loggedInUser);
+    console.log("ADMIN ID:", adminId);
+
+    if (!token || !adminId) {
+      console.log("Token or Admin ID missing");
+      return;
+    }
+
+    fetch("http://localhost:5000/api/admins/" + adminId, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: "Bearer " + token,
       },
     })
       .then(function (response) {
+        if (!response.ok) {
+          throw new Error("Failed to fetch admin");
+        }
+
         return response.json();
       })
       .then(function (data) {
-        console.log("ADMIN DATA", data);
-        setAdminName(data.name);
+        console.log("ADMIN DATA NAVBAR:", data);
+
+        setAdminName(data.name || "Admin");
+        setProfilePhoto(data.profilePhoto || "");
       })
       .catch(function (error) {
         console.log("Failed to fetch admin:", error);
@@ -115,7 +136,20 @@ function Navbar() {
     <>
       <div className="navbar">
         <div className="navbar-left">
-          <h2>👤 Hello, {adminName}</h2>
+          <h2 className="hello-admin">
+            {profilePhoto ? (
+              <img
+                src={
+                  "http://localhost:5000" + profilePhoto + "?t=" + Date.now()
+                }
+                className="hello-admin-photo"
+                alt="Admin"
+              />
+            ) : (
+              <FaUser className="hello-admin-icon" />
+            )}
+            Hello, {adminName}
+          </h2>
         </div>
 
         <div className="navbar-center">
@@ -134,7 +168,12 @@ function Navbar() {
 
           <div className="divider"></div>
 
-          <FaUser className="nav-icon" />
+          <FaUser
+            className="nav-icon"
+            onClick={function () {
+              window.location.href = "/profile";
+            }}
+          />
 
           <span>Admin</span>
 

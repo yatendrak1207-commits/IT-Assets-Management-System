@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import { LuMonitorSpeaker } from "react-icons/lu";
 import { MdManageSearch } from "react-icons/md";
+import { ButtonLoader } from "../../Components/Loader/Loader";
 
 function Assets() {
   const [search, setSearch] = useState("");
@@ -10,6 +11,7 @@ function Assets() {
   const [selecteditem, setSelectedItem] = useState(null);
   const [asset, setAsset] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
   const [deleteAsset, setDeleteAsset] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -18,6 +20,10 @@ function Assets() {
   const [category, setCategory] = useState("");
   const [assigned, setAssigned] = useState("");
   const [status, setStatus] = useState("");
+  const [supplier, setSupplier] = useState("");
+
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(function () {
     fetch("http://localhost:5000/api/assets", {
@@ -56,6 +62,25 @@ function Assets() {
       })
       .catch(function (error) {
         console.log("Error fetching employees:", error);
+      });
+
+    fetch("http://localhost:5000/api/suppliers", {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+      },
+    })
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("Failed to fetch suppliers");
+        }
+
+        return response.json();
+      })
+      .then(function (data) {
+        setSuppliers(data);
+      })
+      .catch(function (error) {
+        console.log("Error fetching suppliers:", error);
       });
   }, []);
 
@@ -257,9 +282,12 @@ function Assets() {
     setCategory("");
     setAssigned("");
     setStatus("");
+    setSupplier("");
   }
 
   function handleSaveAsset() {
+    setSaving(true);
+
     if (!assetname || !category || !status) {
       alert("Please fill all required fields");
       return;
@@ -277,6 +305,7 @@ function Assets() {
           category: category,
           assignedTo: assigned || null,
           status: status,
+          supplier: supplier || null,
         }),
       })
         .then(function (response) {
@@ -289,6 +318,8 @@ function Assets() {
           return response.json();
         })
         .then(function (updatedAsset) {
+          console.log("UPDATED ASSET:", updatedAsset);
+          console.log("UPDATED SUPPLIER:", updatedAsset.supplier);
           setAsset(function (currentAssets) {
             return currentAssets.map(function (assetItem) {
               if (assetItem.id === updatedAsset.id) {
@@ -300,7 +331,9 @@ function Assets() {
           });
 
           resetForm();
+
           setSuccessMessage("Asset details successfully updated");
+
           setTimeout(function () {
             setSuccessMessage("");
           }, 2500);
@@ -315,6 +348,7 @@ function Assets() {
         category: category,
         assignedTo: assigned || null,
         status: status,
+        supplier: supplier || null,
       };
 
       console.log("Sending asset:", newAsset);
@@ -336,6 +370,7 @@ function Assets() {
           return response.json();
         })
         .then(function (createdAsset) {
+          console.log("CREATED ASSET:", createdAsset);
           setAsset(function (currentAssets) {
             return [...currentAssets, createdAsset];
           });
@@ -378,6 +413,7 @@ function Assets() {
                 setCategory("");
                 setAssigned("");
                 setStatus("");
+                setSupplier("");
                 setShowform(true);
               }}
             >
@@ -396,6 +432,7 @@ function Assets() {
               <th>Assets Name</th>
               <th>Category</th>
               <th>Assigned</th>
+              <th>Supplier</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
@@ -415,7 +452,19 @@ function Assets() {
                     {item.assignedTo ? item.assignedTo.employeeName : "-"}
                   </td>
 
-                  <td>{item.status}</td>
+                  <td>
+                    {item.supplier ? item.supplier.supplierName || "-" : "-"}
+                  </td>
+
+                  <td>
+                    <span
+                      className={`status-badge ${item.status
+                        ?.toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                    >
+                      {item.status}
+                    </span>
+                  </td>
 
                   <td>
                     <div className="action-buttons">
@@ -450,6 +499,8 @@ function Assets() {
                           );
 
                           setStatus(item.status);
+
+                          setSupplier(item.supplier ? item.supplier._id : "");
 
                           setShowform(true);
                         }}
@@ -494,6 +545,13 @@ function Assets() {
                 <strong>Assigned:</strong>{" "}
                 {selecteditem.assignedTo
                   ? selecteditem.assignedTo.employeeName
+                  : "-"}
+              </p>
+
+              <p>
+                <strong>Supplier:</strong>{" "}
+                {selecteditem.supplier
+                  ? selecteditem.supplier.supplierName || "-"
                   : "-"}
               </p>
 
@@ -609,6 +667,27 @@ function Assets() {
             </div>
 
             <div className="form-field">
+              <label>Supplier</label>
+
+              <select
+                value={supplier}
+                onChange={function (x) {
+                  setSupplier(x.target.value);
+                }}
+              >
+                <option value="">Select Supplier</option>
+
+                {suppliers.map(function (item) {
+                  return (
+                    <option key={item._id} value={item._id}>
+                      {item.supplierName}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            <div className="form-field">
               <label>Status</label>
 
               <select
@@ -654,6 +733,7 @@ function Assets() {
         <div className="delete-overlay">
           <div className="delete-confirm-box">
             <h2>Confirm Delete</h2>
+
             <p>
               Are you sure you want to delete{" "}
               <strong>{deleteAsset.assetName}</strong>?
@@ -690,6 +770,7 @@ function Assets() {
                       });
 
                       setDeleteAsset(null);
+
                       setSuccessMessage("Asset deleted successfully");
 
                       setTimeout(function () {
@@ -698,7 +779,9 @@ function Assets() {
                     })
                     .catch(function (error) {
                       console.log("Error deleting asset:", error);
+
                       setDeleteAsset(null);
+
                       alert(error.message);
                     });
                 }}
@@ -714,6 +797,7 @@ function Assets() {
         <div className="success-overlay">
           <div className="success-popup">
             <div className="success-icon">✓</div>
+
             <p>{successMessage}</p>
           </div>
         </div>
