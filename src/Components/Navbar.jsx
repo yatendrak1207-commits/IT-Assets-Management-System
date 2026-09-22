@@ -74,7 +74,7 @@ function Navbar() {
           return response.json();
         })
         .then(function (data) {
-          console.log("ADMIN NOTIFICATIONS", data);
+          // console.log("ADMIN NOTIFICATIONS", data);
 
           setNotifications(data);
 

@@ -307,7 +307,7 @@ function UserProfile() {
                 alt="Profile"
               />
             ) : (
-              <img src="/removee.jpg" alt="Profile" />
+              <img src="/removee.jpg" alt="👤" />
             )}
 
             <div className="photo-upload-icon">

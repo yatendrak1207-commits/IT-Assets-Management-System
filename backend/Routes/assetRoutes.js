@@ -6,6 +6,7 @@ const Asset = require("../Models/Asset");
 const Employee = require("../Models/Employee"); 
 const Notification = require("../Models/Notification"); 
 const Supplier = require("../Models/Supplier"); 
+const Admin = require("../Models/Admin");
  
 const { 
     authMiddleware, 
@@ -33,14 +34,15 @@ async function getNextNotificationId() {
 // HELPER - CREATE NOTIFICATION 
 // ====================================================== 
  
-async function createNotification({ 
-    employee, 
-    type, 
-    title, 
-    message, 
-    asset = null, 
-    repair = null 
-}) { 
+async function createNotification({
+    employee,
+    type,
+    title,
+    message,
+    asset = null,
+    repair = null,
+    adminName = "Admin"
+}) {
  
     if (!employee) { 
         return; 
@@ -53,7 +55,7 @@ async function createNotification({
         employee: employee, 
         type: type, 
         title: title, 
-        message: message, 
+        message: `${adminName}: ${message}`,
         asset: asset, 
         repair: repair, 
         isRead: false 
@@ -336,7 +338,9 @@ router.post(
                     message: 
                         `The asset ${updatedAsset.assetName} has been assigned to you.`, 
  
-                    asset: updatedAsset._id 
+                    asset: updatedAsset._id ,
+
+                    adminName: admin.name
                 }); 
             } 
  
@@ -372,6 +376,16 @@ router.put(
     async function (req, res) { 
  
         try { 
+
+            const admin = await Admin.findOne({
+                id: Number(req.user.id)
+            });
+
+            if (!admin) {
+                return res.status(404).json({
+                    message: "Admin not found"
+                });
+            }
  
             const assetIdNumber = Number(req.params.id); 
  
@@ -561,7 +575,9 @@ router.put(
                     message: 
                         `The asset ${updatedAsset.assetName} has been unassigned from you.`, 
  
-                    asset: updatedAsset._id 
+                    asset: updatedAsset._id ,
+
+                    adminName: admin.name
                 }); 
             } 
  
@@ -586,7 +602,9 @@ router.put(
                     message: 
                         `The asset ${updatedAsset.assetName} has been assigned to you.`, 
  
-                    asset: updatedAsset._id 
+                    asset: updatedAsset._id,
+                    
+                    adminName: admin.name
                 }); 
             } 
  
@@ -611,7 +629,9 @@ router.put(
                     message: 
                         `The details of your asset ${updatedAsset.assetName} have been updated.`, 
  
-                    asset: updatedAsset._id 
+                    asset: updatedAsset._id,
+
+                    adminName: admin.name
                 }); 
             } 
  
@@ -636,7 +656,9 @@ router.put(
                     message: 
                         `The status of your asset ${updatedAsset.assetName} has been changed to ${updatedAsset.status}.`, 
  
-                    asset: updatedAsset._id 
+                    asset: updatedAsset._id ,
+
+                    adminName: admin.name
                 }); 
             } 
  

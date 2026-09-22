@@ -139,7 +139,15 @@ function UserDashboard() {
                     <td>{item.repairId || "-"}</td>
                     <td>{item.asset?.assetName || "-"}</td>
                     <td>{item.complaint}</td>
-                    <td>{item.status || "-"}</td>
+                    <td>
+                      <span
+                        className={`status-badge ${item.status
+                          ?.toLowerCase()
+                          .replace(/\s+/g, "-")}`}
+                      >
+                        {item.status || "-"}
+                      </span>
+                    </td>
                   </tr>
                 );
               })

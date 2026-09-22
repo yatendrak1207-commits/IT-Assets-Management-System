@@ -32,16 +32,14 @@ function RecentComplaints({ complaints }) {
                     : ""}
                 </td>
 
-                <td
-                  className={
-                    item.status === "Pending"
-                      ? "Open"
-                      : item.status === "In Progress"
-                        ? "Progress"
-                        : "Resolved"
-                  }
-                >
-                  {item.status}
+                <td>
+                  <span
+                    className={`status-badge ${item.status
+                      ?.toLowerCase()
+                      .replace(/\s+/g, "-")}`}
+                  >
+                    {item.status}
+                  </span>
                 </td>
               </tr>
             );

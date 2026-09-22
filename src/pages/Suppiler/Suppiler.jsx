@@ -348,52 +348,48 @@ function Suppiler() {
               </p>
 
               {/* =================================================
-                  ACTUAL CONNECTED ASSETS
-              ================================================= */}
+                      SUPPLIED ASSETS DROPDOWN
+                  ================================================= */}
 
-              <div className="connected-assets-section">
-                <div className="connected-assets-heading">
-                  <strong>Connected Assets:</strong>
+              <details className="supplied-assets-dropdown">
+                <summary className="supplied-assets-summary">
+                  <div className="supplied-assets-title">
+                    <strong>Assets Supplied:</strong>
+                  </div>
 
-                  <span className="connected-assets-count">
+                  <div className="supplied-assets-total">
                     {selecteditem.suppliedAssetsCount || 0}
-                  </span>
-                </div>
+                  </div>
+                </summary>
 
-                {selecteditem.suppliedAssets &&
-                selecteditem.suppliedAssets.length > 0 ? (
-                  <div className="connected-assets-list">
-                    {selecteditem.suppliedAssets.map(function (asset) {
-                      return (
-                        <div
-                          className="connected-asset-item"
-                          key={asset._id || asset.id}
-                        >
-                          <div className="connected-asset-info">
-                            <strong>{asset.assetId}</strong>
-
-                            <span>{asset.assetName}</span>
-
-                            <small>{asset.category}</small>
-                          </div>
-
-                          <span
-                            className={`status-badge ${asset.status
-                              ?.toLowerCase()
-                              .replace(/\s+/g, "-")}`}
+                <div className="supplied-assets-content">
+                  {selecteditem.suppliedAssetsSummary &&
+                  selecteditem.suppliedAssetsSummary.length > 0 ? (
+                    <div className="supplied-assets-list">
+                      {selecteditem.suppliedAssetsSummary.map(function (asset) {
+                        return (
+                          <div
+                            className="supplied-assets-row"
+                            key={asset.assetName}
                           >
-                            {asset.status || "-"}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="no-connected-assets">
-                    No assets connected with this supplier
-                  </div>
-                )}
-              </div>
+                            <span className="supplied-asset-name">
+                              {asset.assetName}
+                            </span>
+
+                            <span className="supplied-asset-quantity">
+                              {asset.quantity}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="no-supplied-assets">
+                      No assets supplied by this supplier
+                    </div>
+                  )}
+                </div>
+              </details>
 
               <p>
                 <strong>Supplier Status:</strong> {selecteditem.supplierStatus}

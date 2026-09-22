@@ -7,43 +7,84 @@ const { isValidPhoneNumber } = require("libphonenumber-js");
  
 // ================= GET ================= 
  
-router.get("/", async function (req, res) { 
- 
-    try { 
- 
-        const suppliers = await Supplier.find(); 
- 
-        const suppliersWithAssets = await Promise.all( 
-            suppliers.map(async function (supplier) { 
- 
-                const assets = await Asset.find({ 
-                    supplier: supplier._id 
-                }).select( 
-                    "id assetId assetName category status assignedTo" 
-                ); 
- 
-                return { 
-                    ...supplier.toObject(), 
-                    suppliedAssets: assets, 
-                    suppliedAssetsCount: assets.length 
-                }; 
- 
-            }) 
-        ); 
- 
-        res.json(suppliersWithAssets); 
- 
-    } catch (error) { 
- 
-        res.status(500).json({ 
-            message: "Failed to fetch supplier", 
-            error: error 
-        }); 
- 
-    } 
- 
-}); 
- 
+// ================= GET =================
+
+router.get("/", async function (req, res) {
+
+    try {
+
+        const suppliers = await Supplier.find();
+
+        const suppliersWithAssets = await Promise.all(
+
+            suppliers.map(async function (supplier) {
+
+                const assets = await Asset.find({
+                    supplier: supplier._id
+                }).select(
+                    "assetName"
+                );
+
+                // Asset name ke according quantity count
+                const assetSummary = {};
+
+                assets.forEach(function (asset) {
+
+                    const assetName = asset.assetName;
+
+                    if (assetSummary[assetName]) {
+
+                        assetSummary[assetName]++;
+
+                    } else {
+
+                        assetSummary[assetName] = 1;
+
+                    }
+
+                });
+
+                // Object ko array mein convert karna
+                const suppliedAssetsSummary = Object.keys(assetSummary).map(
+                    function (assetName) {
+
+                        return {
+                            assetName: assetName,
+                            quantity: assetSummary[assetName]
+                        };
+
+                    }
+                );
+
+                return {
+
+                    ...supplier.toObject(),
+
+                    suppliedAssetsSummary:
+                        suppliedAssetsSummary,
+
+                    suppliedAssetsCount:
+                        assets.length
+
+                };
+
+            })
+        );
+
+        res.json(suppliersWithAssets);
+
+    } catch (error) {
+
+        res.status(500).json({
+
+            message: "Failed to fetch supplier",
+            error: error
+
+        });
+
+    }
+
+});
 // ================= POST ================= 
  
 router.post("/", async function (req, res) { 
