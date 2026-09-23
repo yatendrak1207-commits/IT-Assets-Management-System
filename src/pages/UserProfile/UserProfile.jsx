@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import "./UserProfile.css";
+import "./Userprofile.css";
 import { FaUser, FaCamera, FaTrash } from "react-icons/fa";
 import API_URL from "../../config/api";
 
