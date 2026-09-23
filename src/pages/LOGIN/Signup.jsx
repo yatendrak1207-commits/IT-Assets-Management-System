@@ -306,12 +306,16 @@ function Signup() {
           body: JSON.stringify({
             email: email.trim(),
             password: password,
-            name: name.trim(),
             department: department,
             phone: phone,
-            ...(accountType === "admin" && {
-              adminKey: adminKey.trim(),
-            }),
+            ...(accountType === "admin"
+              ? {
+                  name: name.trim(),
+                  adminKey: adminKey.trim(),
+                }
+              : {
+                  employeeName: name.trim(),
+                }),
           }),
         });
 
@@ -532,7 +536,9 @@ function Signup() {
             {/* NAME */}
 
             <div className="input-group">
-              <label>Name</label>
+              <label>
+                {accountType === "admin" ? "Name" : "Employee Name"}
+              </label>
 
               <input
                 type="text"
@@ -543,7 +549,9 @@ function Signup() {
                   setErrorField("");
                   setErrorMessage("");
                 }}
-                placeholder="Enter your name"
+                placeholder={
+                  accountType === "admin" ? "Admin name" : " employee name"
+                }
               />
 
               {errorField === "name" && (
