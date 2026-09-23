@@ -96,7 +96,7 @@
     color: inherit;
     text-align: left;
     cursor: pointer;
-    font-size: 1;
+    font-size: 20px;
 }
 .logout-overlay {
     position: fixed;
