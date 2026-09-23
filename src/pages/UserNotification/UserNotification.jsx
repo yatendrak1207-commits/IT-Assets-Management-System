@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./UserNotification.css";
 import { MdNotificationsActive } from "react-icons/md";
 import { FaTimes } from "react-icons/fa";
+import API_URL from "../../config/api";
 
 function UserNotifications() {
   const [notifications, setNotifications] = useState([]);
@@ -13,7 +14,7 @@ function UserNotifications() {
   useEffect(function () {
     const token = sessionStorage.getItem("token");
 
-    fetch("http://localhost:5000/api/notifications/my", {
+    fetch(`${API_URL}/api/notifications/my`, {
       cache: "no-store",
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -41,7 +42,7 @@ function UserNotifications() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/notifications/${notificationId}/read`,
+        `${API_URL}/api/notifications/${notificationId}/read`,
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },
@@ -69,13 +70,10 @@ function UserNotifications() {
     const token = sessionStorage.getItem("token");
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/notifications/read-all",
-        {
-          method: "PUT",
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const response = await fetch(`${API_URL}/api/notifications/read-all`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to mark notifications as read");
@@ -96,7 +94,7 @@ function UserNotifications() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/notifications/${notificationId}`,
+        `${API_URL}/api/notifications/${notificationId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },

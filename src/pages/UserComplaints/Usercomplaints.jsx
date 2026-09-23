@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./UserComplaints.css";
 import { BsFillPeopleFill } from "react-icons/bs";
+import API_URL from "../../config/api";
 
 function UserComplaints() {
   const [complaints, setComplaints] = useState([]);
@@ -16,10 +17,9 @@ function UserComplaints() {
       try {
         const token = sessionStorage.getItem("token");
 
-        const repairResponse = await fetch(
-          "http://localhost:5000/api/repairs/my",
-          { headers: { Authorization: `Bearer ${token}` } },
-        );
+        const repairResponse = await fetch(`${API_URL}/api/repairs/my`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         const repairData = await repairResponse.json();
 
@@ -34,10 +34,9 @@ function UserComplaints() {
         const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
         const userId = loggedInUser?.employeeId;
 
-        const assetResponse = await fetch(
-          "http://localhost:5000/api/assets/my",
-          { headers: { Authorization: `Bearer ${token}` } },
-        );
+        const assetResponse = await fetch(`${API_URL}/api/assets/my`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         const assetData = await assetResponse.json();
 
@@ -78,7 +77,7 @@ function UserComplaints() {
 
       const token = sessionStorage.getItem("token");
 
-      const response = await fetch("http://localhost:5000/api/repairs", {
+      const response = await fetch(`${API_URL}/api/repairs`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

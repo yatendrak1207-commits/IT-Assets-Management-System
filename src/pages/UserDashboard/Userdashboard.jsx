@@ -1,6 +1,7 @@
 import "./UserDashboard.css";
 import { MdOutlineDashboard } from "react-icons/md";
 import React, { useState, useEffect } from "react";
+import API_URL from "../../config/api";
 
 function UserDashboard() {
   const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
@@ -14,7 +15,7 @@ function UserDashboard() {
 
     // ================= GET ASSETS =================
 
-    fetch("http://localhost:5000/api/assets/my", { headers })
+    fetch(`${API_URL}/api/assets/my`, { headers })
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Failed to fetch assets");
@@ -31,7 +32,7 @@ function UserDashboard() {
 
     // ================= GET REPAIRS =================
 
-    fetch("http://localhost:5000/api/repairs/my", { headers })
+    fetch(`${API_URL}/api/repairs/my`, { headers })
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Failed to fetch repairs");

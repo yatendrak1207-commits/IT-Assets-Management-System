@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import loginBg from "../../assets/itbga.jpeg";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import API_URL from "../../config/api";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function Login() {
@@ -32,7 +33,7 @@ function Login() {
 
     // ================= ADMIN LOGIN =================
 
-    fetch("http://localhost:5000/api/admins/login", {
+    fetch(`${API_URL}/api/admins/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -73,7 +74,7 @@ function Login() {
 
         // ================= EMPLOYEE LOGIN =================
 
-        return fetch("http://localhost:5000/api/employees/login", {
+        return fetch(`${API_URL}/api/employees/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

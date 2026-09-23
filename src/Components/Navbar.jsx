@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Navbar.css";
 import { FaBell, FaUser, FaClock, FaTimes } from "react-icons/fa";
 import logo from "./../assets/it-logoo.png";
+import API_URL from "../config/api";
 
 function Navbar() {
   const [notifications, setNotifications] = useState([]);
@@ -38,7 +39,7 @@ function Navbar() {
       return;
     }
 
-    fetch("http://localhost:5000/api/admins/" + adminId, {
+    fetch(`${API_URL}/api/admins/` + adminId, {
       headers: {
         Authorization: "Bearer " + token,
       },
@@ -65,7 +66,7 @@ function Navbar() {
     const token = sessionStorage.getItem("token");
 
     function fetchAdminNotifications() {
-      fetch("http://localhost:5000/api/notifications/admin", {
+      fetch(`${API_URL}/api/notifications/admin`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -109,8 +110,7 @@ function Navbar() {
   const deleteNotification = (id) => {
     const token = sessionStorage.getItem("token");
 
-    fetch(`http://localhost:5000/api/notifications/admin/${id}`, {
-      method: "DELETE",
+    fetch(`${API_URL}/api/notifications/admin/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -139,9 +139,7 @@ function Navbar() {
           <h2 className="hello-admin">
             {profilePhoto ? (
               <img
-                src={
-                  "http://localhost:5000" + profilePhoto + "?t=" + Date.now()
-                }
+                src={API_URL + profilePhoto + "?t=" + Date.now()}
                 className="hello-admin-photo"
                 alt="Admin"
               />

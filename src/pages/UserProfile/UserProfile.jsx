@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./UserProfile.css";
 import { FaUser, FaCamera, FaTrash } from "react-icons/fa";
+import API_URL from "../../config/api";
 
 function UserProfile() {
   const loggedInUser = JSON.parse(
@@ -21,8 +22,6 @@ function UserProfile() {
   const [showPhotoMenu, setShowPhotoMenu] = useState(false);
   const photoInputRef = useRef(null);
 
-  const API_URL = "http://localhost:5000";
-
   // ================= GET PROFILE =================
 
   useEffect(function () {
@@ -31,7 +30,7 @@ function UserProfile() {
         const token = sessionStorage.getItem("token");
 
         const response = await fetch(
-          `http://localhost:5000/api/employees/${loggedInUser.id}`,
+          `${API_URL}/api/employees/${loggedInUser.id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -217,7 +216,7 @@ function UserProfile() {
       const token = sessionStorage.getItem("token");
 
       const response = await fetch(
-        `http://localhost:5000/api/employees/${loggedInUser.id}`,
+        `${API_URL}/api/employees/${loggedInUser.id}`,
         {
           method: "PUT",
 

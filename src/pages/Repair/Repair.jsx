@@ -10,6 +10,8 @@ import { GiAutoRepair } from "react-icons/gi";
 
 import { MdManageSearch } from "react-icons/md";
 
+import API_URL from "../../config/api";
+
 export default function Repair() {
   const [search, setsearch] = useState("");
 
@@ -49,18 +51,15 @@ export default function Repair() {
         Authorization: `Bearer ${token}`,
       };
 
-      const assetResponse = await fetch("http://localhost:5000/api/assets", {
+      const assetResponse = await fetch(`${API_URL}/api/assets`, {
         headers: headers,
       });
 
-      const employeeResponse = await fetch(
-        "http://localhost:5000/api/employees",
-        {
-          headers: headers,
-        },
-      );
+      const employeeResponse = await fetch(`${API_URL}/api/employees`, {
+        headers: headers,
+      });
 
-      const repairResponse = await fetch("http://localhost:5000/api/repairs", {
+      const repairResponse = await fetch(`${API_URL}/api/repairs`, {
         headers: headers,
       });
 
@@ -187,7 +186,7 @@ export default function Repair() {
 
       if (editingItem) {
         const response = await fetch(
-          "http://localhost:5000/api/repairs/" + editingItem.id,
+          `${API_URL}/api/repairs/` + editingItem.id,
           {
             method: "PUT",
             headers: headers,
@@ -244,7 +243,7 @@ export default function Repair() {
         status: status,
       };
 
-      const response = await fetch("http://localhost:5000/api/repairs", {
+      const response = await fetch(`${API_URL}/api/repairs`, {
         method: "POST",
 
         headers: headers,
@@ -272,16 +271,13 @@ export default function Repair() {
 
   async function handleDelete(item) {
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/repairs/" + item.id,
-        {
-          method: "DELETE",
+      const response = await fetch(`${API_URL}/api/repairs/` + item.id, {
+        method: "DELETE",
 
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       const data = await response.json();
 

@@ -6,6 +6,7 @@ import { FaClock } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/it-logoo.png";
 import React, { useEffect, useState } from "react";
+import API_URL from "../../config/api";
 
 function UserNavbar() {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ function UserNavbar() {
       return;
     }
 
-    fetch("http://localhost:5000/api/employees/" + loggedInUserData.id, {
+    fetch(`${API_URL}/api/employees/` + loggedInUserData.id, {
       headers: {
         Authorization: "Bearer " + token,
       },
@@ -79,7 +80,7 @@ function UserNavbar() {
       return;
     }
 
-    fetch("http://localhost:5000/api/notifications/unread-count", {
+    fetch(`${API_URL}/api/notifications/unread-count`, {
       cache: "no-store",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -104,7 +105,7 @@ function UserNavbar() {
         <h2 className="hello-user">
           {profilePhoto ? (
             <img
-              src={"http://localhost:5000" + profilePhoto + "?t=" + Date.now()}
+              src={API_URL + profilePhoto + "?t=" + Date.now()}
               className="hello-profile-photo"
               alt="User"
             />

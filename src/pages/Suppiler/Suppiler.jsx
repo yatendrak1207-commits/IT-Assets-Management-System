@@ -8,6 +8,7 @@ import { MdManageSearch } from "react-icons/md";
 import PhoneInputModule from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { isValidPhoneNumber } from "libphonenumber-js";
+import API_URL from "../../config/api";
 
 const PhoneInput = PhoneInputModule.default || PhoneInputModule;
 
@@ -29,7 +30,7 @@ function Suppiler() {
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(function () {
-    fetch("http://localhost:5000/api/suppliers")
+    fetch(`${API_URL}/api/suppliers`)
       .then(function (response) {
         if (!response.ok) {
           throw new Error("Failed to fetch suppliers");
@@ -84,7 +85,7 @@ function Suppiler() {
     }
 
     if (editingItem) {
-      fetch("http://localhost:5000/api/suppliers/" + editingItem.id, {
+      fetch(`${API_URL}/api/suppliers/` + editingItem.id, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -150,7 +151,7 @@ function Suppiler() {
         supplierStatus: supplierStatus,
       };
 
-      fetch("http://localhost:5000/api/suppliers", {
+      fetch(`${API_URL}/api/suppliers`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -606,12 +607,9 @@ function Suppiler() {
               <button
                 className="delete-confirm-btn"
                 onClick={function () {
-                  fetch(
-                    "http://localhost:5000/api/suppliers/" + deleteSupplier.id,
-                    {
-                      method: "DELETE",
-                    },
-                  )
+                  fetch(`${API_URL}/api/suppliers/` + deleteSupplier.id, {
+                    method: "DELETE",
+                  })
                     .then(function (response) {
                       if (!response.ok) {
                         return response.json().then(function (errorData) {

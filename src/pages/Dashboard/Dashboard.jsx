@@ -4,6 +4,7 @@ import RecentComplaints from "../../Components/RecentComplaints/RecentComplaints
 import { useEffect, useState } from "react";
 import { MdOutlineDashboard } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../config/api";
 
 function Dashboard() {
   const [assets, setAssets] = useState([]);
@@ -19,7 +20,7 @@ function Dashboard() {
     const token = sessionStorage.getItem("token");
     const headers = { Authorization: `Bearer ${token}` };
 
-    fetch("http://localhost:5000/api/assets", { headers })
+    fetch(`${API_URL}/api/assets`, { headers })
       .then(function (response) {
         return response.json();
       })
@@ -30,7 +31,7 @@ function Dashboard() {
         console.log("Asset API Error:", error);
       });
 
-    fetch("http://localhost:5000/api/employees", { headers })
+    fetch(`${API_URL}/api/employees`, { headers })
       .then(function (response) {
         return response.json();
       })
@@ -41,7 +42,7 @@ function Dashboard() {
         console.log("Employee API Error:", error);
       });
 
-    fetch("http://localhost:5000/api/repairs", { headers })
+    fetch(`${API_URL}/api/repairs`, { headers })
       .then(function (response) {
         return response.json();
       })
@@ -52,7 +53,7 @@ function Dashboard() {
         console.log("Repair API Error:", error);
       });
 
-    fetch("http://localhost:5000/api/suppliers", { headers })
+    fetch(`${API_URL}/api/suppliers`, { headers })
       .then(function (response) {
         return response.json();
       })

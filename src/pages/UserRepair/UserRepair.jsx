@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./UserRepair.css";
 import { GiAutoRepair } from "react-icons/gi";
+import API_URL from "../../config/api";
 
 function UserRepair() {
   const [myRepairs, setMyRepairs] = useState([]);
@@ -10,7 +11,7 @@ function UserRepair() {
   useEffect(function () {
     const token = sessionStorage.getItem("token");
 
-    fetch("http://localhost:5000/api/repairs/my", {
+    fetch(`${API_URL}/api/repairs/my`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

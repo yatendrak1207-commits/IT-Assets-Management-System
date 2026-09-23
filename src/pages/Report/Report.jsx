@@ -2,6 +2,7 @@ import React from "react";
 import Card from "../../Components/Card/Card";
 import { useState, useEffect } from "react";
 import "./Report.css";
+import API_URL from "../../config/api";
 
 import { IoBarChart } from "react-icons/io5";
 import {
@@ -42,7 +43,7 @@ export default function Report() {
     const token = sessionStorage.getItem("token");
 
     // Assets
-    fetch("http://localhost:5000/api/assets", {
+    fetch(`${API_URL}/api/assets`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -65,7 +66,7 @@ export default function Report() {
       });
 
     // Employees
-    fetch("http://localhost:5000/api/employees", {
+    fetch(`${API_URL}/api/employees`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -88,7 +89,7 @@ export default function Report() {
       });
 
     // Repairs
-    fetch("http://localhost:5000/api/repairs", {
+    fetch(`${API_URL}/api/repairs`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -111,7 +112,7 @@ export default function Report() {
       });
 
     // Suppliers
-    fetch("http://localhost:5000/api/suppliers", {
+    fetch(`${API_URL}/api/suppliers`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -11,6 +11,8 @@ import { isValidPhoneNumber } from "libphonenumber-js";
 
 import "./Signup.css";
 
+import API_URL from "../../config/api";
+
 const PhoneInput = PhoneInputModule.default || PhoneInputModule;
 
 function Signup() {
@@ -294,9 +296,8 @@ function Signup() {
       try {
         const registerUrl =
           accountType === "admin"
-            ? "http://localhost:5000/api/admins/register"
-            : "http://localhost:5000/api/employees/register";
-
+            ? `${API_URL}/api/admins/register`
+            : `${API_URL}/api/employees/register`;
         const response = await fetch(registerUrl, {
           method: "POST",
           headers: {

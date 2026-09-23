@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./UserSetting.css";
 import { IoSettings } from "react-icons/io5";
+import API_URL from "../../config/api";
 
 function UserSettings({ theme, setTheme }) {
   const [openSection, setOpenSection] = useState(null);
@@ -98,7 +99,7 @@ function UserSettings({ theme, setTheme }) {
       const token = sessionStorage.getItem("token");
 
       const response = await fetch(
-        `http://localhost:5000/api/employees/change-password/${loggedInUser.id}`,
+        `${API_URL}/api/employees/change-password/${loggedInUser.id}`,
         {
           method: "PUT",
 

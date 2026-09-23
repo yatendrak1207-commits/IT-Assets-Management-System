@@ -7,6 +7,7 @@ import { FaPlus } from "react-icons/fa";
 import PhoneInputModule from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { isValidPhoneNumber } from "libphonenumber-js";
+import API_URL from "../../config/api";
 
 const PhoneInput = PhoneInputModule.default || PhoneInputModule;
 
@@ -44,7 +45,7 @@ function Employees() {
   // ================= GET EMPLOYEES + ASSETS =================
 
   useEffect(function () {
-    fetch("http://localhost:5000/api/employees", {
+    fetch(`${API_URL}/api/employees`, {
       method: "GET",
       headers: getAuthHeaders(),
     })
@@ -62,7 +63,7 @@ function Employees() {
         console.log("Error fetching employees:", error);
       });
 
-    fetch("http://localhost:5000/api/assets", {
+    fetch(`${API_URL}/api/assets`, {
       method: "GET",
       headers: getAuthHeaders(),
     })
@@ -145,9 +146,7 @@ function Employees() {
     // ================= UPDATE =================
 
     if (editingItem) {
-      fetch("http://localhost:5000/api/employees/" + editingItem.id, {
-        method: "PUT",
-
+      fetch(`${API_URL}/api/employees/` + editingItem.id, {
         headers: getAuthHeaders(),
 
         body: JSON.stringify({
@@ -218,7 +217,7 @@ function Employees() {
         employeestatus: employeestatus,
       };
 
-      fetch("http://localhost:5000/api/employees", {
+      fetch(`${API_URL}/api/employees`, {
         method: "POST",
 
         headers: getAuthHeaders(),
@@ -479,13 +478,10 @@ function Employees() {
               <button
                 className="delete-confirm-btn"
                 onClick={function () {
-                  fetch(
-                    "http://localhost:5000/api/employees/" + deleteEmployee.id,
-                    {
-                      method: "DELETE",
-                      headers: getAuthHeaders(),
-                    },
-                  )
+                  fetch(`${API_URL}/api/employees/` + deleteEmployee.id, {
+                    method: "DELETE",
+                    headers: getAuthHeaders(),
+                  })
                     .then(function (response) {
                       if (!response.ok) {
                         return response.json().then(function (errorData) {

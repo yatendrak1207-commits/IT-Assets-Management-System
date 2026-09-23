@@ -4,6 +4,7 @@ import { FaPlus } from "react-icons/fa";
 import { LuMonitorSpeaker } from "react-icons/lu";
 import { MdManageSearch } from "react-icons/md";
 import { ButtonLoader } from "../../Components/Loader/Loader";
+import API_URL from "../../config/api";
 
 function Assets() {
   const [search, setSearch] = useState("");
@@ -26,7 +27,7 @@ function Assets() {
   const [deleting, setDeleting] = useState(false);
 
   useEffect(function () {
-    fetch("http://localhost:5000/api/assets", {
+    fetch(`${API_URL}/api/assets`, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("token")}`,
       },
@@ -45,7 +46,7 @@ function Assets() {
         console.log("Error fetching assets:", error);
       });
 
-    fetch("http://localhost:5000/api/employees", {
+    fetch(`${API_URL}/api/employees`, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("token")}`,
       },
@@ -64,7 +65,7 @@ function Assets() {
         console.log("Error fetching employees:", error);
       });
 
-    fetch("http://localhost:5000/api/suppliers", {
+    fetch(`${API_URL}/api/suppliers`, {
       headers: {
         Authorization: `Bearer ${sessionStorage.getItem("token")}`,
       },
@@ -294,7 +295,7 @@ function Assets() {
     }
 
     if (editingItem) {
-      fetch("http://localhost:5000/api/assets/" + editingItem.id, {
+      fetch(`${API_URL}/api/assets/` + editingItem.id, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -353,7 +354,7 @@ function Assets() {
 
       console.log("Sending asset:", newAsset);
 
-      fetch("http://localhost:5000/api/assets", {
+      fetch(`${API_URL}/api/assets`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -752,7 +753,7 @@ function Assets() {
               <button
                 className="delete-confirm-btn"
                 onClick={function () {
-                  fetch("http://localhost:5000/api/assets/" + deleteAsset.id, {
+                  fetch(`${API_URL}/api/assets/` + deleteAsset.id, {
                     method: "DELETE",
                   })
                     .then(function (response) {

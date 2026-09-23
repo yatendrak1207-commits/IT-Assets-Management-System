@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./UserAssets.css";
 import { LuMonitorSpeaker } from "react-icons/lu";
+import API_URL from "../../config/api";
 
 function MyAssets() {
   const [myAssets, setMyAssets] = useState([]);
@@ -16,7 +17,7 @@ function MyAssets() {
         try {
           const token = sessionStorage.getItem("token");
 
-          const response = await fetch("http://localhost:5000/api/assets/my", {
+          const response = await fetch(`${API_URL}/api/assets/my`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },

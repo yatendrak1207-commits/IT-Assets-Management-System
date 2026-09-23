@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import "./Profile.css";
 
 import { FaUser, FaCamera, FaTrash } from "react-icons/fa";
+import API_URL from "../../config/api";
 
 function Profile() {
   const [editmode, setEditmode] = useState(false);
@@ -29,8 +30,6 @@ function Profile() {
   console.log("adminId:", adminId);
   console.log("token:", sessionStorage.getItem("token"));
 
-  const API_URL = "http://localhost:5000";
-
   // ================= GET ADMIN PROFILE =================
 
   useEffect(
@@ -39,7 +38,7 @@ function Profile() {
         return;
       }
 
-      fetch("http://localhost:5000/api/admins/" + adminId, {
+      fetch(`${API_URL}/api/admins/` + adminId, {
         headers: {
           Authorization: "Bearer " + sessionStorage.getItem("token"),
         },
@@ -209,7 +208,7 @@ function Profile() {
   // ================= SAVE PROFILE =================
 
   function saveProfile() {
-    fetch("http://localhost:5000/api/admins/" + adminId, {
+    fetch(`${API_URL}/api/admins/` + adminId, {
       method: "PUT",
 
       headers: {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./settings.css";
 import { IoSettings } from "react-icons/io5";
+import API_URL from "../../config/api";
 
 function Settings({ theme, setTheme }) {
   /*------------------ useStates ----------------*/
@@ -87,7 +88,7 @@ function Settings({ theme, setTheme }) {
         return;
       }
 
-      fetch("http://localhost:5000/api/admins/" + adminId + "/settings", {
+      fetch(`${API_URL}/api/admins/` + adminId + "/settings", {
         headers: {
           Authorization: "Bearer " + sessionStorage.getItem("token"),
         },
@@ -172,7 +173,7 @@ function Settings({ theme, setTheme }) {
   /*------------------ GENERAL SETTINGS ----------------*/
 
   function saveGenralSettings() {
-    fetch("http://localhost:5000/api/admins/" + adminId + "/settings", {
+    fetch(`${API_URL}/api/admins/` + adminId + "/settings", {
       method: "PUT",
 
       headers: {
@@ -215,7 +216,7 @@ function Settings({ theme, setTheme }) {
   /*------------------ NOTIFICATION SETTINGS ----------------*/
 
   function saveNotificationSettings() {
-    fetch("http://localhost:5000/api/admins/" + adminId + "/settings", {
+    fetch(`${API_URL}/api/admins/` + adminId + "/settings", {
       method: "PUT",
 
       headers: {
@@ -258,7 +259,7 @@ function Settings({ theme, setTheme }) {
   /*------------------ DISPLAY SETTINGS ----------------*/
 
   function saveDisplaySettings() {
-    fetch("http://localhost:5000/api/admins/" + adminId + "/settings", {
+    fetch(`${API_URL}/api/admins/` + adminId + "/settings", {
       method: "PUT",
 
       headers: {
@@ -299,7 +300,7 @@ function Settings({ theme, setTheme }) {
   /*------------------ SECURITY SETTINGS ----------------*/
 
   function saveSecuritySettings() {
-    fetch("http://localhost:5000/api/admins/" + adminId + "/settings", {
+    fetch(`${API_URL}/api/admins/` + adminId + "/settings", {
       method: "PUT",
 
       headers: {
@@ -365,7 +366,7 @@ function Settings({ theme, setTheme }) {
       return;
     }
 
-    fetch("http://localhost:5000/api/admins/" + adminId + "/change-password", {
+    fetch(`${API_URL}/api/admins/` + adminId + "/change-password", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
