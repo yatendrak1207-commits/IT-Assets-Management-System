@@ -11,6 +11,7 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   function handleLogin(e) {
     e.preventDefault();
@@ -30,7 +31,7 @@ function Login() {
       alert("Please enter your password");
       return;
     }
-
+    setLoading(true);
     // ================= ADMIN LOGIN =================
 
     fetch(`${API_URL}/api/admins/login`, {
@@ -94,6 +95,7 @@ function Login() {
           })
           .then(function (employeeResult) {
             if (!employeeResult.ok) {
+              setLoading(false);
               alert(employeeResult.data.message || "Invalid Email or Password");
 
               return;
@@ -117,6 +119,7 @@ function Login() {
           });
       })
       .catch(function (error) {
+        setLoading(false);
         console.log("Login error:", error);
         alert("Server se connection nahi ho raha");
       });
@@ -174,8 +177,8 @@ function Login() {
           </div>
 
           <div className="login-buttons">
-            <button type="submit" className="login-btn">
-              Login
+            <button type="submit" className="login-btn" disabled={loading}>
+              {loading ? <span className="login-spinner"></span> : "Login"}
             </button>
 
             <button
