@@ -301,10 +301,7 @@ function UserProfile() {
             }
           >
             {profilePhoto ? (
-              <img
-                src={API_URL + profilePhoto + "?t=" + Date.now()}
-                alt="Profile"
-              />
+              <img src={API_URL + profilePhoto} alt="👤" />
             ) : (
               <img src="/removee.jpg" alt="👤" />
             )}

@@ -14,8 +14,6 @@ function UserNavbar() {
   const [notificationCount, setNotificationCount] = useState(0);
   const [profilePhoto, setProfilePhoto] = useState("");
 
-  const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
-
   const [userName, setUserName] = useState("User");
 
   useEffect(function () {
@@ -105,7 +103,7 @@ function UserNavbar() {
         <h2 className="hello-user">
           {profilePhoto ? (
             <img
-              src={API_URL + profilePhoto + "?t=" + Date.now()}
+              src={API_URL + profilePhoto}
               className="hello-profile-photo"
               alt="User"
             />

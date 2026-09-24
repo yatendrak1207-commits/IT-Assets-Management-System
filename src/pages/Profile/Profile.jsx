@@ -288,14 +288,10 @@ function Profile() {
             }
           >
             {profilePhoto ? (
-              <img
-                src={API_URL + profilePhoto + "?t=" + Date.now()}
-                alt="Profile"
-              />
+              <img src={API_URL + profilePhoto} alt="Profile" />
             ) : (
-              <img src="./removee.jpg" alt="👤" />
+              <img src="/removee.jpg" alt="Profile" />
             )}
-
             <div className="photo-upload-icon">
               <FaCamera />
             </div>

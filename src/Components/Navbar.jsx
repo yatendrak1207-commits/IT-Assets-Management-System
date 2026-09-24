@@ -139,9 +139,9 @@ function Navbar() {
           <h2 className="hello-admin">
             {profilePhoto ? (
               <img
-                src={API_URL + profilePhoto + "?t=" + Date.now()}
+                src={API_URL + profilePhoto}
                 className="hello-admin-photo"
-                alt="Admin"
+                alt="adminr"
               />
             ) : (
               <FaUser className="hello-admin-icon" />
