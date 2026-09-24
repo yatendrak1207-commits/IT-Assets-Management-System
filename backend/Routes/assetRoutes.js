@@ -179,7 +179,15 @@ router.post(
                 supplier,
                 status 
             } = req.body; 
- 
+            const admin = await Admin.findOne({
+                id: Number(req.user.id)
+            });
+
+            if (!admin) {
+                return res.status(404).json({
+                    message: "Admin not found"
+                });
+            }
  
             // ------------------------------- 
             // VALIDATION 

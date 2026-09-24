@@ -287,15 +287,15 @@ function Assets() {
   }
 
   function handleSaveAsset() {
-    setSaving(true);
-
     if (!assetname || !category || !status) {
       alert("Please fill all required fields");
       return;
     }
 
+    setSaving(true);
+
     if (editingItem) {
-      fetch(`${API_URL}/api/assets/` + editingItem.id, {
+      fetch(`${API_URL}/api/assets/${editingItem._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -312,18 +312,16 @@ function Assets() {
         .then(function (response) {
           if (!response.ok) {
             return response.json().then(function (errorData) {
-              throw new Error(errorData.message);
+              throw new Error(errorData.message || "Failed to update asset");
             });
           }
 
           return response.json();
         })
         .then(function (updatedAsset) {
-          console.log("UPDATED ASSET:", updatedAsset);
-          console.log("UPDATED SUPPLIER:", updatedAsset.supplier);
           setAsset(function (currentAssets) {
             return currentAssets.map(function (assetItem) {
-              if (assetItem.id === updatedAsset.id) {
+              if (assetItem._id === updatedAsset._id) {
                 return updatedAsset;
               }
 
@@ -341,10 +339,13 @@ function Assets() {
         })
         .catch(function (error) {
           console.log("Error updating asset:", error);
+          alert(error.message);
+        })
+        .finally(function () {
+          setSaving(false);
         });
     } else {
       const newAsset = {
-        id: Date.now(),
         assetName: assetname,
         category: category,
         assignedTo: assigned || null,
@@ -358,32 +359,47 @@ function Assets() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
         },
         body: JSON.stringify(newAsset),
       })
         .then(function (response) {
-          if (!response.ok) {
-            return response.json().then(function (errorData) {
-              throw new Error(errorData.message);
-            });
-          }
+          console.log("STATUS:", response.status);
 
-          return response.json();
+          return response.text().then(function (text) {
+            console.log("SERVER RESPONSE:", text);
+
+            if (!response.ok) {
+              throw new Error(text || "Failed to create asset");
+            }
+
+            return text ? JSON.parse(text) : {};
+          });
         })
         .then(function (createdAsset) {
           console.log("CREATED ASSET:", createdAsset);
+
           setAsset(function (currentAssets) {
             return [...currentAssets, createdAsset];
           });
 
           resetForm();
+
+          setSuccessMessage("Asset added successfully");
+
+          setTimeout(function () {
+            setSuccessMessage("");
+          }, 2500);
         })
         .catch(function (error) {
           console.log("Error creating asset:", error);
+          alert(error.message);
+        })
+        .finally(function () {
+          setSaving(false);
         });
     }
   }
-
   return (
     <div className="assets">
       <div className="assets-header">
@@ -722,8 +738,13 @@ function Assets() {
                 onClick={function () {
                   handleSaveAsset();
                 }}
+                disabled={saving}
               >
-                {editingItem ? "Update Details" : "Add Asset"}
+                {saving
+                  ? "Saving..."
+                  : editingItem
+                    ? "Update Details"
+                    : "Add Asset"}
               </button>
             </div>
           </div>
@@ -753,8 +774,11 @@ function Assets() {
               <button
                 className="delete-confirm-btn"
                 onClick={function () {
-                  fetch(`${API_URL}/api/assets/` + deleteAsset.id, {
+                  fetch(`${API_URL}/api/assets/` + deleteAsset._id, {
                     method: "DELETE",
+                    headers: {
+                      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+                    },
                   })
                     .then(function (response) {
                       if (!response.ok) {
@@ -766,7 +790,7 @@ function Assets() {
                     .then(function () {
                       setAsset(function (currentAssets) {
                         return currentAssets.filter(function (assetItem) {
-                          return assetItem.id !== deleteAsset.id;
+                          return assetItem._id !== deleteAsset._id;
                         });
                       });
 
